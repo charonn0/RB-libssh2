@@ -3,11 +3,10 @@ Protected Class Session
 	#tag Method, Flags = &h0
 		Sub Connect()
 		  If mSession = Nil Then Raise New RuntimeException
-		  Dim err As Integer
 		  Do
-		    err = libssh2_session_handshake(mSession, mSocket.Handle)
-		  Loop Until err <> LIBSSH2_ERROR_EAGAIN
-		  If err <> 0 Then Raise New RuntimeException
+		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  
 		End Sub
 	#tag EndMethod
@@ -37,7 +36,7 @@ Protected Class Session
 		  If mSession <> Nil Then
 		    Dim err As Integer = libssh2_session_free(mSession)
 		    mSession = Nil
-		    If err <> 0 Then Raise New RuntimeException
+		    If err <> 0 Then Raise New SSHException(err)
 		  End If
 		End Sub
 	#tag EndMethod
@@ -46,7 +45,7 @@ Protected Class Session
 		Sub Disconnect(Description As String, Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
 		  If mSession = Nil Then Return
 		  Dim err As Integer = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
-		  If err <> 0 Then Raise New RuntimeException
+		  If err <> 0 Then Raise New SSHException(err)
 		End Sub
 	#tag EndMethod
 
@@ -79,13 +78,23 @@ Protected Class Session
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function LastErrorMsg() As String
+		  If mSession = Nil Then Return ""
+		  Dim mb As New MemoryBlock(1024)
+		  Dim sz As Integer
+		  Call libssh2_session_last_error(mSession, mb, sz, mb.Size)
+		  Return mb.StringValue(0, sz)
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Listen()
 		  If mSession = Nil Then Raise New RuntimeException
-		  Dim err As Integer
 		  Do
-		    err = libssh2_session_handshake(mSession, mSocket.Handle)
-		  Loop Until err <> LIBSSH2_ERROR_EAGAIN
-		  If err <> 0 Then Raise New RuntimeException
+		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  
 		End Sub
 	#tag EndMethod
@@ -127,7 +136,7 @@ Protected Class Session
 	#tag Method, Flags = &h0
 		Sub SetLocalBanner(BannerText As String)
 		  Dim err As Integer = libssh2_session_banner_set(mSession, BannerText)
-		  If err <> 0 Then Raise New RuntimeException
+		  If err <> 0 Then Raise New SSHException(err)
 		End Sub
 	#tag EndMethod
 
@@ -207,6 +216,10 @@ Protected Class Session
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mLastError As Integer
 	#tag EndProperty
 
 	#tag Property, Flags = &h21

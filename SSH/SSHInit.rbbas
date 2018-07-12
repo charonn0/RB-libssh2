@@ -10,6 +10,7 @@ Private Class SSHInit
 		  Else
 		    err = libssh2_init(0)
 		  End If
+		  If err <> 0 Then Raise New SSHException(err)
 		End Sub
 	#tag EndMethod
 
@@ -20,7 +21,7 @@ Private Class SSHInit
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		 Shared Function Init() As SSHInit
+		 Shared Function GetInstance() As SSHInit
 		  Static instance As SSHInit
 		  If instance = Nil Then instance = New SSHInit
 		  Return instance

@@ -3,8 +3,8 @@ Protected Class Channel
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Close()
-		  Dim err As Integer = libssh2_channel_close(mChannel)
-		  If err <> 0 Then Raise New RuntimeException
+		  mLastError = libssh2_channel_close(mChannel)
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
@@ -27,8 +27,8 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mChannel <> Nil Then
-		    Dim err As Integer = libssh2_channel_free(mChannel)
-		    If err <> 0 Then Raise New RuntimeException
+		    mLastError = libssh2_channel_free(mChannel)
+		    If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  End If
 		  mChannel = Nil
 		End Sub
@@ -63,11 +63,10 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Flush(StreamID As Integer)
 		  // Part of the Writeable interface.
-		  Dim err As Integer
 		  Do
-		    err = libssh2_channel_flush_ex(mChannel, StreamID)
-		  Loop Until err <> LIBSSH2_ERROR_EAGAIN
-		  If err <> 0 Then Raise New RuntimeException
+		    mLastError = libssh2_channel_flush_ex(mChannel, StreamID)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  
 		End Sub
 	#tag EndMethod
@@ -77,7 +76,11 @@ Implements Readable,Writeable
 		  Dim typ As MemoryBlock = Type
 		  Dim msg As MemoryBlock = Message
 		  Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size, WindowSize, PacketSize, msg, msg.Size)
-		  If c = Nil Then Raise New RuntimeException
+		  If c = Nil Then
+		    Dim err As New RuntimeException
+		    err.ErrorNumber = Session.LastError
+		    Raise err
+		  End If
 		  Return New Channel(c)
 		End Function
 	#tag EndMethod
@@ -134,6 +137,10 @@ Implements Readable,Writeable
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mLastError As Integer
 	#tag EndProperty
 
 
