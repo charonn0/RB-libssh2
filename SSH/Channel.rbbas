@@ -42,14 +42,8 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Execute(Message As String) As Boolean
-		  Dim err As Integer
-		  Dim req As MemoryBlock = "exec"
-		  Dim msg As MemoryBlock = Message
-		  Do
-		    err = libssh2_channel_process_startup(mChannel, req, req.Size, msg, msg.Size)
-		  Loop Until err <> LIBSSH2_ERROR_EAGAIN
-		  Return err = 0
+		Function Execute(Command As String) As Boolean
+		  Return ProcessStart("exec", Command)
 		End Function
 	#tag EndMethod
 
