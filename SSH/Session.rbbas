@@ -144,7 +144,7 @@ Protected Class Session
 	#tag Method, Flags = &h0
 		Sub SetFlag(Flag As Integer, Value As Integer)
 		  Dim err As Integer = libssh2_session_flag(mSession, Flag, Value)
-		  If err <> 0 Then Raise New RuntimeException
+		  If err <> 0 Then Raise New SSHException(err)
 		End Sub
 	#tag EndMethod
 
