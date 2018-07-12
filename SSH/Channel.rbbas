@@ -9,10 +9,10 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Sub Constructor(ChannelPtr As Ptr)
+		Protected Sub Constructor(Session As SSH.Session, ChannelPtr As Ptr)
 		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
-		  
+		  mSession = Session
 		End Sub
 	#tag EndMethod
 
@@ -20,7 +20,7 @@ Implements Readable,Writeable
 		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
 		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteHost, RemotePort, LocalHost, LocalPort)
 		  If p = Nil Then Raise New RuntimeException
-		  Return New Channel(p)
+		  Return New Channel(Session, p)
 		End Function
 	#tag EndMethod
 
@@ -72,16 +72,37 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		 Shared Function Open(Session As SSH.Session) As SSH.Channel
+		  Return Open(Session, "session", LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, "")
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		 Shared Function Open(Session As SSH.Session, Type As String, WindowSize As UInt32, PacketSize As UInt32, Message As String) As SSH.Channel
-		  Dim typ As MemoryBlock = Type
+		  Dim typ As MemoryBlock = Type + Chr(0)
+		  Dim msg As MemoryBlock = Message + Chr(0)
+		  Do
+		    Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size - 1, WindowSize, PacketSize, msg, msg.Size - 1)
+		    If c = Nil Then
+		      Dim e As Integer = Session.LastError
+		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Dim err As New RuntimeException
+		      err.ErrorNumber = e
+		      Raise err
+		    End If
+		    Return New Channel(Session, c)
+		  Loop
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function ProcessStart(Request As String, Message As String) As Boolean
+		  Dim req As MemoryBlock = Request
 		  Dim msg As MemoryBlock = Message
-		  Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size, WindowSize, PacketSize, msg, msg.Size)
-		  If c = Nil Then
-		    Dim err As New RuntimeException
-		    err.ErrorNumber = Session.LastError
-		    Raise err
-		  End If
-		  Return New Channel(c)
+		  Do
+		    mLastError = libssh2_channel_process_startup(mChannel, req, req.Size, msg, msg.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -141,6 +162,10 @@ Implements Readable,Writeable
 
 	#tag Property, Flags = &h21
 		Private mLastError As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mSession As SSH.Session
 	#tag EndProperty
 
 
