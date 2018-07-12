@@ -21,6 +21,92 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function ErrorName(ErrorNumber As Integer) As String
+		  Select Case ErrorNumber
+		  Case 0
+		    Return "LIBSSH2_ERROR_NONE"
+		  Case -1
+		    Return "LIBSSH2_ERROR_SOCKET_NONE"
+		  Case -2
+		    Return "LIBSSH2_ERROR_BANNER_NONE"
+		  Case -3
+		    Return "LIBSSH2_ERROR_BANNER_SEND"
+		  Case -4
+		    Return "LIBSSH2_ERROR_INVALID_MAC"
+		  Case -5
+		    Return "LIBSSH2_ERROR_KEX_FAILURE"
+		  Case -6
+		    Return "LIBSSH2_ERROR_ALLOC"
+		  Case -7
+		    Return "LIBSSH2_ERROR_SOCKET_SEND"
+		  Case -8
+		    Return "LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE"
+		  Case -9
+		    Return "LIBSSH2_ERROR_TIMEOUT"
+		  Case -10
+		    Return "LIBSSH2_ERROR_HOSTKEY_INIT"
+		  Case -11
+		    Return "LIBSSH2_ERROR_HOSTKEY_SIGN"
+		  Case -12
+		    Return "LIBSSH2_ERROR_DECRYPT"
+		  Case -13
+		    Return "LIBSSH2_ERROR_SOCKET_DISCONNECT"
+		  Case -14
+		    Return "LIBSSH2_ERROR_PROTO"
+		  Case -15
+		    Return "LIBSSH2_ERROR_PASSWORD_EXPIRED"
+		  Case -16
+		    Return "LIBSSH2_ERROR_FILE"
+		  Case -17
+		    Return "LIBSSH2_ERROR_METHOD_NONE"
+		  Case -18
+		    Return "LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED"
+		  Case -19
+		    Return "LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED"
+		  Case -20
+		    Return "LIBSSH2_ERROR_CHANNEL_OUTOFORDER"
+		  Case -21
+		    Return "LIBSSH2_ERROR_CHANNEL_FAILURE"
+		  Case -22
+		    Return "LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED"
+		  Case -23
+		    Return "LIBSSH2_ERROR_CHANNEL_UNKNOWN"
+		  Case -24
+		    Return "LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED"
+		  Case -25
+		    Return "LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED"
+		  Case -26
+		    Return "LIBSSH2_ERROR_CHANNEL_CLOSED"
+		  Case -27
+		    Return "LIBSSH2_ERROR_CHANNEL_EOF_SENT"
+		  Case -28
+		    Return "LIBSSH2_ERROR_SCP_PROTOCOL"
+		  Case -29
+		    Return "LIBSSH2_ERROR_ZLIB"
+		  Case -30
+		    Return "LIBSSH2_ERROR_SOCKET_TIMEOUT"
+		  Case -31
+		    Return "LIBSSH2_ERROR_SFTP_PROTOCOL"
+		  Case -32
+		    Return "LIBSSH2_ERROR_REQUEST_DENIED"
+		  Case -33
+		    Return "LIBSSH2_ERROR_METHOD_NOT_SUPPORTED"
+		  Case -34
+		    Return "LIBSSH2_ERROR_INVAL"
+		  Case -35
+		    Return "LIBSSH2_ERROR_INVALID_POLL_TYPE"
+		  Case -36
+		    Return "LIBSSH2_ERROR_PUBLICKEY_PROTOCOL"
+		  Case -37
+		    Return "LIBSSH2_ERROR_EAGAIN"
+		  Else
+		    Return "Unknown error number."
+		    
+		  End Select
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
 		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_version", "libssh2") 
