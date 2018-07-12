@@ -21,6 +21,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_exec Lib "libssh2" (Session As Ptr, Command As CString) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_flush_ex Lib "libssh2" (Channel As Ptr, StreamID As Integer) As Integer
 	#tag EndExternalMethod
 
@@ -62,6 +66,54 @@ Protected Module SSH
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_init Lib "libssh2" (Flags As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_addc Lib "libssh2" (KnownHosts As Ptr, Host As CString, Salt As Ptr, Key As Ptr, KeyLength As Integer, Comment As Ptr, CommentLength As Integer, TypeMask As Integer, ByRef Store As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_check Lib "libssh2" (KnownHosts As Ptr, Host As CString, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_checkp Lib "libssh2" (KnownHosts As Ptr, Host As CString, Port As Integer, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_del Lib "libssh2" (KnownHosts As Ptr, Entry As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Sub libssh2_knownhost_free Lib "libssh2" (KnownHosts As Ptr)
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_get Lib "libssh2" (KnownHosts As Ptr, ByRef Store As Ptr, Prev As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_init Lib "libssh2" (Session As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_readfile Lib "libssh2" (KnownHosts As Ptr, Filename As CString, Type As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_readline Lib "libssh2" (KnownHosts As Ptr, Line As Ptr, LineLength As Integer, Type As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_writefile Lib "libssh2" (KnownHosts As Ptr, SaveTo As CString, Type As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_writeline Lib "libssh2" (KnownHosts As Ptr, Host As Ptr, Buffer As Ptr, BufferLength As Integer, ByRef LengthWritten As Integer, Type As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_publickey_init Lib "libssh2" (Session As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -145,6 +197,58 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_close_handle Lib "libssh2" (SFTP As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_fsync Lib "libssh2" (SFTP As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_init Lib "libssh2" (Session As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_last_error Lib "libssh2" (SFTP As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_open_ex Lib "libssh2" (SFTP As Ptr, Filename As Ptr, FilenameLength As UInt32, Flags As UInt32, Mode As Integer, Type As Integer) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_read Lib "libssh2" (SFTP As Ptr, Buffer As Ptr, BufferLength As Integer) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_rename_ex Lib "libssh2" (SFTP As Ptr, SourceName As Ptr, SourceLength As UInt32, DestinationName As Ptr, DestinationLength As UInt32, Flags As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_rmdir_ex Lib "libssh2" (SFTP As Ptr, Path As Ptr, PathLength As UInt32) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Sub libssh2_sftp_seek64 Lib "libssh2" (SFTP As Ptr, Offset As UInt64)
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_shutdown Lib "libssh2" (SFTP As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_tell64 Lib "libssh2" (SFTP As Ptr) As UInt64
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_write Lib "libssh2" (SFTP As Ptr, Buffer As Ptr, BufferLength As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_userauth_authenticated Lib "libssh2" (Session As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_userauth_keyboard_interactive_ex Lib "libssh2" (Session As Ptr, Username As Ptr, UsernameLength As UInt32, ResponseCallback As Ptr) As Integer
 	#tag EndExternalMethod
 
@@ -158,6 +262,10 @@ Protected Module SSH
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_userauth_publickey_fromfile_ex Lib "libssh2" (Session As Ptr, Username As Ptr, UsernameLength As UInt32, PublicKey As Ptr, PrivateKey As Ptr, Passphrase As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_version Lib "libssh2" (RequiredVersion As Integer) As Ptr
 	#tag EndExternalMethod
 
 
@@ -294,6 +402,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_OUTBOUND, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = MIMIMUM_VERSION, Type = Double, Dynamic = False, Default = \"&h02010100", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED, Type = Double, Dynamic = False, Default = \"8", Scope = Private
