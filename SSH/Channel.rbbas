@@ -104,8 +104,12 @@ Implements Readable,Writeable
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
 		  Dim buffer As New MemoryBlock(Count)
-		  If libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size) <> Count Then Raise New RuntimeException
-		  Return buffer
+		  Dim e As Integer
+		  Dim sz As Integer = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
+		  e = mSession.LastError
+		  If e <> 0 Then Raise New SSHException(e)
+		  buffer.Size = sz
+		  Return DefineEncoding(buffer, encoding)
 		End Function
 	#tag EndMethod
 
