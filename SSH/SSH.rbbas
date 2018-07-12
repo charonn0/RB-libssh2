@@ -3,7 +3,7 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
-		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_session_init", "libssh2")
+		  If Not avail Then avail = SSH.Version <> ""
 		  Return avail
 		End Function
 	#tag EndMethod
@@ -267,6 +267,15 @@ Protected Module SSH
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_version Lib "libssh2" (RequiredVersion As Integer) As Ptr
 	#tag EndExternalMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Version() As String
+		  If System.IsFunctionAvailable("libssh2_version", "libssh2") Then 
+		    Dim mb As MemoryBlock = libssh2_version(MIMIMUM_VERSION)
+		    If mb <> Nil Then Return mb.Ptr(0).CString(0)
+		  End If
+		End Function
+	#tag EndMethod
 
 
 	#tag Constant, Name = LIBSSH2_CHANNEL_FLUSH_ALL, Type = Double, Dynamic = False, Default = \"-2", Scope = Private
