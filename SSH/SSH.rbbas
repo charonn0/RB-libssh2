@@ -161,7 +161,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_session_init Lib "libssh2" () As Ptr
+		Private Soft Declare Function libssh2_session_init_ex Lib "libssh2" (MyAlloc As Ptr, MyFree As Ptr, MyRealloc As Ptr, Abstract As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
