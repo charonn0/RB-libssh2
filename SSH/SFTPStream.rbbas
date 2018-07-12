@@ -23,6 +23,7 @@ Implements Readable,Writeable
 		  End If
 		  If mStream = Nil Then Raise New SSHException(0)
 		  mSession = Session
+		  mDirectory = Directory
 		End Sub
 	#tag EndMethod
 
@@ -46,7 +47,7 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Flush()
 		  // Part of the Writeable interface.
-		  
+		  If mDirectory Then Raise New IOException
 		  Do
 		    mLastError = libssh2_sftp_fsync(mStream)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -61,9 +62,19 @@ Implements Readable,Writeable
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
 		  Dim buffer As New MemoryBlock(Count)
-		  Do
-		    mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If Not mDirectory Then  ' read a file
+		    Do
+		      mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		    
+		  Else ' read directory listing
+		    Dim longentry As New MemoryBlock(512)
+		    Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
+		    Do
+		      mLastError = libssh2_sftp_readdir_ex(mStream, buffer, buffer.Size, longentry, longentry.Size, attribs)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  End If
+		  
 		  If mLastError > 0 Then ' error is the size
 		    Return DefineEncoding(buffer.StringValue(0, mLastError), encoding)
 		  ElseIf mLastError = 0 Then
@@ -85,6 +96,7 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Write(text As String)
 		  // Part of the Writeable interface.
+		  If mDirectory Then Raise New IOException
 		  Dim mb As MemoryBlock = text
 		  Do
 		    mLastError = libssh2_sftp_write(mStream, mb, mb.Size)
@@ -101,6 +113,10 @@ Implements Readable,Writeable
 		End Function
 	#tag EndMethod
 
+
+	#tag Property, Flags = &h21
+		Private mDirectory As Boolean
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mEOF As Boolean
