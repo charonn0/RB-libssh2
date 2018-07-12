@@ -27,6 +27,20 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Get(FileName As String, WriteTo As Writeable) As Boolean
+		  Dim stream As SFTPStream = Me.Get(FileName)
+		  Do Until stream.EOF
+		    WriteTo.Write(stream.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
+		  Loop
+		  stream.Close
+		  Return True
+		  
+		Exception
+		  Return False
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Handle() As Ptr
 		  Return mSFTP
 		End Function
