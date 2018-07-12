@@ -50,11 +50,13 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Rename(SourceName As String, DestinationName As String, Flags As Integer)
+		Sub Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False)
 		  Dim sn As MemoryBlock = SourceName
 		  Dim dn As MemoryBlock = DestinationName
+		  Dim flag As Integer
+		  If Overwrite Then flag = LIBSSH2_SFTP_RENAME_OVERWRITE
 		  Do
-		    mLastError = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, Flags)
+		    mLastError = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, flag)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
@@ -94,6 +96,15 @@ Protected Class SFTPSession
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_FXF_WRITE, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_RENAME_ATOMIC, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_RENAME_NATIVE, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_RENAME_OVERWRITE, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Public
 	#tag EndConstant
 
 
