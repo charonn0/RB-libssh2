@@ -120,6 +120,34 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_connect Lib "libssh2" (Agent As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_disconnect Lib "libssh2" (Agent As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Sub libssh2_agent_free Lib "libssh2" (Agent As Ptr)
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_get_identity Lib "libssh2" (Agent As Ptr, ByRef Store As Ptr, Previous As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_init Lib "libssh2" (Session As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_list_identities Lib "libssh2" (Agent As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_userauth Lib "libssh2" (Agent As Ptr, Username As CString, Identity As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_close Lib "libssh2" (Channel As Ptr) As Integer
 	#tag EndExternalMethod
 
