@@ -5,6 +5,7 @@ Protected Class SFTPSession
 		  mInit = SSHInit.GetInstance()
 		  mSFTP = libssh2_sftp_init(Session.Handle)
 		  If mSFTP = Nil Then Raise New SSHException(Session.LastError)
+		  mSession = Session
 		End Sub
 	#tag EndMethod
 
@@ -66,6 +67,10 @@ Protected Class SFTPSession
 
 	#tag Property, Flags = &h21
 		Private mLastError As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mSession As SSH.Session
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
