@@ -1,6 +1,26 @@
 #tag Module
 Protected Module SSH
 	#tag Method, Flags = &h1
+		Protected Function CreateSession(Address As String, Port As Integer, Username As String, Password As String, KnownHostDir As FolderItem = Nil) As SSH.Session
+		  Dim sess As New SSH.Session()
+		  sess.Blocking = True
+		  
+		  Dim sock As New TCPSocket
+		  sock.Address = Address
+		  sock.Port = Port
+		  sock.Connect
+		  Do Until sock.IsConnected
+		    sock.Poll
+		  Loop Until sock.LastErrorCode <> 0
+		  If Not sock.IsConnected Then Return Nil
+		  
+		  sess.Connect(sock)
+		  sess.SetCredentials(Username, Password)
+		  Return sess
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
 		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_version", "libssh2") 
@@ -30,6 +50,10 @@ Protected Module SSH
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_free Lib "libssh2" (Channel As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_get_exit_status Lib "libssh2" (Channel As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -217,7 +241,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_sftp_read Lib "libssh2" (SFTP As Ptr, Buffer As Ptr, BufferLength As Integer) As Ptr
+		Private Soft Declare Function libssh2_sftp_read Lib "libssh2" (SFTP As Ptr, Buffer As Ptr, BufferLength As Integer) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21

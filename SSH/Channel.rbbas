@@ -3,6 +3,7 @@ Protected Class Channel
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Close()
+		  If mChannel = Nil Then Return
 		  mLastError = libssh2_channel_close(mChannel)
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
@@ -27,6 +28,7 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mChannel <> Nil Then
+		    Me.Close
 		    mLastError = libssh2_channel_free(mChannel)
 		    If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  End If
@@ -37,7 +39,19 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Function EOF() As Boolean
 		  // Part of the Readable interface.
-		  Return libssh2_channel_eof(mChannel) = 1
+		  Do
+		    mLastError = libssh2_channel_eof(mChannel)
+		    Select Case mLastError
+		    Case Is >= 0
+		      Return mLastError = 1
+		      
+		    Case LIBSSH2_ERROR_EAGAIN
+		      Continue
+		      
+		    Else
+		      Raise New SSHException(mLastError)
+		    End Select
+		  Loop
 		End Function
 	#tag EndMethod
 
@@ -149,6 +163,15 @@ Implements Readable,Writeable
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mChannel <> Nil Then Return libssh2_channel_get_exit_status(mChannel)
+			End Get
+		#tag EndGetter
+		ExitStatus As Integer
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mChannel As Ptr

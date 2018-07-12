@@ -11,11 +11,18 @@ Protected Class SFTPSession
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mSFTP <> Nil Then
-		    mLastError = libssh2_sftp_shutdown(mSFTP)
-		    If mLastError <> 0 Then Raise New SSHException(mLastError)
+		    Do
+		      mLastError = libssh2_sftp_shutdown(mSFTP)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  End If
 		  mSFTP = Nil
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Get(FileName As String) As SSH.SFTPStream
+		  Return New SFTPStream(Me, FileName, LIBSSH2_FXF_READ, 0)
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -34,7 +41,9 @@ Protected Class SFTPSession
 	#tag Method, Flags = &h0
 		Sub RemoveDirectory(DirectoryName As String)
 		  Dim dn As MemoryBlock = DirectoryName
-		  mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
+		  Do
+		    mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
@@ -43,8 +52,10 @@ Protected Class SFTPSession
 		Sub Rename(SourceName As String, DestinationName As String, Flags As Integer)
 		  Dim sn As MemoryBlock = SourceName
 		  Dim dn As MemoryBlock = DestinationName
-		  Dim err As Integer = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, Flags)
-		  If err <> 0 Then Raise New SSHException(err)
+		  Do
+		    mLastError = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, Flags)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
@@ -60,6 +71,25 @@ Protected Class SFTPSession
 	#tag Property, Flags = &h21
 		Private mSFTP As Ptr
 	#tag EndProperty
+
+
+	#tag Constant, Name = LIBSSH2_FXF_APPEND, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_CREAT, Type = Double, Dynamic = False, Default = \"&h00000008", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_EXCL, Type = Double, Dynamic = False, Default = \"&h00000020", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_READ, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_TRUNC, Type = Double, Dynamic = False, Default = \"&h00000010", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_WRITE, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Private
+	#tag EndConstant
 
 
 	#tag ViewBehavior

@@ -2,6 +2,17 @@
 Protected Class SFTPStream
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
+		Sub Close()
+		  If mStream <> Nil Then
+		    Do
+		      mLastError = libssh2_sftp_close_handle(mStream)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  End If
+		  mStream = Nil
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
 		  mInit = SSHInit.GetInstance()
 		  Dim fn As MemoryBlock = RemoteName
@@ -27,8 +38,7 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Function EOF() As Boolean
 		  // Part of the Readable interface.
-		  #pragma Warning "Untested."
-		  Return libssh2_channel_eof(mStream) = 1
+		  Return mEOF
 		End Function
 	#tag EndMethod
 
@@ -47,17 +57,19 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
-		  Dim buffer As New MemoryBlock(Count)
-		  Dim sz As Integer = libssh2_channel_read_ex(mStream, StreamID, buffer, buffer.Size)
-		  Return buffer.StringValue(0, sz)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Function Read(Count As Integer, encoding As TextEncoding = Nil) As String Implements Readable.Read
+		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
-		  Return Me.Read(Count, 0, encoding)
+		  Dim buffer As New MemoryBlock(Count)
+		  Do
+		    mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError > 0 Then ' error is the size
+		    Return DefineEncoding(buffer.StringValue(0, mLastError), encoding)
+		  ElseIf mLastError = 0 Then
+		    mEOF = True
+		  Else
+		    Raise New SSHException(mLastError)
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -88,6 +100,10 @@ Implements Readable,Writeable
 		End Function
 	#tag EndMethod
 
+
+	#tag Property, Flags = &h21
+		Private mEOF As Boolean
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit

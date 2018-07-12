@@ -1,8 +1,9 @@
 #tag Class
 Protected Class Session
 	#tag Method, Flags = &h0
-		Sub Connect()
+		Sub Connect(Socket As TCPSocket)
 		  If mSession = Nil Then Raise New RuntimeException
+		  mSocket = Socket
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -12,12 +13,10 @@ Protected Class Session
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Constructor(Socket As TCPSocket)
+		Sub Constructor()
 		  mInit = SSHInit.GetInstance()
 		  mSession = libssh2_session_init_ex(Nil, Nil, Nil, Nil)
 		  If mSession = Nil Then Raise New RuntimeException
-		  mSocket = Socket
-		  
 		End Sub
 	#tag EndMethod
 
@@ -77,6 +76,23 @@ Protected Class Session
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function HostKeyHash(Type As SSH.HashType) As MemoryBlock
+		  If mSession = Nil Then Return Nil
+		  Dim sz As Integer
+		  Select Case Type
+		  Case HashType.MD5
+		    sz = 16
+		  Case HashType.SHA1
+		    sz = 20
+		  Case HashType.SHA256
+		    sz = 32
+		  End Select
+		  Dim mb As MemoryBlock = libssh2_hostkey_hash(mSession, Type)
+		  If mb <> Nil Then Return mb.StringValue(0, sz)
+		End Function
+	#tag EndMethod
+
 	#tag DelegateDeclaration, Flags = &h21
 		Private Delegate Sub IgnoreCallback(Session As Ptr, Message As Ptr, MessageLength As Integer, Abstract As Ptr)
 	#tag EndDelegateDeclaration
@@ -100,8 +116,9 @@ Protected Class Session
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Listen()
+		Sub Listen(Socket As TCPSocket)
 		  If mSession = Nil Then Raise New RuntimeException
+		  mSocket = Socket
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -267,7 +284,8 @@ Protected Class Session
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return New SSH.KnownHosts(Me)
+			  If mKnownHosts = Nil Then mKnownHosts = New SSH.KnownHosts(Me)
+			  Return mKnownHosts
 			End Get
 		#tag EndGetter
 		KnownHosts As SSH.KnownHosts
@@ -275,6 +293,10 @@ Protected Class Session
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mKnownHosts As SSH.KnownHosts
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
