@@ -270,7 +270,7 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Version() As String
-		  If System.IsFunctionAvailable("libssh2_version", "libssh2") Then 
+		  If System.IsFunctionAvailable("libssh2_version", "libssh2") Then
 		    Dim mb As MemoryBlock = libssh2_version(MIMIMUM_VERSION)
 		    If mb <> Nil Then Return mb.Ptr(0).CString(0)
 		  End If
