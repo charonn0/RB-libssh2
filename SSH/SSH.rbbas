@@ -260,6 +260,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_session_abstract Lib "libssh2" (Session As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_session_banner_get Lib "libssh2" (Session As Ptr) As Ptr
 	#tag EndExternalMethod
 
@@ -416,7 +420,11 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_userauth_publickey_fromfile_ex Lib "libssh2" (Session As Ptr, Username As Ptr, UsernameLength As UInt32, PublicKey As Ptr, PrivateKey As Ptr, Passphrase As Ptr) As Integer
+		Private Soft Declare Function libssh2_userauth_publickey_fromfile_ex Lib "libssh2" (Session As Ptr, Username As CString, UsernameLength As UInt32, PublicKey As CString, PrivateKey As CString, Passphrase As CString) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_userauth_publickey_frommemory Lib "libssh2" (Session As Ptr, Username As CString, UsernameLength As Integer, PublicKey As Ptr, PublicKeyLength As Integer, PrivateKey As Ptr, PrivateKeyLength As Integer, Passphrase As CString) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
