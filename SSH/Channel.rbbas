@@ -56,6 +56,16 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub EOF(Assigns b As Boolean)
+		  If Not b Then Return
+		  Do
+		    mLastError = libssh2_channel_send_eof(mChannel)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Execute(Command As String) As Boolean
 		  Return ProcessStart("exec", Command)
 		End Function
@@ -139,6 +149,15 @@ Implements Readable,Writeable
 		  // Part of the Readable interface.
 		  Return False
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub SetEnvironmentVariable(Name As String, Value As String)
+		  Do
+		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
