@@ -54,6 +54,12 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function ListDirectory(DirectoryName As String) As SSH.SFTPStream
+		  Return New SFTPStream(Me, DirectoryName, 0, 0, True)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub MakeDirectory(DirectoryName As String, Mode As Integer = &o744)
 		  Dim dn As MemoryBlock = DirectoryName
 		  Do
