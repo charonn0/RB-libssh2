@@ -348,11 +348,19 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_get_channel Lib "libssh2" (SFTP As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_sftp_init Lib "libssh2" (Session As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_sftp_last_error Lib "libssh2" (SFTP As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_mkdir_ex Lib "libssh2" (SFTP As Ptr, DirectoryName As Ptr, DirectoryNameLength As UInt32, Mode As Integer) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -381,6 +389,10 @@ Protected Module SSH
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_sftp_tell64 Lib "libssh2" (SFTP As Ptr) As UInt64
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_unlink_ex Lib "libssh2" (SFTP As Ptr, FileName As Ptr, FileNameLength As UInt32) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21

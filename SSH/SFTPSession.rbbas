@@ -40,10 +40,43 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub MakeDirectory(DirectoryName As String, Mode As Integer = &o744)
+		  Dim dn As MemoryBlock = DirectoryName
+		  Do
+		    mLastError = libssh2_sftp_mkdir_ex(mSFTP, dn, dn.Size, Mode)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744)
+		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
+		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
+		  Dim sftp As New SFTPStream(Me, FileName, flags, Mode)
+		  
+		  Do Until Upload.EOF
+		    sftp.Write(Upload.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
+		  Loop
+		  sftp.Close
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub RemoveDirectory(DirectoryName As String)
 		  Dim dn As MemoryBlock = DirectoryName
 		  Do
 		    mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub RemoveFile(FileName As String)
+		  Dim fn As MemoryBlock = FileName
+		  Do
+		    mLastError = libssh2_sftp_unlink_ex(mSFTP, fn, fn.Size)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
