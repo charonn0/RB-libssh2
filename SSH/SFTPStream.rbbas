@@ -21,7 +21,8 @@ Implements Readable,Writeable
 		  Else
 		    mStream = libssh2_sftp_open_ex(Session.Handle, fn, fn.Size, Flags, Mode, LIBSSH2_SFTP_OPENDIR)
 		  End If
-		  If mStream = Nil Then Raise New SSHException(Session.LastError)
+		  If mStream = Nil Then Raise New SSHException(0)
+		  mSession = Session
 		End Sub
 	#tag EndMethod
 
@@ -111,6 +112,10 @@ Implements Readable,Writeable
 
 	#tag Property, Flags = &h21
 		Private mLastError As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mSession As SSH.SFTPSession
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
