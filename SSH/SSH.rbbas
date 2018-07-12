@@ -1,11 +1,36 @@
 #tag Module
 Protected Module SSH
 	#tag Method, Flags = &h1
+		Protected Function CreateSession(Address As String, Port As Integer, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String) As SSH.Session
+		  Dim sock As New TCPSocket
+		  sock.Address = Address
+		  sock.Port = Port
+		  Return CreateSession(sock, Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function CreateSession(Address As String, Port As Integer, Username As String, Password As String) As SSH.Session
 		  Dim sock As New TCPSocket
 		  sock.Address = Address
 		  sock.Port = Port
 		  Return CreateSession(sock, Username, Password)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function CreateSession(Socket As TCPSocket, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String) As SSH.Session
+		  Dim sess As New SSH.Session()
+		  sess.Blocking = True
+		  Socket.Connect()
+		  Do Until Socket.IsConnected
+		    Socket.Poll
+		  Loop Until Socket.LastErrorCode <> 0
+		  If Not Socket.IsConnected Then Return Nil
+		  
+		  sess.Connect(Socket)
+		  sess.SetCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		  Return sess
 		End Function
 	#tag EndMethod
 
