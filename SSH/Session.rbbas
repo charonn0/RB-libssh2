@@ -174,6 +174,27 @@ Protected Class Session
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub SetCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String)
+		  Dim pub, priv As MemoryBlock
+		  pub = PublicKey.AbsolutePath
+		  priv = PrivateKey.AbsolutePath
+		  Do
+		    mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, pub, priv, PrivateKeyPassword)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub SetCredentials(Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String)
+		  Do
+		    mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub SetCredentials(Username As String, Password As String)
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
@@ -200,6 +221,10 @@ Protected Class Session
 		Private Delegate Sub X11OpenCallback(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, Abstract As Ptr)
 	#tag EndDelegateDeclaration
 
+
+	#tag Hook, Flags = &h0
+		Event Authenticate(ByRef Signature As String, ByRef Data As String) As Boolean
+	#tag EndHook
 
 	#tag Hook, Flags = &h0
 		Event DebugMessage(AlwaysDisplay As Boolean, Message As String, Language As String)
