@@ -238,6 +238,24 @@ Protected Class Session
 		HostKeyType As Integer
 	#tag EndComputedProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return libssh2_userauth_authenticated(mSession) = 1
+			End Get
+		#tag EndGetter
+		IsAuthenticated As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return New SSH.KnownHosts(Me)
+			End Get
+		#tag EndGetter
+		KnownHosts As SSH.KnownHosts
+	#tag EndComputedProperty
+
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
 	#tag EndProperty
@@ -313,6 +331,11 @@ Protected Class Session
 			InheritedFrom="Object"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="IsAuthenticated"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Left"
 			Visible=true
 			Group="Position"
@@ -342,6 +365,11 @@ Protected Class Session
 			Group="Position"
 			InitialValue="0"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Verbose"
+			Group="Behavior"
+			Type="Boolean"
 		#tag EndViewProperty
 	#tag EndViewBehavior
 End Class
