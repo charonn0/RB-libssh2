@@ -114,7 +114,7 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
-		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_version", "libssh2") 
+		  If Not avail Then avail = (Version <> "")
 		  Return avail
 		End Function
 	#tag EndMethod
@@ -428,15 +428,12 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_version Lib "libssh2" (RequiredVersion As Integer) As Ptr
+		Private Soft Declare Function libssh2_version Lib "libssh2" (RequiredVersion As Integer) As CString
 	#tag EndExternalMethod
 
 	#tag Method, Flags = &h1
 		Protected Function Version() As String
-		  If System.IsFunctionAvailable("libssh2_version", "libssh2") Then
-		    Dim mb As MemoryBlock = libssh2_version(MIMIMUM_VERSION)
-		    If mb <> Nil Then Return mb.Ptr(0).CString(0)
-		  End If
+		  If System.IsFunctionAvailable("libssh2_version", "libssh2") Then Return libssh2_version(MIMIMUM_VERSION)
 		End Function
 	#tag EndMethod
 
@@ -447,13 +444,13 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA, Type = Double, Dynamic = False, Default = \"-1", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_CHANNEL_MINADJUST, Type = Double, Dynamic = False, Default = \"1024", Scope = Private
+	#tag Constant, Name = LIBSSH2_CHANNEL_MINADJUST, Type = Double, Dynamic = False, Default = \"1024", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_CHANNEL_PACKET_DEFAULT, Type = Double, Dynamic = False, Default = \"16384", Scope = Private
+	#tag Constant, Name = LIBSSH2_CHANNEL_PACKET_DEFAULT, Type = Double, Dynamic = False, Default = \"16384", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_CHANNEL_WINDOW_DEFAULT, Type = Double, Dynamic = False, Default = \"65536", Scope = Private
+	#tag Constant, Name = LIBSSH2_CHANNEL_WINDOW_DEFAULT, Type = Double, Dynamic = False, Default = \"65536", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_ALLOC, Type = Double, Dynamic = False, Default = \"-6", Scope = Private
@@ -576,7 +573,7 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_OUTBOUND, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = MIMIMUM_VERSION, Type = Double, Dynamic = False, Default = \"&h02010100", Scope = Private
+	#tag Constant, Name = MIMIMUM_VERSION, Type = Double, Dynamic = False, Default = \"&h00010700", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED, Type = Double, Dynamic = False, Default = \"8", Scope = Private
