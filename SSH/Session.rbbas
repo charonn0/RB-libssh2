@@ -13,8 +13,8 @@ Protected Class Session
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Socket As TCPSocket)
-		  mInit = SSHInit.Init()
 		  mSession = libssh2_session_init()
+		  mInit = SSHInit.GetInstance()
 		  If mSession = Nil Then Raise New RuntimeException
 		  mSocket = Socket
 		  

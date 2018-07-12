@@ -10,7 +10,7 @@ Implements Readable,Writeable
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(ChannelPtr As Ptr)
-		  mInit = SSHInit.Init()
+		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
 		  
 		End Sub
