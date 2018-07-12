@@ -335,6 +335,10 @@ Protected Class Session
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mUseCompression As Boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mVerbose As Boolean
 	#tag EndProperty
 
@@ -357,6 +361,25 @@ Protected Class Session
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  return mUseCompression
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value Then
+			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS , 1)
+			  Else
+			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS , 0)
+			  End If
+			  mUseCompression = value
+			End Set
+		#tag EndSetter
+		UseCompression As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  return mVerbose
 			End Get
 		#tag EndGetter
@@ -372,6 +395,13 @@ Protected Class Session
 		#tag EndSetter
 		Verbose As Boolean
 	#tag EndComputedProperty
+
+
+	#tag Constant, Name = LIBSSH2_FLAG_COMPRESS , Type = Double, Dynamic = False, Default = \"2", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FLAG_SIGPIPE, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
 
 
 	#tag ViewBehavior
