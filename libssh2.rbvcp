@@ -5,6 +5,7 @@ Class=App;App.rbbas;&h17B2CFFF;&h0;false
 BuildSteps=Build Automation;Build Automation.rbbas;&h61FFFFF;&h0;false
 Module=SSH;SSH/SSH.rbbas;&h514D3FFF;&h0;false
 Class=SFTPStream;SSH/SFTPStream.rbbas;&h225077FF;&h514D3FFF;false
+Class=SFTPSession;SSH/SFTPSession.rbbas;&h7912F7FF;&h514D3FFF;false
 Class=Channel;SSH/Channel.rbbas;&hDC537FF;&h514D3FFF;false
 Class=Session;SSH/Session.rbbas;&h81C0FFF;&h514D3FFF;false
 Class=SSHInit;SSH/SSHInit.rbbas;&h496F2FFF;&h514D3FFF;false
