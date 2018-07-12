@@ -138,6 +138,15 @@ Protected Class Session
 		  End Select
 		End Sub
 	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub SetCredentials(Username As String, Password As String)
+		  Dim u As MemoryBlock = Username
+		  Dim p As MemoryBlock = Password
+		  Do
+		    mLastError = libssh2_userauth_password_ex(mSession, u, u.Size, p, p.Size, AddressOf PasswordChangeReqCallback)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
