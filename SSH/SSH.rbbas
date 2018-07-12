@@ -217,6 +217,14 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_send_eof Lib "libssh2" (Channel As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_setenv_ex Lib "libssh2" (Channel As Ptr, VarName As CString, VarNameLength As UInt32, Value As CString, ValueLength As UInt32) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_write_ex Lib "libssh2" (Channel As Ptr, StreamID As Integer, Buffer As Ptr, BufferLength As Integer) As Integer
 	#tag EndExternalMethod
 
@@ -401,6 +409,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_readdir_ex Lib "libssh2" (SFTP As Ptr, Buffer As Ptr, BufferLength As Integer, LongEntry As Ptr, LongEntryLength As Integer, ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_sftp_rename_ex Lib "libssh2" (SFTP As Ptr, SourceName As Ptr, SourceLength As UInt32, DestinationName As Ptr, DestinationLength As UInt32, Flags As Integer) As Integer
 	#tag EndExternalMethod
 
@@ -455,6 +467,12 @@ Protected Module SSH
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_version Lib "libssh2" (RequiredVersion As Integer) As CString
 	#tag EndExternalMethod
+
+	#tag Method, Flags = &h1
+		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", WindowSize As UInt32 = LIBSSH2_CHANNEL_WINDOW_DEFAULT, PacketSize As UInt32 = LIBSSH2_CHANNEL_PACKET_DEFAULT, Message As String = "") As SSH.Channel
+		  Return Channel.Open(Session, Type, WindowSize, PacketSize, Message)
+		End Function
+	#tag EndMethod
 
 	#tag Method, Flags = &h1
 		Protected Function Version() As String
@@ -603,6 +621,17 @@ Protected Module SSH
 
 	#tag Constant, Name = SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED, Type = Double, Dynamic = False, Default = \"8", Scope = Private
 	#tag EndConstant
+
+
+	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21
+		Flags As UInt32
+		  FileSize As UInt64
+		  UID As UInt32
+		  GID As UInt32
+		  Perms As UInt32
+		  ATime As UInt32
+		MTime As UInt32
+	#tag EndStructure
 
 
 	#tag Enum, Name = CallbackType, Type = Integer, Flags = &h21
