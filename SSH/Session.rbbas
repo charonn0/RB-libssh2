@@ -54,6 +54,17 @@ Protected Class Session
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h0
+		Function GetAuthenticationMethods(Username As String) As String()
+		  Dim mb As MemoryBlock = Username
+		  Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
+		  If lst <> Nil Then
+		    mb = lst
+		    Return Split(mb.CString(0), ",")
+		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function GetRemoteBanner() As String
 		  Dim mb As MemoryBlock = libssh2_session_banner_get(mSession)
 		  If mb <> Nil Then Return mb.CString(0)
@@ -102,6 +113,12 @@ Protected Class Session
 	#tag DelegateDeclaration, Flags = &h21
 		Private Delegate Function MACErrorCallback(Session As Ptr, Packet As Ptr, PacketLength As Integer, Abstract As Ptr) As Integer
 	#tag EndDelegateDeclaration
+
+	#tag Method, Flags = &h21
+		Private Shared Sub PasswordChangeReqCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, Abstract As Ptr)
+		  
+		End Sub
+	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
 		Private Delegate Sub PasswordChangeRequestCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, Abstract As Ptr)
