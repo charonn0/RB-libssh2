@@ -109,20 +109,35 @@ Protected Class Session
 
 	#tag Method, Flags = &h21
 		Private Sub SetCallback(Type As CallbackType, Handler As Variant)
-		  If (Type = CallbackType.Ignore And Handler IsA IgnoreCallback) Or _
-		    (Type = CallbackType.Debug And Handler IsA DebugCallback) Or _
-		    (Type = CallbackType.Disconnect And Handler IsA DisconnectCallback) Or _
-		    (Type = CallbackType.MACError And Handler IsA MACErrorCallback) Or _
-		    (Type = CallbackType.X11 And Handler IsA X11OpenCallback) Then
+		  Select Case True
+		  Case Type = CallbackType.Ignore And Handler IsA IgnoreCallback
+		    Dim d As IgnoreCallback = Handler
+		    Call libssh2_session_callback_set(mSession, Type, d)
 		    
-		    Call libssh2_session_callback_set(mSession, Type, Handler.PtrValue)
+		  Case Type = CallbackType.Debug And Handler IsA DebugCallback
+		    Dim d As DebugCallback = Handler
+		    Call libssh2_session_callback_set(mSession, Type, d)
 		    
-		  ElseIf Handler Is Nil Then
+		  Case Type = CallbackType.Disconnect And Handler IsA DisconnectCallback
+		    Dim d As DisconnectCallback = Handler
+		    Call libssh2_session_callback_set(mSession, Type, d)
+		    
+		  Case Type = CallbackType.MACError And Handler IsA MACErrorCallback
+		    Dim d As MACErrorCallback = Handler
+		    Call libssh2_session_callback_set(mSession, Type, d)
+		    
+		  Case Type = CallbackType.X11 And Handler IsA X11OpenCallback
+		    Dim d As X11OpenCallback = Handler
+		    Call libssh2_session_callback_set(mSession, Type, d)
+		    
+		  Case Handler Is Nil
 		    Call libssh2_session_callback_set(mSession, Type, Nil)
 		    
 		  Else
 		    Raise New RuntimeException
-		  End If
+		  End Select
+		End Sub
+	#tag EndMethod
 		End Sub
 	#tag EndMethod
 
