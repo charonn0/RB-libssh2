@@ -3,7 +3,7 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
-		  If Not avail Then avail = SSH.Version <> ""
+		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_version", "libssh2") 
 		  Return avail
 		End Function
 	#tag EndMethod
