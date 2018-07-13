@@ -252,12 +252,6 @@ Implements ChannelParent
 		Private Delegate Sub PasswordChangeRequestCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, Abstract As Integer)
 	#tag EndDelegateDeclaration
 
-	#tag Method, Flags = &h0
-		Sub Poll()
-		  If mSocket <> Nil And mSocket.IsConnected Then mSocket.Poll()
-		End Sub
-	#tag EndMethod
-
 	#tag Method, Flags = &h21
 		Private Sub RegisterChannel(Chan As SSH.Channel)
 		  mChannels = New Dictionary
