@@ -189,6 +189,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_request_pty_ex Lib "libssh2" (Channel As Ptr, Terminal As CString, TerminalLength As Integer, Modes As Ptr, ModesLength As Integer, Width As Integer, Height As Integer, PixHeight As Integer, PixWidth As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_send_eof Lib "libssh2" (Channel As Ptr) As Integer
 	#tag EndExternalMethod
 
@@ -468,6 +472,9 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+
+	#tag Constant, Name = ERR_INIT_FAILED, Type = Double, Dynamic = False, Default = \"-500", Scope = Public
+	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_CHANNEL_FLUSH_ALL, Type = Double, Dynamic = False, Default = \"-2", Scope = Private
 	#tag EndConstant
