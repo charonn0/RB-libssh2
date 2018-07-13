@@ -4,18 +4,20 @@ Protected Class KnownHosts
 		Sub AddHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Salt As MemoryBlock, Comment As MemoryBlock, Type As Integer)
 		  If Salt = Nil And Port > 0 Then Host = "[" + Host + "]:" + Str(Port, "####0")
 		  Dim tmp As Ptr
+		  If Type = 0 Then Type = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
+		  If Comment = Nil Then Comment = ""
 		  If Salt <> Nil Then
-		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Salt, Key, Key.Size, Comment, Comment.Size, LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW, tmp)
+		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Salt, Key, Key.Size, Comment, Comment.Size, Type, tmp)
 		  Else
-		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW, tmp)
+		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, Type, tmp)
 		  End If
-		  If mLastError <> 0 Then Raise New RuntimeException
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function Check(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
-		  Return Me.GetEntry(Host, Port, Key, LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW) <> Nil
+		  Return Me.GetEntry(Host, Port, Key, Type) <> Nil
 		End Function
 	#tag EndMethod
 
