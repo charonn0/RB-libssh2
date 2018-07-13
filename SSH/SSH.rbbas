@@ -305,7 +305,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_session_callback_set Lib "libssh2" (Session As Ptr, Type As CallbackType, Callback As Ptr) As Ptr
+		Private Soft Declare Function libssh2_session_callback_set Lib "libssh2" (Session As Ptr, Type As Integer, Callback As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -337,7 +337,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_session_init_ex Lib "libssh2" (MyAlloc As Ptr, MyFree As Ptr, MyRealloc As Ptr, Abstract As Ptr) As Ptr
+		Private Soft Declare Function libssh2_session_init_ex Lib "libssh2" (MyAlloc As Ptr, MyFree As Ptr, MyRealloc As Ptr, Abstract As Integer) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -632,14 +632,6 @@ Protected Module SSH
 		MTime As UInt32
 	#tag EndStructure
 
-
-	#tag Enum, Name = CallbackType, Type = Integer, Flags = &h21
-		Ignore=0
-		  Debug=1
-		  Disconnect=2
-		  MACError=3
-		X11=4
-	#tag EndEnum
 
 	#tag Enum, Name = DisconnectReason, Type = Integer, Flags = &h1
 		HostNotAllowed=1
