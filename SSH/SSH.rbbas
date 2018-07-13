@@ -301,6 +301,14 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_scp_recv2 Lib "libssh2" (Session As Ptr, Path As CString, stat As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_scp_send_ex Lib "libssh2" (Session As Ptr, Path As CString, Mode As Integer, StreamLength As UInt32, mTime As Integer, aTime As Integer) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_session_abstract Lib "libssh2" (Session As Ptr) As Ptr
 	#tag EndExternalMethod
 

@@ -152,6 +152,36 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		 Shared Function SCPGet(Session As SSH.Session, Path As String) As SSH.Channel
+		  Dim c As Ptr
+		  Do
+		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
+		    If c = Nil Then
+		      Dim e As Integer = Session.LastError
+		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Raise New SSHException(e)
+		    End If
+		  Loop Until c <> Nil
+		  Return New Channel(Session, c)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		 Shared Function SCPPut(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
+		  Dim c As Ptr
+		  Do
+		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    If c = Nil Then
+		      Dim e As Integer = Session.LastError
+		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Raise New SSHException(e)
+		    End If
+		  Loop Until c <> Nil
+		  Return New Channel(Session, c)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub SetEnvironmentVariable(Name As String, Value As String)
 		  Do
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)

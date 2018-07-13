@@ -4,7 +4,6 @@ MinIDEVersion=20070100
 Class=App;App.rbbas;&h17B2CFFF;&h0;false
 BuildSteps=Build Automation;Build Automation.rbbas;&h61FFFFF;&h0;false
 Module=SSH;SSH/SSH.rbbas;&h514D3FFF;&h0;false
-Class=SCPSession;SSH/SCPSession.rbbas;&h765D7FF;&h514D3FFF;false
 Class=Agent;SSH/Agent.rbbas;&h10C87FFF;&h514D3FFF;false
 Class=SSHException;SSH/SSHException.rbbas;&h35F0FFFF;&h514D3FFF;false
 Class=SFTPStream;SSH/SFTPStream.rbbas;&h225077FF;&h514D3FFF;false
