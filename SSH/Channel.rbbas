@@ -82,7 +82,6 @@ Implements Readable,Writeable
 
 	#tag Method, Flags = &h0
 		Sub Flush(StreamID As Integer)
-		  // Part of the Writeable interface.
 		  Do
 		    mLastError = libssh2_channel_flush_ex(mChannel, StreamID)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -106,9 +105,7 @@ Implements Readable,Writeable
 		    If c = Nil Then
 		      Dim e As Integer = Session.LastError
 		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Dim err As New RuntimeException
-		      err.ErrorNumber = e
-		      Raise err
+		      If e <> 0 Then Raise New SSHException(e)
 		    End If
 		    Return New Channel(Session, c)
 		  Loop
@@ -128,7 +125,6 @@ Implements Readable,Writeable
 
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
-		  // Part of the Readable interface.
 		  Dim buffer As New MemoryBlock(Count)
 		  Dim e As Integer
 		  Dim sz As Integer = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
@@ -228,7 +224,6 @@ Implements Readable,Writeable
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
-		  // Part of the Writeable interface.
 		  Dim buffer As MemoryBlock = text
 		  If libssh2_channel_write_ex(mChannel, StreamID, buffer, buffer.Size) <> buffer.Size Then Raise New RuntimeException
 		End Sub
@@ -261,6 +256,10 @@ Implements Readable,Writeable
 
 	#tag Property, Flags = &h21
 		Private mLastError As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mOpen As Boolean
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
