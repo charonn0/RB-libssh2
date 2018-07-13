@@ -99,6 +99,12 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Handle() As Ptr
+		  Return mChannel
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		 Shared Function Open(Session As SSH.Session) As SSH.Channel
 		  Return Open(Session, "session", LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, "")
 		End Function
@@ -211,6 +217,12 @@ Implements Readable,Writeable
 		    End If
 		  Loop Until c <> Nil
 		  Return New Channel(Session, c)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Session() As SSH.Session
+		  Return mSession
 		End Function
 	#tag EndMethod
 
