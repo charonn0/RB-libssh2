@@ -152,6 +152,33 @@ Implements Readable,Writeable
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub RequestShell()
+		  Call Me.ProcessStart("shell", "")
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub RequestTerminal(Terminal As String, Width As Integer, Height As Integer, Modes As MemoryBlock, PixelDimensions As Boolean = False)
+		  Dim pw, ph, cw, ch As Integer
+		  If PixelDimensions Then
+		    pw = Width
+		    ph = Height
+		  Else
+		    cw = Width
+		    ch = Height
+		  End If
+		  Do
+		    If Modes <> Nil Then
+		      mLastError = libssh2_channel_request_pty_ex(mChannel, Terminal, Terminal.Len, Modes, Modes.Size, cw, ch, pw, ph)
+		    Else
+		      mLastError = libssh2_channel_request_pty_ex(mChannel, Terminal, Terminal.Len, Nil, 0, cw, ch, pw, ph)
+		    End If
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		 Shared Function SCPGet(Session As SSH.Session, Path As String) As SSH.Channel
 		  Dim c As Ptr
 		  Do
