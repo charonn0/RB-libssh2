@@ -70,16 +70,26 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744)
+		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
 		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
 		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
-		  Dim sftp As New SFTPStream(Me, FileName, flags, Mode)
+		  Return New SFTPStream(Me, FileName, flags, Mode)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744) As Boolean
+		  Dim sftp As SFTPStream = Me.Put(FileName, Overwrite, Mode)
 		  
 		  Do Until Upload.EOF
 		    sftp.Write(Upload.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
 		  Loop
 		  sftp.Close
-		End Sub
+		  Return True
+		  
+		Exception
+		  Return False
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
