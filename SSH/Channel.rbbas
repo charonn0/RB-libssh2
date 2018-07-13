@@ -126,11 +126,11 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  Dim buffer As New MemoryBlock(Count)
-		  Dim e As Integer
-		  Dim sz As Integer = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
-		  e = mSession.LastError
-		  If e <> 0 Then Raise New SSHException(e)
-		  buffer.Size = sz
+		  Do
+		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError < 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> buffer.Size Then buffer.Size = mLastError
 		  Return DefineEncoding(buffer, encoding)
 		End Function
 	#tag EndMethod
@@ -225,7 +225,11 @@ Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
 		  Dim buffer As MemoryBlock = text
-		  If libssh2_channel_write_ex(mChannel, StreamID, buffer, buffer.Size) <> buffer.Size Then Raise New RuntimeException
+		  Do
+		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, buffer, buffer.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError < 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> buffer.Size Then Raise New IOException
 		End Sub
 	#tag EndMethod
 
