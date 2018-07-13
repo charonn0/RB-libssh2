@@ -3,8 +3,9 @@ Protected Class Channel
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Close()
-		  If mChannel = Nil Then Return
+		  If mChannel = Nil Or Not mOpen Then Return
 		  mLastError = libssh2_channel_close(mChannel)
+		  mOpen = False
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
@@ -14,6 +15,7 @@ Implements Readable,Writeable
 		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
 		  mSession = Session
+		  mOpen = True
 		End Sub
 	#tag EndMethod
 
