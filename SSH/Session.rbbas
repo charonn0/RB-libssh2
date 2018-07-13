@@ -369,26 +369,12 @@ Protected Class Session
 		KeepAlivePeriod As Integer
 	#tag EndComputedProperty
 
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  If mKnownHosts = Nil Then mKnownHosts = New SSH.KnownHosts(Me)
-			  Return mKnownHosts
-			End Get
-		#tag EndGetter
-		KnownHosts As SSH.KnownHosts
-	#tag EndComputedProperty
-
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mKeepAlivePeriod As Integer
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mKnownHosts As SSH.KnownHosts
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
