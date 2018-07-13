@@ -1,15 +1,53 @@
 #tag Class
 Protected Class Session
 	#tag Method, Flags = &h0
-		Sub Connect(Socket As TCPSocket)
-		  If mSession = Nil Then Raise New RuntimeException
-		  mSocket = Socket
+		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Integer
+		  mSocket = New TCPSocket
+		  mSocket.Address = Address
+		  mSocket.Port = Port
+		  mSocket.Connect()
+		  
+		  Do Until mSocket.IsConnected
+		    mSocket.Poll
+		  Loop Until mSocket.LastErrorCode <> 0
+		  If Not mSocket.IsConnected Then
+		    Select Case mSocket.LastErrorCode
+		    Case 102
+		      Return ERR_CONNECTION_REFUSED
+		    Case 103
+		      Return ERR_RESOLVE
+		    Case 105
+		      Return ERR_PORT_IN_USE
+		    Case 106
+		      Return ERR_ILLEGAL_OPERATION
+		    Case 107
+		      Return ERR_INVALID_PORT
+		    Else
+		      Return ERR_SOCKET
+		    End Select
+		  End If
+		  
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then 
+		    mSocket.Close
+		    Return mLastError
+		  End If
 		  
-		End Sub
+		  If Hosts <> Nil And Hosts.Exists Then
+		    Dim kh As New SSH.KnownHosts(Me)
+		    Call kh.Load(Hosts)
+		    If Not kh.Check(mSocket.RemoteAddress, 22, Me.HostKey, Me.HostKeyType) Then 
+		      If Not AddHost Then 
+		        mSocket.Close
+		        Return ERR_UNKNOWN_HOST
+		      End If
+		      kh.AddHost(Address, Port, Me.HostKey, Nil, Nil, Me.HostKeyType)
+		      kh.Save(Hosts)
+		    End If
+		  End If
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
