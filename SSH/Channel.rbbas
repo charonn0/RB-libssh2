@@ -24,6 +24,7 @@ Implements Readable,Writeable
 		  mChannel = ChannelPtr
 		  mSession = Session
 		  mOpen = True
+		  ChannelParent(Session).RegisterChannel(Me)
 		End Sub
 	#tag EndMethod
 
@@ -42,6 +43,7 @@ Implements Readable,Writeable
 		    mLastError = libssh2_channel_free(mChannel)
 		    If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  End If
+		  ChannelParent(Me.Session).UnregisterChannel(Me)
 		  mChannel = Nil
 		End Sub
 	#tag EndMethod
