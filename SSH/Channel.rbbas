@@ -2,9 +2,17 @@
 Protected Class Channel
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
-		Sub Close()
+		Sub Close(Wait As Boolean = True)
 		  If mChannel = Nil Or Not mOpen Then Return
-		  mLastError = libssh2_channel_close(mChannel)
+		  Do
+		    mLastError = libssh2_channel_close(mChannel)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If Wait Then
+		    Do
+		      mLastError = libssh2_channel_wait_closed(mChannel)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  End If
+		  
 		  mOpen = False
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub

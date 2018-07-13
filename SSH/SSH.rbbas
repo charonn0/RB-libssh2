@@ -201,6 +201,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_wait_closed Lib "libssh2" (Channel As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_write_ex Lib "libssh2" (Channel As Ptr, StreamID As Integer, Buffer As Ptr, BufferLength As Integer) As Integer
 	#tag EndExternalMethod
 
