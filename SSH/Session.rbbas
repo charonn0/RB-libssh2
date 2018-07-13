@@ -391,7 +391,9 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h21
 		Private Sub UnregisterChannel(Chan As SSH.Channel)
-		  
+		  mChannels = New Dictionary
+		  If mChannels.HasKey(Chan.Handle) Then mChannels.Remove(Chan.Handle)
+		  If mChannels.Count = 0 Then mChannels = Nil
 		End Sub
 	#tag EndMethod
 
