@@ -2,16 +2,12 @@
 Protected Class Channel
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
-		Sub Close(Wait As Boolean = True)
+		Sub Close()
 		  If mChannel = Nil Or Not mOpen Then Return
+		  
 		  Do
 		    mLastError = libssh2_channel_close(mChannel)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If Wait Then
-		    Do
-		      mLastError = libssh2_channel_wait_closed(mChannel)
-		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  End If
 		  
 		  mOpen = False
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
@@ -232,6 +228,16 @@ Implements Readable,Writeable
 		Sub SetEnvironmentVariable(Name As String, Value As String)
 		  Do
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub WaitClose()
+		  If mChannel = Nil Or Not mOpen Then Return
+		  Do
+		    mLastError = libssh2_channel_wait_closed(mChannel)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
