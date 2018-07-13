@@ -75,6 +75,7 @@ Protected Class Session
 		    mSession = Nil
 		    If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  End If
+		  If mSocket <> Nil Then mSocket.Close
 		End Sub
 	#tag EndMethod
 
