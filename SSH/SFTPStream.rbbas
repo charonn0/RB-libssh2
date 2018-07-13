@@ -3,12 +3,12 @@ Protected Class SFTPStream
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Close()
-		  If mStream <> Nil Or Not mOpen Then
+		  If mStream <> Nil Then
 		    Do
 		      mLastError = libssh2_sftp_close_handle(mStream)
 		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  End If
-		  mOpen = False
+		  mStream = Nil
 		End Sub
 	#tag EndMethod
 
@@ -24,17 +24,12 @@ Implements Readable,Writeable
 		  If mStream = Nil Then Raise New SSHException(0)
 		  mSession = Session
 		  mDirectory = Directory
-		  mOpen = True
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  Me.Close()
-		  If mStream <> Nil Then
-		    mLastError = libssh2_sftp_shutdown(mStream)
-		    If mLastError <> 0 Then Raise New SSHException(mLastError)
-		  End If
 		  mStream = Nil
 		End Sub
 	#tag EndMethod
@@ -130,10 +125,6 @@ Implements Readable,Writeable
 
 	#tag Property, Flags = &h21
 		Private mLastError As Integer
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
-		Private mOpen As Boolean
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
