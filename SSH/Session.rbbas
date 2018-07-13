@@ -71,9 +71,9 @@ Protected Class Session
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mSession <> Nil Then
-		    Dim err As Integer = libssh2_session_free(mSession)
+		    mLastError = libssh2_session_free(mSession)
 		    mSession = Nil
-		    If err <> 0 Then Raise New SSHException(err)
+		    If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  End If
 		End Sub
 	#tag EndMethod
