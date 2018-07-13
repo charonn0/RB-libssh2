@@ -98,6 +98,14 @@ Protected Class Session
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h0
+		Function KeepAlive() As Integer
+		  Dim nxt As Integer
+		  mLastError = libssh2_keepalive_send(mSession, nxt)
+		  If mLastError = 0 Then Return nxt
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function LastError() As Integer
 		  If mSession = Nil Then Return 0
 		  Return libssh2_session_last_errno(mSession)
@@ -307,6 +315,25 @@ Protected Class Session
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  return mKeepAlivePeriod
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value > 0 Then
+			    libssh2_keepalive_config(mSession, 1, value)
+			  Else
+			    libssh2_keepalive_config(mSession, 0, value)
+			  End If
+			  mKeepAlivePeriod = value
+			End Set
+		#tag EndSetter
+		KeepAlivePeriod As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  If mKnownHosts = Nil Then mKnownHosts = New SSH.KnownHosts(Me)
 			  Return mKnownHosts
 			End Get
@@ -316,6 +343,10 @@ Protected Class Session
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mKeepAlivePeriod As Integer
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
