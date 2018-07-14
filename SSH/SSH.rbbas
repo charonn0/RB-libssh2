@@ -1,7 +1,7 @@
 #tag Module
 Protected Module SSH
 	#tag Method, Flags = &h1
-		Protected Function CreateSession(Address As String, Port As Integer, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
 		  Dim err As Integer = sess.Connect(Address, Port, KnownHostList, AddHost)
@@ -12,7 +12,18 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function CreateSession(Address As String, Port As Integer, Username As String, Password As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		  Dim sess As New SSH.Session()
+		  sess.Blocking = True
+		  Dim err As Integer = sess.Connect(Address, Port, KnownHostList, AddHost)
+		  If err <> 0 Then Raise New SSHException(err)
+		  sess.SetCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
+		  Return sess
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Connect(Address As String, Port As Integer, Username As String, Password As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
 		  Dim err As Integer = sess.Connect(Address, Port, KnownHostList, AddHost)
