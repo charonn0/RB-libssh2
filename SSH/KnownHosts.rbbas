@@ -1,11 +1,24 @@
 #tag Class
 Protected Class KnownHosts
 	#tag Method, Flags = &h0
+		Sub AddHost(ActiveSession As SSH.Session, Comment As String = "", Salt As MemoryBlock = Nil)
+		  Dim fingerprint As MemoryBlock = ActiveSession.HostKey
+		  Dim type As Integer
+		  If ActiveSession.HostKeyType = LIBSSH2_HOSTKEY_TYPE_RSA Then
+		    type = LIBSSH2_KNOWNHOST_KEY_SSHRSA
+		  Else
+		    type = LIBSSH2_KNOWNHOST_KEY_SSHDSS
+		  End If
+		  AddHost(ActiveSession.RemoteHost, ActiveSession.RemotePort, fingerprint, Salt, Comment, type)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub AddHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Salt As MemoryBlock, Comment As MemoryBlock, Type As Integer)
-		  If Salt = Nil And Port > 0 Then Host = "[" + Host + "]:" + Str(Port, "####0")
+		  If Salt = Nil And Port > 0 And Port <> 22 Then Host = "[" + Host + "]:" + Str(Port, "####0")
 		  Dim tmp As Ptr
-		  If Type = 0 Then Type = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
-		  If Comment = Nil Then Comment = ""
+		  Type = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
+		  If Comment = Nil Then Comment = Chr(0)
 		  If Salt <> Nil Then
 		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Salt, Key, Key.Size, Comment, Comment.Size, Type, tmp)
 		  Else
@@ -26,6 +39,7 @@ Protected Class KnownHosts
 		  mInit = SSHInit.GetInstance()
 		  mKnownHosts = libssh2_knownhost_init(Session.Handle)
 		  If mKnownHosts = Nil Then Raise New RuntimeException
+		  mSession = Session
 		End Sub
 	#tag EndMethod
 
@@ -160,6 +174,19 @@ Protected Class KnownHosts
 		Private mLastError As Integer
 	#tag EndProperty
 
+	#tag Property, Flags = &h21
+		Private mSession As SSH.Session
+	#tag EndProperty
+
+
+	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_DSS, Type = Double, Dynamic = False, Default = \"2", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_RSA, Type = Double, Dynamic = False, Default = \"1", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_UNKNOWN, Type = Double, Dynamic = False, Default = \"0", Scope = Public
+	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_KNOWNHOST_FILE_OPENSSH, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
@@ -173,7 +200,25 @@ Protected Class KnownHosts
 	#tag Constant, Name = LIBSSH2_KNOWNHOST_KEYENC_RAW, Type = Double, Dynamic = False, Default = \"&h00010000", Scope = Public
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_KNOWNHOST_KEY_MASK, Type = Double, Dynamic = False, Default = \"&h000C0000", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_KNOWNHOST_KEY_RSA1, Type = Double, Dynamic = False, Default = \"&h00040000", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_KNOWNHOST_KEY_SHIFT, Type = Double, Dynamic = False, Default = \"&h00000012", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_KNOWNHOST_KEY_SSHDSS, Type = Double, Dynamic = False, Default = \"&h000C0000", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_KNOWNHOST_KEY_SSHRSA, Type = Double, Dynamic = False, Default = \"&h00080000", Scope = Public
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_KNOWNHOST_TYPE_PLAIN, Type = Double, Dynamic = False, Default = \"1", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_KNOWNHOST_TYPE_SHA1, Type = Double, Dynamic = False, Default = \"2", Scope = Public
 	#tag EndConstant
 
 
