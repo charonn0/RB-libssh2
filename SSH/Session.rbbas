@@ -211,9 +211,9 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Function LookupChannel(Ref As Ptr) As SSH.Channel
+		Private Function LookupChannel(Ref As Ptr) As Channel
 		  Dim w As WeakRef = mChannels.Lookup(Ref, Nil)
-		  If w <> Nil And w.Value <> Nil And w.Value IsA SSH.Channel Then Return SSH.Channel(w.Value)
+		  If w <> Nil And w.Value <> Nil And w.Value IsA Channel Then Return Channel(w.Value)
 		End Function
 	#tag EndMethod
 
@@ -253,7 +253,7 @@ Implements ChannelParent
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h21
-		Private Sub RegisterChannel(Chan As SSH.Channel)
+		Private Sub RegisterChannel(Chan As Channel)
 		  mChannels = New Dictionary
 		  If Chan.Session <> Me Then Raise New RuntimeException
 		  mChannels.Value(Chan.Handle) = New WeakRef(Chan)
@@ -302,7 +302,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h21
 		Private Sub Sess_X11Open(Channel As Ptr, Host As MemoryBlock, Port As Integer)
-		  Dim ch As SSH.Channel = Me.LookupChannel(Channel)
+		  Dim ch As Channel = Me.LookupChannel(Channel)
 		  If ch <> Nil Then RaiseEvent X11Open(ch, Host.CString(0), Port)
 		End Sub
 	#tag EndMethod
@@ -384,7 +384,7 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Sub UnregisterChannel(Chan As SSH.Channel)
+		Private Sub UnregisterChannel(Chan As Channel)
 		  mChannels = New Dictionary
 		  If mChannels.HasKey(Chan.Handle) Then mChannels.Remove(Chan.Handle)
 		  If mChannels.Count = 0 Then mChannels = Nil
@@ -427,7 +427,7 @@ Implements ChannelParent
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
-		Event X11Open(Channel As SSH.Channel, Host As String, Port As Integer)
+		Event X11Open(Channel As Channel, Host As String, Port As Integer)
 	#tag EndHook
 
 

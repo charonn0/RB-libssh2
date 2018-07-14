@@ -21,14 +21,14 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Get(FileName As String) As SSH.SFTPStream
+		Function Get(FileName As String) As SSH.SSHStream
 		  Return New SFTPStream(Me, FileName, LIBSSH2_FXF_READ, 0)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function Get(FileName As String, WriteTo As Writeable) As Boolean
-		  Dim stream As SFTPStream = Me.Get(FileName)
+		  Dim stream As SSHStream = Me.Get(FileName)
 		  Do Until stream.EOF
 		    WriteTo.Write(stream.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
 		  Loop
@@ -54,7 +54,7 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function ListDirectory(DirectoryName As String) As SSH.SFTPStream
+		Function ListDirectory(DirectoryName As String) As SSH.SSHStream
 		  Return New SFTPStream(Me, DirectoryName, 0, 0, True)
 		End Function
 	#tag EndMethod
@@ -70,7 +70,7 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
+		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SSHStream
 		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
 		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
 		  Return New SFTPStream(Me, FileName, flags, Mode)
@@ -79,7 +79,7 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744) As Boolean
-		  Dim sftp As SFTPStream = Me.Put(FileName, Overwrite, Mode)
+		  Dim sftp As SSHStream = Me.Put(FileName, Overwrite, Mode)
 		  
 		  Do Until Upload.EOF
 		    sftp.Write(Upload.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
