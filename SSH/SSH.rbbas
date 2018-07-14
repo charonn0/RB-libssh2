@@ -277,6 +277,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_poll_channel_read Lib "libssh2" (Channel As Ptr, Extended As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_publickey_init Lib "libssh2" (Session As Ptr) As Ptr
 	#tag EndExternalMethod
 
