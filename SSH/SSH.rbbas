@@ -34,6 +34,12 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
+		  Return Channel.CreateTunnel(Session, RemoteHost, RemotePort, LocalHost, LocalPort)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function ErrorName(ErrorNumber As Integer) As String
 		  Select Case ErrorNumber
 		  Case 0
