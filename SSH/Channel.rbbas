@@ -1,8 +1,9 @@
 #tag Class
 Protected Class Channel
-Implements Readable,Writeable
+Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Close()
+		  // Part of the SSHStream interface.
 		  If mChannel = Nil Or Not mOpen Then Return
 		  
 		  Do
@@ -121,6 +122,12 @@ Implements Readable,Writeable
 		    End If
 		    Return New Channel(Session, c)
 		  Loop
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Poll() As Boolean
+		  If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
 		End Function
 	#tag EndMethod
 
