@@ -34,8 +34,10 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
-		  Return Channel.CreateTunnel(Session, RemoteHost, RemotePort, LocalHost, LocalPort)
+		Protected Function Execute(Session As SSH.Session, Command As String) As SSH.SSHStream
+		  Dim sh As Channel = OpenChannel(Session)
+		  If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		  Return sh
 		End Function
 	#tag EndMethod
 
