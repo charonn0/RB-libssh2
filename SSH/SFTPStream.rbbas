@@ -1,8 +1,9 @@
 #tag Class
 Protected Class SFTPStream
-Implements Readable,Writeable
+Implements  SSHStream
 	#tag Method, Flags = &h0
 		Sub Close()
+		  // Part of the SSHStream interface.
 		  If mStream <> Nil Then
 		    Do
 		      mLastError = libssh2_sftp_close_handle(mStream)
@@ -53,6 +54,12 @@ Implements Readable,Writeable
 		  
 		  
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function Poll() As Boolean
+		  Return False
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
