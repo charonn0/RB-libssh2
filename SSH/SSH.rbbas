@@ -42,7 +42,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Get(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
+		Protected Function Get(Optional Session As SSH.Session, URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
@@ -52,12 +52,12 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  Dim sess As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
 		  Select Case Lowercase(d.Lookup("scheme", ""))
 		  Case "scp"
-		    Return Channel.SCPGet(sess, d.Value("path"))
+		    Return Channel.OpenSCP(Session, d.Value("path"))
 		  Case "sftp"
-		    Dim sftp As New SFTPSession(sess)
+		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Get(path)
 		  Else
 		    Raise New RuntimeException
@@ -512,7 +512,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Put(URL As String, Length As Integer, Mode As Integer, Overwrite As Boolean, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
+		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As Integer, Mode As Integer, Overwrite As Boolean, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
@@ -522,12 +522,12 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  Dim sess As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
 		  Select Case Lowercase(d.Lookup("scheme", ""))
 		  Case "scp"
-		    Return Channel.SCPPut(sess, path, Mode, Length, 0, 0)
+		    Return Channel.CreateSCP(Session, path, Mode, Length, 0, 0)
 		  Case "sftp"
-		    Dim sftp As New SFTPSession(sess)
+		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Put(path, Overwrite, Mode)
 		  Else
 		    Raise New RuntimeException
