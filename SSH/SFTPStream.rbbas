@@ -1,5 +1,5 @@
 #tag Class
-Protected Class SFTPStream
+Private Class SFTPStream
 Implements  SSHStream
 	#tag Method, Flags = &h0
 		Sub Close()
