@@ -104,6 +104,12 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function LastError() As Integer
+		  Return mLastError
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		 Shared Function Open(Session As SSH.Session) As SSH.Channel
 		  Return Open(Session, "session", LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, "")
 		End Function
