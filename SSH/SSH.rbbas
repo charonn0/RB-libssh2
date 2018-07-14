@@ -486,6 +486,32 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function SCPGet(Session As SSH.Session, Path As String) As SSH.SSHStream
+		  Return Channel.SCPGet(Session, Path)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function SCPPut(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer = 0, AccessTime As Integer = 0) As SSH.SSHStream
+		  Return Channel.SCPPut(Session, Path, Mode, Length, ModTime, AccessTime)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function SFTPGet(Session As SSH.Session, Path As String) As SSH.SSHStream
+		  Dim sess As New SFTPSession(Session)
+		  Return sess.Get(Path)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function SFTPPut(Session As SSH.Session, FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SSHStream
+		  Dim sess As New SFTPSession(Session)
+		  Return sess.Put(FileName, Overwrite, Mode)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Version() As String
 		  If System.IsFunctionAvailable("libssh2_version", "libssh2") Then Return libssh2_version(MIMIMUM_VERSION)
 		End Function
