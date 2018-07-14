@@ -3,6 +3,8 @@ Protected Class Session
 Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Integer
+		  mRemoteHost = Address
+		  mRemotePort = Port
 		  mSocket = New TCPSocket
 		  mSocket.Address = Address
 		  mSocket.Port = Port
@@ -520,6 +522,14 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mRemoteHost As String
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mRemotePort As Integer
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mSession As Ptr
 	#tag EndProperty
 
@@ -534,6 +544,24 @@ Implements ChannelParent
 	#tag Property, Flags = &h21
 		Private mVerbose As Boolean
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mRemoteHost
+			End Get
+		#tag EndGetter
+		RemoteHost As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mRemotePort
+			End Get
+		#tag EndGetter
+		RemotePort As Integer
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private Shared Sessions As Dictionary
