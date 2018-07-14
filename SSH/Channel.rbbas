@@ -26,6 +26,21 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		 Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
+		  Dim c As Ptr
+		  Do
+		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    If c = Nil Then
+		      Dim e As Integer = Session.LastError
+		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Raise New SSHException(e)
+		    End If
+		  Loop Until c <> Nil
+		  Return New Channel(Session, c)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
 		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteHost, RemotePort, LocalHost, LocalPort)
 		  If p = Nil Then Raise New SSHException(ERR_INIT_FAILED)
@@ -132,6 +147,21 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		 Shared Function OpenSCP(Session As SSH.Session, Path As String) As SSH.Channel
+		  Dim c As Ptr
+		  Do
+		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
+		    If c = Nil Then
+		      Dim e As Integer = Session.LastError
+		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Raise New SSHException(e)
+		    End If
+		  Loop Until c <> Nil
+		  Return New Channel(Session, c)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Poll() As Boolean
 		  If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
 		End Function
@@ -199,36 +229,6 @@ Implements SSHStream
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		 Shared Function SCPGet(Session As SSH.Session, Path As String) As SSH.Channel
-		  Dim c As Ptr
-		  Do
-		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
-		    If c = Nil Then
-		      Dim e As Integer = Session.LastError
-		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(e)
-		    End If
-		  Loop Until c <> Nil
-		  Return New Channel(Session, c)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		 Shared Function SCPPut(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
-		  Dim c As Ptr
-		  Do
-		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
-		    If c = Nil Then
-		      Dim e As Integer = Session.LastError
-		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(e)
-		    End If
-		  Loop Until c <> Nil
-		  Return New Channel(Session, c)
-		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
