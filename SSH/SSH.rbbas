@@ -120,6 +120,30 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function Get(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
+		  Dim d As Dictionary = ParseURL(URL)
+		  Dim host, user, pass, scheme, path As String
+		  host = d.Lookup("host", "")
+		  user = d.Lookup("username", "")
+		  pass = d.Lookup("password", "")
+		  scheme = d.Lookup("scheme", "")
+		  path = d.Lookup("path", "")
+		  Dim port As Integer = d.Lookup("port", 22)
+		  
+		  Dim sess As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  Select Case Lowercase(d.Lookup("scheme", ""))
+		  Case "scp"
+		    Return Channel.SCPGet(sess, d.Value("path"))
+		  Case "sftp"
+		    Dim sftp As New SFTPSession(sess)
+		    Return sftp.Get(path)
+		  Else
+		    Raise New RuntimeException
+		  End Select
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
 		  If Not avail Then avail = (Version <> "")
@@ -485,29 +509,107 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h1
-		Protected Function SCPGet(Session As SSH.Session, Path As String) As SSH.SSHStream
-		  Return Channel.SCPGet(Session, Path)
+	#tag Method, Flags = &h21
+		Private Function ParseURL(URL As String) As Dictionary
+		  ' Pass a URI string to parse. e.g. http://user:password@www.example.com:8080/?foo=bar&bat=baz#Top
+		  
+		  Dim parsed As New Dictionary
+		  Dim isIPv6 As Boolean
+		  
+		  If InStr(URL, "://") > 0 Then
+		    Dim scheme As String = NthField(URL, "://", 1)
+		    Parsed.Value("scheme") = scheme
+		    URL = URL.Replace(scheme + "://", "")
+		  End If
+		  
+		  Dim auth As Integer = Instr(URL, "/")
+		  Dim authority As String = Left(URL, auth - 1)
+		  If InStr(authority, "@") > 0 Then //  USER:PASS@Domain
+		    Dim userinfo As String = NthField(authority, "@", 1)
+		    authority = authority.Replace(userinfo + "@", "")
+		    Dim u, p As String
+		    u = NthField(userinfo, ":", 1)
+		    p = NthField(userinfo, ":", 2)
+		    parsed.Value("username") = u
+		    parsed.Value("password") = p
+		    URL = URL.Replace(userinfo + "@", "")
+		  End If
+		  
+		  If Instr(URL, ":") > 0 And Left(URL, 1) <> "[" Then //  Domain:Port
+		    Dim s As String = NthField(URL, ":", 2)
+		    s = NthField(s, "?", 1)
+		    If InStr(s, "/") > InStr(s, "?") Then
+		      s = NthField(s, "?", 1)
+		    Else
+		      s = NthField(s, "/", 1)
+		    End If
+		    If Val(s) > 0 Then
+		      Dim p As Integer = Val(s)
+		      parsed.Value("port") = p
+		      URL = URL.Replace(":" + Format(p, "######"), "")
+		    End If
+		  ElseIf Left(URL, 1) = "[" And InStr(URL, "]:") > 0 Then ' ipv6 with port
+		    isIPv6 = True
+		    Dim s As String = NthField(URL, "]:", 2)
+		    s = NthField(s, "?", 1)
+		    Dim p As Integer = Val(s)
+		    parsed.Value("port") = p
+		    URL = URL.Replace("]:" + Format(p, "######"), "]")
+		  ElseIf Left(URL, 1) = "[" And InStr(URL, "]/") > 0 Then ' ipv6 with path
+		    isIPv6 = True
+		    'URL = URL.Replace("]/", "]")
+		  Else
+		    parsed.Value("port") = 0
+		  End If
+		  
+		  
+		  If Instr(URL, "#") > 0 Then
+		    Dim f As String = NthField(URL, "#", 2)  //    #fragment
+		    parsed.Value("fragment") = f
+		    URL = URL.Replace("#" + f, "")
+		  End If
+		  
+		  Dim h As String = NthField(URL, "/", 1)  //  [sub.]domain.tld
+		  parsed.Value("host") = h
+		  URL = URL.Replace(h, "")
+		  
+		  If InStr(URL, "?") > 0 Then
+		    Dim p As String = NthField(URL, "?", 1) //    /foo/bar.php
+		    parsed.Value("path") = p
+		    URL = URL.Replace(p + "?", "")
+		    parsed.Value("arguments") = URL
+		  Else
+		    Dim p As String = URL.Trim
+		    parsed.Value("path") = p
+		    URL = Replace(URL, p, "")
+		    parsed.Value("arguments") = ""
+		  End If
+		  
+		  Return parsed
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function SCPPut(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer = 0, AccessTime As Integer = 0) As SSH.SSHStream
-		  Return Channel.SCPPut(Session, Path, Mode, Length, ModTime, AccessTime)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function SFTPGet(Session As SSH.Session, Path As String) As SSH.SSHStream
-		  Dim sess As New SFTPSession(Session)
-		  Return sess.Get(Path)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function SFTPPut(Session As SSH.Session, FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SSHStream
-		  Dim sess As New SFTPSession(Session)
-		  Return sess.Put(FileName, Overwrite, Mode)
+		Protected Function Put(URL As String, Length As Integer, Mode As Integer, Overwrite As Boolean, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
+		  Dim d As Dictionary = ParseURL(URL)
+		  Dim host, user, pass, scheme, path As String
+		  host = d.Lookup("host", "")
+		  user = d.Lookup("username", "")
+		  pass = d.Lookup("password", "")
+		  scheme = d.Lookup("scheme", "")
+		  path = d.Lookup("path", "")
+		  Dim port As Integer = d.Lookup("port", 22)
+		  
+		  Dim sess As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  Select Case Lowercase(d.Lookup("scheme", ""))
+		  Case "scp"
+		    Return Channel.SCPPut(sess, path, Mode, Length, 0, 0)
+		  Case "sftp"
+		    Dim sftp As New SFTPSession(sess)
+		    Return sftp.Put(path, Overwrite, Mode)
+		  Else
+		    Raise New RuntimeException
+		  End Select
 		End Function
 	#tag EndMethod
 
