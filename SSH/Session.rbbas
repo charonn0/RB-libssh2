@@ -137,6 +137,13 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function GetLastError() As Integer
+		  If mSession = Nil Then Return 0
+		  Return libssh2_session_last_errno(mSession)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function GetRemoteBanner() As String
 		  Dim mb As MemoryBlock = libssh2_session_banner_get(mSession)
 		  If mb <> Nil Then Return mb.CString(0)
@@ -190,8 +197,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function LastError() As Integer
-		  If mSession = Nil Then Return 0
-		  Return libssh2_session_last_errno(mSession)
+		  If mLastError <> 0 Then Return mLastError Else Return GetLastError() 
 		End Function
 	#tag EndMethod
 
