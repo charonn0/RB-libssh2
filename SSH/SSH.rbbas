@@ -431,6 +431,23 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function OpenChannel(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Channel
+		  Dim d As Dictionary = ParseURL(URL)
+		  Dim host, user, pass, scheme, path As String
+		  host = d.Lookup("host", "")
+		  user = d.Lookup("username", "")
+		  pass = d.Lookup("password", "")
+		  scheme = d.Lookup("scheme", "")
+		  path = d.Lookup("path", "")
+		  Dim port As Integer = d.Lookup("port", 22)
+		  
+		  If Lowercase(d.Lookup("scheme", "")) <> "ssh" Then Raise New RuntimeException
+		  Dim Session As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  Return OpenChannel(Session)
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Function ParseURL(URL As String) As Dictionary
 		  ' Pass a URI string to parse. e.g. http://user:password@www.example.com:8080/?foo=bar&bat=baz#Top
