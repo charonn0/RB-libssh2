@@ -265,12 +265,15 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
-		  Dim buffer As MemoryBlock = text
-		  Do
-		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, buffer, buffer.Size)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Dim buffer As New BinaryStream(text)
+		  Do Until buffer.EOF
+		    Dim packet As MemoryBlock = buffer.Read(WriteWindow)
+		    If packet = Nil Or packet.Size = 0 Then Exit Do
+		    Do
+		      mLastError = libssh2_channel_write_ex(mChannel, StreamID, packet, packet.Size)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Loop
 		  If mLastError < 0 Then Raise New SSHException(mLastError)
-		  If mLastError <> buffer.Size Then Raise New IOException
 		End Sub
 	#tag EndMethod
 
@@ -281,6 +284,27 @@ Implements SSHStream
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Dim avail, initial As UInt32
+			  If mChannel <> Nil Then Call libssh2_channel_window_read_ex(mChannel, avail,  initial)
+			  Return avail
+			End Get
+		#tag EndGetter
+		BytesAvailable As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Dim avail, initial As UInt32
+			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
+			End Get
+		#tag EndGetter
+		BytesLeft As UInt32
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -310,6 +334,28 @@ Implements SSHStream
 	#tag Property, Flags = &h21
 		Private mSession As SSH.Session
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Dim avail, initial As UInt32
+			  If mChannel <> Nil Then Call libssh2_channel_window_read_ex(mChannel, avail,  initial)
+			  Return initial
+			End Get
+		#tag EndGetter
+		ReadWindow As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Dim initial As UInt32
+			  If mChannel <> Nil Then Return libssh2_channel_window_write_ex(mChannel,  initial)
+			  Return initial
+			End Get
+		#tag EndGetter
+		WriteWindow As UInt32
+	#tag EndComputedProperty
 
 
 	#tag ViewBehavior
