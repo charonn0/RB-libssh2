@@ -66,12 +66,12 @@ Protected Module SSH
 		  host = d.Lookup("host", "")
 		  user = d.Lookup("username", "")
 		  pass = d.Lookup("password", "")
-		  scheme = d.Lookup("scheme", "")
+		  scheme = d.Lookup("scheme", "").Lowercase
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
 		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
-		  Select Case Lowercase(d.Lookup("scheme", ""))
+		  Select Case scheme
 		  Case "scp"
 		    Return Channel.OpenSCP(Session, d.Value("path"))
 		  Case "sftp"
@@ -464,12 +464,13 @@ Protected Module SSH
 		  host = d.Lookup("host", "")
 		  user = d.Lookup("username", "")
 		  pass = d.Lookup("password", "")
-		  scheme = d.Lookup("scheme", "")
+		  scheme = d.Lookup("scheme", "").Lowercase
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  If Lowercase(d.Lookup("scheme", "")) <> "ssh" Then Raise New RuntimeException
+		  If scheme <> "ssh" Then Raise New RuntimeException
 		  Dim Session As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  If Not Session.IsConnected Or Not Session.IsAuthenticated Then Raise New SSHException(Session.LastError)
 		  Return OpenChannel(Session)
 		End Function
 	#tag EndMethod
@@ -560,12 +561,12 @@ Protected Module SSH
 		  host = d.Lookup("host", "")
 		  user = d.Lookup("username", "")
 		  pass = d.Lookup("password", "")
-		  scheme = d.Lookup("scheme", "")
+		  scheme = d.Lookup("scheme", "").Lowercase
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
 		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
-		  Select Case Lowercase(d.Lookup("scheme", ""))
+		  Select Case scheme
 		  Case "scp"
 		    Return Channel.CreateSCP(Session, path, Mode, Length, 0, 0)
 		  Case "sftp"
