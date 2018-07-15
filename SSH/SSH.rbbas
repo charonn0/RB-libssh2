@@ -10,9 +10,9 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  Dim err As Integer = sess.Connect(Address, Port, KnownHostList, AddHost)
-		  If err <> 0 Then Raise New SSHException(err)
-		  sess.SetCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		  If sess.Connect(Address, Port, KnownHostList, AddHost) Then
+		    Call sess.SetCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		  End If
 		  Return sess
 		End Function
 	#tag EndMethod
@@ -27,9 +27,9 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  Dim err As Integer = sess.Connect(Address, Port, KnownHostList, AddHost)
-		  If err <> 0 Then Raise New SSHException(err)
-		  sess.SetCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
+		  If sess.Connect(Address, Port, KnownHostList, AddHost) Then
+		    Call sess.SetCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
+		  End If
 		  Return sess
 		End Function
 	#tag EndMethod
@@ -44,9 +44,9 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  Dim err As Integer = sess.Connect(Address, Port, KnownHostList, AddHost)
-		  If err <> 0 Then Raise New SSHException(err)
-		  sess.SetCredentials(Username, Password)
+		  If sess.Connect(Address, Port, KnownHostList, AddHost) Then
+		    Call sess.SetCredentials(Username, Password)
+		  End If
 		  Return sess
 		End Function
 	#tag EndMethod
