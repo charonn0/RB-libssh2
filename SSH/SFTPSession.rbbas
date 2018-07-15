@@ -4,7 +4,7 @@ Protected Class SFTPSession
 		Sub Constructor(Session As SSH.Session)
 		  mInit = SSHInit.GetInstance()
 		  mSFTP = libssh2_sftp_init(Session.Handle)
-		  If mSFTP = Nil Then Raise New SSHException(Session.LastError)
+		  If mSFTP = Nil Then Raise New SSHException(Session.GetLastError)
 		  mSession = Session
 		End Sub
 	#tag EndMethod
