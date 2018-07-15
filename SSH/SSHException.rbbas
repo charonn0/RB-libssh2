@@ -95,6 +95,20 @@ Inherits RuntimeException
 		    Return "LIBSSH2_ERROR_PUBLICKEY_PROTOCOL"
 		  Case LIBSSH2_ERROR_EAGAIN
 		    Return "LIBSSH2_ERROR_EAGAIN"
+		  Case ERR_CONNECTION_REFUSED
+		    Return "ERR_CONNECTION_REFUSED"
+		  Case ERR_ILLEGAL_OPERATION
+		    Return "ERR_ILLEGAL_OPERATION"
+		  Case ERR_INVALID_PORT
+		    Return "ERR_INVALID_PORT"
+		  Case ERR_PORT_IN_USE
+		    Return "ERR_PORT_IN_USE"
+		  Case ERR_RESOLVE
+		    Return "ERR_RESOLVE"
+		  Case ERR_SOCKET
+		    Return "ERR_SOCKET"
+		  Case ERR_UNKNOWN_HOST
+		    Return "ERR_UNKNOWN_HOST"
 		  Else
 		    Return "Unknown error number."
 		    

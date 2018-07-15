@@ -637,27 +637,6 @@ Implements ChannelParent
 	#tag Constant, Name = CB_X11Open, Type = Double, Dynamic = False, Default = \"4", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_CONNECTION_REFUSED, Type = Double, Dynamic = False, Default = \"-502", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = ERR_ILLEGAL_OPERATION, Type = Double, Dynamic = False, Default = \"-505", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = ERR_INVALID_PORT, Type = Double, Dynamic = False, Default = \"-506", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-504", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = ERR_RESOLVE, Type = Double, Dynamic = False, Default = \"-503", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-507", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = ERR_UNKNOWN_HOST, Type = Double, Dynamic = False, Default = \"-508", Scope = Public
-	#tag EndConstant
-
 	#tag Constant, Name = LIBSSH2_FLAG_COMPRESS, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
 	#tag EndConstant
 

@@ -542,7 +542,28 @@ Protected Module SSH
 	#tag EndMethod
 
 
-	#tag Constant, Name = ERR_INIT_FAILED, Type = Double, Dynamic = False, Default = \"-500", Scope = Public
+	#tag Constant, Name = ERR_CONNECTION_REFUSED, Type = Double, Dynamic = False, Default = \"-502", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_ILLEGAL_OPERATION, Type = Double, Dynamic = False, Default = \"-505", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_INIT_FAILED, Type = Double, Dynamic = False, Default = \"-500", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_INVALID_PORT, Type = Double, Dynamic = False, Default = \"-506", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-504", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_RESOLVE, Type = Double, Dynamic = False, Default = \"-503", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-507", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_UNKNOWN_HOST, Type = Double, Dynamic = False, Default = \"-508", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_CHANNEL_FLUSH_ALL, Type = Double, Dynamic = False, Default = \"-2", Scope = Private
