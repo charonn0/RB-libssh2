@@ -475,6 +475,15 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function OpenShell(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Channel
+		  Dim channel As SSH.Channel = OpenChannel(URL, KnownHostList, AddHost)
+		  channel.RequestShell
+		  channel.Session.Blocking = False
+		  Return channel
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Function ParseURL(URL As String) As Dictionary
 		  ' Pass a URI string to parse. e.g. http://user:password@www.example.com:8080/?foo=bar&bat=baz#Top
@@ -626,7 +635,7 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_CHANNEL_PACKET_DEFAULT, Type = Double, Dynamic = False, Default = \"16384", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_CHANNEL_WINDOW_DEFAULT, Type = Double, Dynamic = False, Default = \"65536", Scope = Protected
+	#tag Constant, Name = LIBSSH2_CHANNEL_WINDOW_DEFAULT, Type = Double, Dynamic = False, Default = \"262144", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_ALLOC, Type = Double, Dynamic = False, Default = \"-6", Scope = Private
