@@ -103,8 +103,11 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Sub Disconnect(Description As String, Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
 		  If mSession = Nil Then Return
-		  Dim err As Integer = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
-		  If err <> 0 Then Raise New SSHException(err)
+		  Do
+		    mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  mSocket.Disconnect()
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
