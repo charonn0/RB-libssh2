@@ -31,7 +31,7 @@ Implements SSHStream
 		  Do
 		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
-		      Dim e As Integer = Session.LastError
+		      Dim e As Integer = Session.GetLastError
 		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
 		      Raise New SSHException(e)
 		    End If
@@ -137,7 +137,7 @@ Implements SSHStream
 		  Do
 		    Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size - 1, WindowSize, PacketSize, msg, msg.Size - 1)
 		    If c = Nil Then
-		      Dim e As Integer = Session.LastError
+		      Dim e As Integer = Session.GetLastError
 		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
 		      If e <> 0 Then Raise New SSHException(e)
 		    End If
@@ -152,7 +152,7 @@ Implements SSHStream
 		  Do
 		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
 		    If c = Nil Then
-		      Dim e As Integer = Session.LastError
+		      Dim e As Integer = Session.GetLastError
 		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
 		      Raise New SSHException(e)
 		    End If
