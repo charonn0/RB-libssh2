@@ -1,5 +1,5 @@
 #tag Interface
-Protected Interface SSHStream
+Interface SSHStream
 Implements Readable,Writeable
 	#tag Method, Flags = &h0
 		Sub Close()
