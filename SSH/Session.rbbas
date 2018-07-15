@@ -2,7 +2,7 @@
 Protected Class Session
 Implements ChannelParent
 	#tag Method, Flags = &h0
-		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Integer
+		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Boolean
 		  mRemoteHost = Address
 		  mRemotePort = Port
 		  mSocket = New TCPSocket
@@ -10,46 +10,49 @@ Implements ChannelParent
 		  mSocket.Port = Port
 		  mSocket.Connect()
 		  
-		  Do Until mSocket.IsConnected
+		  Do Until mSocket.LastErrorCode <> 0
 		    mSocket.Poll
-		  Loop Until mSocket.LastErrorCode <> 0
+		  Loop Until mSocket.IsConnected
 		  If Not mSocket.IsConnected Then
 		    Select Case mSocket.LastErrorCode
 		    Case 102
-		      Return ERR_CONNECTION_REFUSED
+		      mLastError = ERR_CONNECTION_REFUSED
 		    Case 103
-		      Return ERR_RESOLVE
+		      mLastError = ERR_RESOLVE
 		    Case 105
-		      Return ERR_PORT_IN_USE
+		      mLastError = ERR_PORT_IN_USE
 		    Case 106
-		      Return ERR_ILLEGAL_OPERATION
+		      mLastError = ERR_ILLEGAL_OPERATION
 		    Case 107
-		      Return ERR_INVALID_PORT
+		      mLastError = ERR_INVALID_PORT
 		    Else
-		      Return ERR_SOCKET
+		      mLastError = ERR_SOCKET
 		    End Select
+		    Return False
 		  End If
 		  
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then 
+		  If mLastError <> 0 Then
 		    mSocket.Close
-		    Return mLastError
+		    Return False
 		  End If
 		  
 		  If Hosts <> Nil And Hosts.Exists Then
 		    Dim kh As New SSH.KnownHosts(Me)
 		    Call kh.Load(Hosts)
-		    If Not kh.Check(mSocket.RemoteAddress, 22, Me.HostKey, Me.HostKeyType) Then 
-		      If Not AddHost Then 
+		    If Not kh.Check(mSocket.RemoteAddress, 22, Me.HostKey, Me.HostKeyType) Then
+		      If Not AddHost Then
 		        mSocket.Close
-		        Return ERR_UNKNOWN_HOST
+		        mLastError = ERR_UNKNOWN_HOST
+		        Raise New SSHException(mLastError)
 		      End If
 		      kh.AddHost(Address, Port, Me.HostKey, Nil, Nil, Me.HostKeyType)
 		      kh.Save(Hosts)
 		    End If
 		  End If
+		  Return IsConnected
 		End Function
 	#tag EndMethod
 
