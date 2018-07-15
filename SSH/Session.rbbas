@@ -402,7 +402,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h21
 		Private Sub UnregisterChannel(Chan As Channel)
-		  mChannels = New Dictionary
+		  If mChannels = Nil Then Return
 		  If mChannels.HasKey(Chan.Handle) Then mChannels.Remove(Chan.Handle)
 		  If mChannels.Count = 0 Then mChannels = Nil
 		End Sub
