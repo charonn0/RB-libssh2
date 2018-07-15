@@ -504,6 +504,15 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  Return mSocket <> Nil And mSocket.IsConnected()
+			End Get
+		#tag EndGetter
+		IsConnected As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  return mKeepAlivePeriod
 			End Get
 		#tag EndGetter
