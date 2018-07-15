@@ -56,12 +56,6 @@ Implements  SSHStream
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h21
-		Private Function Poll() As Boolean
-		  Return False
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.

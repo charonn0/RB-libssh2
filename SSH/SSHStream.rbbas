@@ -7,12 +7,6 @@ Implements Readable,Writeable
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Function Poll() As Boolean
-		  
-		End Function
-	#tag EndMethod
-
 
 	#tag ViewBehavior
 		#tag ViewProperty
