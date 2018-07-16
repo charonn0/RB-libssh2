@@ -125,6 +125,12 @@ Protected Class SFTPSession
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function Session() As SSH.Session
+		  Return mSession
+		End Function
+	#tag EndMethod
+
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
