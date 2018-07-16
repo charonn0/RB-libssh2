@@ -369,7 +369,7 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, pub, priv, PrivateKeyPassword)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError <> 0
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -381,7 +381,7 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError <> 0
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -390,7 +390,7 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError <> 0
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
