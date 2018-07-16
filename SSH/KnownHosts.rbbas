@@ -34,7 +34,7 @@ Protected Class KnownHosts
 		Sub Constructor(Session As SSH.Session)
 		  mInit = SSHInit.GetInstance()
 		  mKnownHosts = libssh2_knownhost_init(Session.Handle)
-		  If mKnownHosts = Nil Then Raise New RuntimeException
+		  If mKnownHosts = Nil Then Raise New SSHException(Session.GetLastError)
 		  mSession = Session
 		End Sub
 	#tag EndMethod
