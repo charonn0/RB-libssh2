@@ -41,6 +41,12 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function GetLastError() As Integer
+		  Return mSession.GetLastError()
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Handle() As Ptr
 		  Return mSFTP
 		End Function
