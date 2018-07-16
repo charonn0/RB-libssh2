@@ -28,7 +28,7 @@ Implements  SSHStream
 		  Else
 		    mStream = libssh2_sftp_open_ex(Session.Handle, fn, fn.Size, Flags, Mode, LIBSSH2_SFTP_OPENDIR)
 		  End If
-		  If mStream = Nil Then Raise New SSHException(0)
+		  If mStream = Nil Then Raise New SSHException(Session.GetLastError)
 		  mSession = Session
 		  mDirectory = Directory
 		End Sub
