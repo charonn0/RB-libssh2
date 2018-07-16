@@ -86,7 +86,7 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  Static avail As Boolean
-		  If Not avail Then avail = (Version <> "")
+		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_session_init_ex", libssh2)
 		  Return avail
 		End Function
 	#tag EndMethod
@@ -640,7 +640,7 @@ Protected Module SSH
 
 	#tag Constant, Name = libssh2, Type = String, Dynamic = False, Default = \"libssh2.so.1", Scope = Private
 		#Tag Instance, Platform = Windows, Language = Default, Definition  = \"libssh2.dll"
-		#Tag Instance, Platform = Linux, Language = Default, Definition  = \"libssh2.so.1.0.1"
+		#Tag Instance, Platform = Linux, Language = Default, Definition  = \"libssh2.so.1"
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_CHANNEL_FLUSH_ALL, Type = Double, Dynamic = False, Default = \"-2", Scope = Private
