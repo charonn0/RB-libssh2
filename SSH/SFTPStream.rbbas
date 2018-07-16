@@ -51,11 +51,12 @@ Implements  SSHStream
 	#tag Method, Flags = &h0
 		Sub Flush()
 		  // Part of the Writeable interface.
+		  ' Not all servers support this. If that's the case then LastError will be LIBSSH2_ERROR_SFTP_PROTOCOL
 		  If mDirectory Then Raise New IOException
 		  Do
 		    mLastError = libssh2_sftp_fsync(mStream)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 And mLastError <> LIBSSH2_ERROR_SFTP_PROTOCOL Then Raise New SSHException(mLastError)
 		  
 		  
 		  
