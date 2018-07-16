@@ -64,6 +64,12 @@ Implements  SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Handle() As Ptr
+		  Return mStream
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
 		  Dim buffer As New MemoryBlock(Count)
