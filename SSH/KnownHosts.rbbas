@@ -179,15 +179,6 @@ Protected Class KnownHosts
 	#tag EndProperty
 
 
-	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_DSS, Type = Double, Dynamic = False, Default = \"2", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_RSA, Type = Double, Dynamic = False, Default = \"1", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_UNKNOWN, Type = Double, Dynamic = False, Default = \"0", Scope = Public
-	#tag EndConstant
-
 	#tag Constant, Name = LIBSSH2_KNOWNHOST_FILE_OPENSSH, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
 

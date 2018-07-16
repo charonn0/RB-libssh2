@@ -772,6 +772,15 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_ZLIB, Type = Double, Dynamic = False, Default = \"-29", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_DSS, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_RSA, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_UNKNOWN, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_INBOUND, Type = Double, Dynamic = False, Default = \"&h0001", Scope = Private
 	#tag EndConstant
 
