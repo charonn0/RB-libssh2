@@ -8,6 +8,7 @@ Implements ChannelParent
 		  mSocket = New TCPSocket
 		  mSocket.Address = Address
 		  mSocket.Port = Port
+		  AddHandler mSocket.Connected, WeakAddressOf ConnectedHandler
 		  mSocket.Connect()
 		  
 		  Do Until mSocket.LastErrorCode <> 0
@@ -54,6 +55,13 @@ Implements ChannelParent
 		  End If
 		  Return IsConnected
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub ConnectedHandler(Sender As TCPSocket)
+		  #pragma Unused Sender
+		  RaiseEvent Connected(GetRemoteBanner)
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -422,6 +430,10 @@ Implements ChannelParent
 		End Sub
 	#tag EndMethod
 
+
+	#tag Hook, Flags = &h0
+		Event Connected(Banner As String)
+	#tag EndHook
 
 	#tag Hook, Flags = &h0
 		Event DebugMessage(AlwaysDisplay As Boolean, Message As String, Language As String)
