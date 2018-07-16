@@ -260,6 +260,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_poll Lib libssh2 (Descriptors As Ptr, NumDescriptors As UInt32, TimeOut As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_poll_channel_read Lib libssh2 (Channel As Ptr, Extended As Integer) As Integer
 	#tag EndExternalMethod
 
@@ -560,6 +564,22 @@ Protected Module SSH
 		  End If
 		  
 		  Return parsed
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Poll(Extends Stream As SSH.SSHStream, Timeout As Integer = 1000) As Boolean
+		  Dim descriptor As Ptr
+		  Select Case Stream
+		  Case IsA Channel
+		    descriptor = Channel(Stream).Handle
+		  Case IsA SFTPStream
+		    descriptor = SFTPStream(Stream).Handle
+		  Else
+		    Raise New RuntimeException
+		  End Select
+		  Dim i As Integer = libssh2_poll(descriptor, 1, Timeout)
+		  Return i > 0
 		End Function
 	#tag EndMethod
 
