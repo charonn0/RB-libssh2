@@ -9,6 +9,8 @@ Implements ChannelParent
 		  mSocket.Address = Address
 		  mSocket.Port = Port
 		  AddHandler mSocket.Connected, WeakAddressOf ConnectedHandler
+		  AddHandler mSocket.DataAvailable, WeakAddressOf DataAvailableHandler
+		  AddHandler mSocket.Error, WeakAddressOf ErrorHandler
 		  mSocket.Connect()
 		  
 		  Do Until mSocket.LastErrorCode <> 0
@@ -82,6 +84,13 @@ Implements ChannelParent
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Sub DataAvailableHandler(Sender As TCPSocket)
+		  #pragma Unused Sender
+		  Break
+		End Sub
+	#tag EndMethod
+
 	#tag DelegateDeclaration, Flags = &h21
 		Private Delegate Sub DebugCallback(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, Abstract As Integer)
 	#tag EndDelegateDeclaration
@@ -130,6 +139,12 @@ Implements ChannelParent
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
 		  If w = Nil Or w.Value = Nil Then Return
 		  SSH.Session(w.Value).Sess_Disconnect(Reason, Message, MessageLength, Language, LanguageLength)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub ErrorHandler(Sender As TCPSocket)
+		  RaiseEvent SocketError(Sender.LastErrorCode)
 		End Sub
 	#tag EndMethod
 
@@ -294,7 +309,7 @@ Implements ChannelParent
 		Private Sub Sess_Disconnect(Reason As Integer, Message As MemoryBlock, MessageLength As Integer, Language As MemoryBlock, LanguageLength As Integer)
 		  Dim m As String = Message.StringValue(0, MessageLength)
 		  Dim l As String = Language.StringValue(0, LanguageLength)
-		  RaiseEvent Disconnect(DisconnectReason(Reason), m, l)
+		  RaiseEvent Disconnected(DisconnectReason(Reason), m, l)
 		End Sub
 	#tag EndMethod
 
@@ -440,7 +455,7 @@ Implements ChannelParent
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
-		Event Disconnect(Reason As SSH.DisconnectReason, Message As String, Language As String)
+		Event Disconnected(Reason As SSH.DisconnectReason, Message As String, Language As String)
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
@@ -453,6 +468,10 @@ Implements ChannelParent
 
 	#tag Hook, Flags = &h0
 		Event PasswordChangeRequest(ByRef NewPassword As String) As Boolean
+	#tag EndHook
+
+	#tag Hook, Flags = &h0
+		Event SocketError(ErrorCode As Integer)
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
