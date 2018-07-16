@@ -49,7 +49,7 @@ Implements ChannelParent
 		        mLastError = ERR_UNKNOWN_HOST
 		        Raise New SSHException(mLastError)
 		      End If
-		      kh.AddHost(Address, Port, Me.HostKey, Nil, Nil, Me.HostKeyType)
+		      kh.AddHost(Address, Port, Me.HostKey, Nil, Me.HostKeyType)
 		      kh.Save(Hosts)
 		    End If
 		  End If
