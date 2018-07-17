@@ -2,6 +2,18 @@
 Protected Class Session
 Implements ChannelParent
 	#tag Method, Flags = &h0
+		Function BlockInbound() As Boolean
+		  Return BitAnd(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_INBOUND) = LIBSSH2_SESSION_BLOCK_INBOUND
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function BlockOutbound() As Boolean
+		  Return BitAnd(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_OUTBOUND) = LIBSSH2_SESSION_BLOCK_OUTBOUND
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Boolean
 		  mRemoteHost = Address
 		  mRemotePort = Port
@@ -696,6 +708,12 @@ Implements ChannelParent
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_FLAG_SIGPIPE, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_INBOUND, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_OUTBOUND, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
 	#tag EndConstant
 
 
