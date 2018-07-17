@@ -249,11 +249,19 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function TryRead(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  Dim buffer As New MemoryBlock(Count)
-		  mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
-		  If mLastError < 0 Then Return ""
-		  If mLastError <> buffer.Size Then buffer.Size = mLastError
-		  mLastError = 0
-		  Return DefineEncoding(buffer, encoding)
+		  Do
+		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
+		  Loop Until mLastError <> 0
+		  Select Case mLastError
+		  Case LIBSSH2_ERROR_EAGAIN
+		    Return ""
+		  Case Is < 0
+		    Raise New SSHException(mLastError)
+		  Else
+		    If mLastError <> buffer.Size Then buffer.Size = mLastError
+		    mLastError = 0
+		    Return DefineEncoding(buffer, encoding)
+		  End Select
 		End Function
 	#tag EndMethod
 
