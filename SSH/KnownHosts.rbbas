@@ -18,15 +18,19 @@ Protected Class KnownHosts
 		  If Port > 0 And Port <> 22 Then Host = "[" + Host + "]:" + Str(Port, "####0")
 		  Dim tmp As Ptr
 		  Type = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
-		  If Comment = Nil Then Comment = Chr(0)
-		  mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, Type, tmp)
+		  If Comment = Nil Then
+		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Nil, 0, Type, tmp)
+		  Else
+		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, Type, tmp)
+		  End If
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function Check(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
-		  Return Me.GetEntry(Host, Port, Key, Type) <> Nil
+		  Dim tmp As libssh2_knownhost
+		  Return Me.GetEntry(Host, Port, Key, Type, tmp)
 		End Function
 	#tag EndMethod
 
@@ -55,7 +59,7 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Index As Integer)
-		  Dim tmp As Ptr = Me.Operator_Subscript(Index)
+		  Dim tmp As libssh2_knownhost = Me.Operator_Subscript(Index)
 		  mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
 		  If mLastError <> 0 Then Raise New RuntimeException
 		End Sub
@@ -63,10 +67,13 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer)
-		  Dim tmp As Ptr = Me.GetEntry(Host, Port, Key, Type)
-		  If tmp = Nil Then Raise New KeyNotFoundException
-		  mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
-		  If mLastError <> 0 Then Raise New RuntimeException
+		  Dim tmp As libssh2_knownhost
+		  If Me.GetEntry(Host, Port, Key, Type, tmp) Then
+		    mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
+		    If mLastError <> 0 Then Raise New RuntimeException
+		  Else
+		    Raise New KeyNotFoundException
+		  End If
 		End Sub
 	#tag EndMethod
 
@@ -78,14 +85,13 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function GetEntry(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Ptr
-		  Dim tmp As Ptr
+		Protected Function GetEntry(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer, ByRef Store As libssh2_knownhost) As Boolean
 		  If Port = 0 Then
-		    mLastError = libssh2_knownhost_check(mKnownHosts, Host, Key, Key.Size, Type, tmp)
+		    mLastError = libssh2_knownhost_check(mKnownHosts, Host, Key, Key.Size, Type, Store)
 		  Else
-		    mLastError = libssh2_knownhost_checkp(mKnownHosts, Host, Port, Key, Key.Size, Type, tmp)
+		    mLastError = libssh2_knownhost_checkp(mKnownHosts, Host, Port, Key, Key.Size, Type, Store)
 		  End If
-		  If mLastError = 0 Then Return tmp
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -96,7 +102,7 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Item(Index As Integer) As Ptr
+		Function Item(Index As Integer) As libssh2_knownhost
 		  Return Me.Operator_Subscript(Index)
 		End Function
 	#tag EndMethod
@@ -122,12 +128,12 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Operator_Subscript(Index As Integer) As Ptr
+		Function Operator_Subscript(Index As Integer) As libssh2_knownhost
 		  Dim this, prev As Ptr
 		  Dim c As Integer
 		  Do
 		    mLastError = libssh2_knownhost_get(mKnownHosts, this, prev)
-		    If c = Index Then Return this
+		    If c = Index Then Return this.libssh2_knownhost
 		    If this <> Nil Then c = c + 1
 		    prev = this
 		    this = Nil
@@ -145,7 +151,7 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function StringValue(Index As Integer) As String
-		  Dim tmp As Ptr = Me.Operator_Subscript(Index)
+		  Dim tmp As libssh2_knownhost = Me.Operator_Subscript(Index)
 		  Dim sz As Integer
 		  Call libssh2_knownhost_writeline(mKnownHosts, tmp, Nil, 0, sz, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		  If sz > 0 Then

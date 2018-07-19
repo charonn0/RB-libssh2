@@ -1,6 +1,14 @@
 #tag Module
 Protected Module SSH
 	#tag Method, Flags = &h1
+		Protected Function CheckHost(Session As SSH.Session, Hosts As FolderItem) As Boolean
+		  Dim fingerprint As MemoryBlock = Session.HostKeyHash(SSH.HashType.SHA1)
+		  fingerprint = EncodeBase64(fingerprint)
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer = 22, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
@@ -220,15 +228,15 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_knownhost_check Lib libssh2 (KnownHosts As Ptr, Host As CString, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As Ptr) As Integer
+		Private Soft Declare Function libssh2_knownhost_check Lib libssh2 (KnownHosts As Ptr, Host As CString, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As libssh2_knownhost) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_knownhost_checkp Lib libssh2 (KnownHosts As Ptr, Host As CString, Port As Integer, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As Ptr) As Integer
+		Private Soft Declare Function libssh2_knownhost_checkp Lib libssh2 (KnownHosts As Ptr, Host As CString, Port As Integer, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As libssh2_knownhost) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_knownhost_del Lib libssh2 (KnownHosts As Ptr, Entry As Ptr) As Integer
+		Private Soft Declare Function libssh2_knownhost_del Lib libssh2 (KnownHosts As Ptr, Entry As libssh2_knownhost) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -236,7 +244,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_knownhost_get Lib libssh2 (KnownHosts As Ptr, ByRef Store As Ptr, Prev As Ptr) As Integer
+		Private Soft Declare Function libssh2_knownhost_get Lib libssh2 (KnownHosts As Ptr, Store As Ptr, Prev As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -256,7 +264,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_knownhost_writeline Lib libssh2 (KnownHosts As Ptr, Host As Ptr, Buffer As Ptr, BufferLength As Integer, ByRef LengthWritten As Integer, Type As Integer) As Integer
+		Private Soft Declare Function libssh2_knownhost_writeline Lib libssh2 (KnownHosts As Ptr, Host As libssh2_knownhost, Buffer As Ptr, BufferLength As Integer, ByRef LengthWritten As Integer, Type As Integer) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -793,6 +801,21 @@ Protected Module SSH
 	#tag Constant, Name = SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED, Type = Double, Dynamic = False, Default = \"8", Scope = Private
 	#tag EndConstant
 
+
+	#tag Structure, Name = libssh2_knownhost, Flags = &h21
+		ListNode As Ptr
+		  Name As Ptr
+		  NameLen As UInt32
+		  Port As Integer
+		  TypeMask As Integer
+		  Salt As Ptr
+		  SaltLen As UInt32
+		  Key As Ptr
+		  KeyTypeName As Ptr
+		  KeyTypeNameLen As UInt32
+		  Comment As Ptr
+		CommentLen As UInt32
+	#tag EndStructure
 
 	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21
 		Flags As UInt32
