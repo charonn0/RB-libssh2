@@ -28,15 +28,14 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Boolean
+		  Dim kh As SSH.KnownHosts
 		  If Hosts <> Nil And Hosts.Exists Then
-		    Dim kh As New SSH.KnownHosts(Me)
+		    kh = New SSH.KnownHosts(Me)
 		    Call kh.Load(Hosts)
-		    If Me.Connect(Address, Port, kh, AddHost) Then
-		      kh.Save(Hosts)
-		      Return True
-		    End If
-		  Else
-		    Return Me.Connect(Address, Port)
+		  End If
+		  If Me.Connect(Address, Port, kh, AddHost) Then
+		    If kh <> Nil Then kh.Save(Hosts)
+		    Return True
 		  End If
 		End Function
 	#tag EndMethod
@@ -50,7 +49,7 @@ Implements ChannelParent
 		  sock.Port = Port
 		  If Not Me.Connect(sock) Then Return False
 		  If Hosts <> Nil Then
-		    If Not CheckHost(Hosts, AddHost) Then Return False
+		    If Not Me.CheckHost(Hosts, AddHost) Then Return False
 		  End If
 		  Return IsConnected
 		End Function
