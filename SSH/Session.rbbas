@@ -57,7 +57,7 @@ Implements ChannelParent
 		  If Hosts <> Nil And Hosts.Exists Then
 		    Dim kh As New SSH.KnownHosts(Me)
 		    Call kh.Load(Hosts)
-		    If Not kh.Check(mSocket.RemoteAddress, 22, Me.HostKey, Me.HostKeyType) Then
+		    If Not kh.Check(Me) Then
 		      If Not AddHost Then
 		        mSocket.Close
 		        mLastError = ERR_UNKNOWN_HOST
@@ -589,6 +589,10 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mPassword As String
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mRemoteHost As String
 	#tag EndProperty
 
@@ -609,8 +613,21 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mUserName As String
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mVerbose As Boolean
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mPassword
+			End Get
+		#tag EndGetter
+		Password As String
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -667,6 +684,15 @@ Implements ChannelParent
 			End Set
 		#tag EndSetter
 		UseCompression As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mUserName
+			End Get
+		#tag EndGetter
+		UserName As String
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

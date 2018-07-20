@@ -28,9 +28,12 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Check(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
-		  Dim tmp As libssh2_knownhost
-		  Return Me.GetEntry(Host, Port, Key, Type, tmp)
+		Function Check(Session As SSH.Session) As Boolean
+		  Dim host As String = Session.RemoteHost
+		  Dim port As Integer = Session.RemotePort
+		  Dim key As MemoryBlock = Session.HostKey
+		  Dim type As Integer = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
+		  Return Me.Lookup(host, port, key, type)
 		End Function
 	#tag EndMethod
 
@@ -68,7 +71,7 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer)
 		  Dim tmp As libssh2_knownhost
-		  If Me.GetEntry(Host, Port, Key, Type, tmp) Then
+		  If Me.Lookup(Host, Port, Key, Type, tmp) Then
 		    mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
 		    If mLastError <> 0 Then Raise New RuntimeException
 		  Else
@@ -82,17 +85,6 @@ Protected Class KnownHosts
 		  If mKnownHosts <> Nil Then libssh2_knownhost_free(mKnownHosts)
 		  mKnownHosts = Nil
 		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function GetEntry(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer, ByRef Store As libssh2_knownhost) As Boolean
-		  If Port = 0 Then
-		    mLastError = libssh2_knownhost_check(mKnownHosts, Host, Key, Key.Size, Type, Store)
-		  Else
-		    mLastError = libssh2_knownhost_checkp(mKnownHosts, Host, Port, Key, Key.Size, Type, Store)
-		  End If
-		  Return mLastError = 0
-		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -128,17 +120,36 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Lookup(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
+		  Dim Store As libssh2_knownhost
+		  Return Lookup(Host, Port, Key, Type, Store)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Lookup(Host As String, Port As Integer, Key As MemoryBlock, Type As Integer, ByRef Store As libssh2_knownhost) As Boolean
+		  If Port = 0 Then
+		    mLastError = libssh2_knownhost_check(mKnownHosts, Host, Key, Key.Size, Type, Store)
+		  Else
+		    mLastError = libssh2_knownhost_checkp(mKnownHosts, Host, Port, Key, Key.Size, Type, Store)
+		  End If
+		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Operator_Subscript(Index As Integer) As libssh2_knownhost
-		  Dim this, prev As Ptr
+		  Dim prev As libssh2_knownhost
 		  Dim c As Integer
 		  Do
+		    Dim this As libssh2_knownhost
 		    mLastError = libssh2_knownhost_get(mKnownHosts, this, prev)
-		    If c = Index Then Return this.libssh2_knownhost
-		    If this <> Nil Then c = c + 1
+		    If c = Index Then Return this
+		    c = c + 1
 		    prev = this
-		    this = Nil
-		  Loop Until prev = Nil
-		  Raise New OutOfBoundsException
+		  Loop Until mLastError <> 0
+		  If mLastError = 1 Then Raise New OutOfBoundsException
+		  Raise New SSHException(mLastError)
 		End Function
 	#tag EndMethod
 
