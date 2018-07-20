@@ -271,6 +271,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_get Lib libssh2 (KnownHosts As Ptr, ByRef Store As libssh2_knownhost, Prev As libssh2_knownhost) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_knownhost_get Lib libssh2 (KnownHosts As Ptr, Store As Ptr, Prev As Ptr) As Integer
 	#tag EndExternalMethod
 
