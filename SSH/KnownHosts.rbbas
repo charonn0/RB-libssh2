@@ -28,16 +28,6 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Check(Session As SSH.Session) As Boolean
-		  Dim host As String = Session.RemoteHost
-		  Dim port As Integer = Session.RemotePort
-		  Dim key As MemoryBlock = Session.HostKey
-		  Dim type As Integer = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
-		  Return Me.Lookup(host, port, key, type)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
 		  mInit = SSHInit.GetInstance()
 		  mKnownHosts = libssh2_knownhost_init(Session.Handle)
@@ -48,20 +38,21 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Count() As Integer
-		  Dim this, prev As libssh2_knownhost
+		  Dim this, prev As Ptr
 		  Dim c As Integer
 		  Do
 		    mLastError = libssh2_knownhost_get(mKnownHosts, this, prev)
+		    If mLastError <> 0 Then Return c
 		    c = c + 1
 		    prev = this
-		  Loop Until mLastError <> 0
-		  Return c
+		  Loop Until prev = Nil
+		  
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Index As Integer)
-		  Dim tmp As libssh2_knownhost = Me.Operator_Subscript(Index)
+		  Dim tmp As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
 		  mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
 		  If mLastError <> 0 Then Raise New RuntimeException
 		End Sub
@@ -86,6 +77,22 @@ Protected Class KnownHosts
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function GetEntry(Index As Integer) As Ptr
+		  Dim prev As Ptr
+		  Dim c As Integer
+		  Do
+		    Dim this As Ptr
+		    mLastError = libssh2_knownhost_get(mKnownHosts, this, prev)
+		    If c = Index Then Return this
+		    c = c + 1
+		    prev = this
+		  Loop Until mLastError <> 0
+		  If mLastError = 1 Then Raise New OutOfBoundsException
+		  Raise New SSHException(mLastError)
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function Handle() As Ptr
 		  Return mKnownHosts
@@ -93,8 +100,11 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Item(Index As Integer) As libssh2_knownhost
-		  Return Me.Operator_Subscript(Index)
+		Function Key(Index As Integer) As MemoryBlock
+		  Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  Dim mb As MemoryBlock = struct.Key
+		  Return mb.CString(0)
+		  
 		End Function
 	#tag EndMethod
 
@@ -119,6 +129,16 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Lookup(Session As SSH.Session) As Boolean
+		  Dim host As String = Session.RemoteHost
+		  Dim port As Integer = Session.RemotePort
+		  Dim key As MemoryBlock = Session.HostKey
+		  Dim type As Integer = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
+		  Return Me.Lookup(host, port, key, type)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Lookup(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
 		  Dim Store As libssh2_knownhost
 		  Return Lookup(Host, Port, Key, Type, Store)
@@ -137,18 +157,11 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Operator_Subscript(Index As Integer) As libssh2_knownhost
-		  Dim prev As libssh2_knownhost
-		  Dim c As Integer
-		  Do
-		    Dim this As libssh2_knownhost
-		    mLastError = libssh2_knownhost_get(mKnownHosts, this, prev)
-		    If c = Index Then Return this
-		    c = c + 1
-		    prev = this
-		  Loop Until mLastError <> 0
-		  If mLastError = 1 Then Raise New OutOfBoundsException
-		  Raise New SSHException(mLastError)
+		Function Name(Index As Integer) As MemoryBlock
+		  Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  Dim mb As MemoryBlock = struct.Name
+		  Return mb.CString(0)
+		  
 		End Function
 	#tag EndMethod
 
@@ -161,11 +174,11 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function StringValue(Index As Integer) As String
-		  Dim tmp As libssh2_knownhost = Me.Operator_Subscript(Index)
+		  Dim tmp As Ptr = Me.GetEntry(Index)
 		  Dim sz As Integer
 		  Call libssh2_knownhost_writeline(mKnownHosts, tmp, Nil, 0, sz, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		  If sz > 0 Then
-		    Dim buffer As New MemoryBlock(sz)
+		    Dim buffer As New MemoryBlock(sz + 1)
 		    mLastError = libssh2_knownhost_writeline(mKnownHosts, tmp, buffer, buffer.Size, sz, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		    If mLastError = 0 Then Return buffer.StringValue(0, sz)
 		  End If
