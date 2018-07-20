@@ -52,7 +52,16 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Execute(Session As SSH.Session, Command As String) As SSH.SSHStream
+		Protected Function Execute(Optional Session As SSH.Session, Command As String) As SSH.SSHStream
+		  If Session = Nil Then 
+		    Dim d As Dictionary = ParseURL(Command)
+		    Dim host As String = d.Value("host")
+		    Dim port As Integer = d.Lookup("port", 22)
+		    Dim user As String = d.Lookup("username", "")
+		    Dim pass As String = d.Lookup("password", "")
+		    Session = Connect(host, port, user, pass)
+		    Command = Replace(d.Value("path"), "/", "")
+		  End If
 		  Dim sh As Channel = OpenChannel(Session)
 		  If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
 		  Return sh
