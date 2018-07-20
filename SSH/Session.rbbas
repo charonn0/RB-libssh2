@@ -29,9 +29,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Boolean
 		  Dim kh As SSH.KnownHosts
-		  If Hosts <> Nil And Hosts.Exists Then
+		  If Hosts <> Nil Then
 		    kh = New SSH.KnownHosts(Me)
-		    Call kh.Load(Hosts)
+		    If Hosts.Exists Then Call kh.Load(Hosts)
 		  End If
 		  If Me.Connect(Address, Port, kh, AddHost) Then
 		    If kh <> Nil Then kh.Save(Hosts)
