@@ -1,13 +1,6 @@
 #tag Module
 Protected Module SSH
 	#tag Method, Flags = &h1
-		Protected Function CheckHost(Session As SSH.Session, Hosts As FolderItem) As Boolean
-		  Dim fingerprint As MemoryBlock = Session.HostKeyHash(SSH.HashType.SHA1)
-		  fingerprint = EncodeBase64(fingerprint)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
 		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server with the Username and Password.
