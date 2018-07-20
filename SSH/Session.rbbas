@@ -14,12 +14,51 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function CheckHost(Hosts As SSH.KnownHosts, AddHost As Boolean) As Boolean
+		  If Hosts.Check(Me) Then Return True
+		  If Not AddHost Then
+		    mSocket.Close()
+		    mLastError = ERR_UNKNOWN_HOST
+		    Return False
+		  End If
+		  Hosts.AddHost(Me)
+		  Return True
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Boolean
+		  If Hosts <> Nil And Hosts.Exists Then
+		    Dim kh As New SSH.KnownHosts(Me)
+		    Call kh.Load(Hosts)
+		    If Me.Connect(Address, Port, kh, AddHost) Then
+		      kh.Save(Hosts)
+		      Return True
+		    End If
+		  Else
+		    Return Me.Connect(Address, Port)
+		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Connect(Address As String, Port As Integer, Hosts As SSH.KnownHosts, AddHost As Boolean) As Boolean
 		  mRemoteHost = Address
 		  mRemotePort = Port
-		  mSocket = New TCPSocket
-		  mSocket.Address = Address
-		  mSocket.Port = Port
+		  Dim sock As New TCPSocket
+		  sock.Address = Address
+		  sock.Port = Port
+		  If Not Me.Connect(sock) Then Return False
+		  If Hosts <> Nil Then
+		    If Not CheckHost(Hosts, AddHost) Then Return False
+		  End If
+		  Return IsConnected
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Connect(Socket As TCPSocket) As Boolean
+		  mSocket = Socket
 		  AddHandler mSocket.Connected, WeakAddressOf ConnectedHandler
 		  AddHandler mSocket.DataAvailable, WeakAddressOf DataAvailableHandler
 		  AddHandler mSocket.Error, WeakAddressOf ErrorHandler
@@ -52,20 +91,6 @@ Implements ChannelParent
 		  If mLastError <> 0 Then
 		    mSocket.Close
 		    Return False
-		  End If
-		  
-		  If Hosts <> Nil And Hosts.Exists Then
-		    Dim kh As New SSH.KnownHosts(Me)
-		    Call kh.Load(Hosts)
-		    If Not kh.Check(Me) Then
-		      If Not AddHost Then
-		        mSocket.Close
-		        mLastError = ERR_UNKNOWN_HOST
-		        Raise New SSHException(mLastError)
-		      End If
-		      kh.AddHost(Address, Port, Me.HostKey, Nil, Me.HostKeyType)
-		      kh.Save(Hosts)
-		    End If
 		  End If
 		  Return IsConnected
 		End Function

@@ -16,12 +16,12 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Sub AddHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Comment As MemoryBlock, Type As Integer)
 		  If Port > 0 And Port <> 22 Then Host = "[" + Host + "]:" + Str(Port, "####0")
-		  Dim tmp As Ptr
-		  Type = LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
+		  Dim store As libssh2_knownhost
+		  Type = Type Or LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
 		  If Comment = Nil Then
-		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Nil, 0, Type, tmp)
+		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Nil, 0, Type, store)
 		  Else
-		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, Type, tmp)
+		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, Type, store)
 		  End If
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
@@ -48,14 +48,13 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Count() As Integer
-		  Dim this, prev As Ptr
+		  Dim this, prev As libssh2_knownhost
 		  Dim c As Integer
 		  Do
 		    mLastError = libssh2_knownhost_get(mKnownHosts, this, prev)
-		    If this <> Nil Then c = c + 1
+		    c = c + 1
 		    prev = this
-		    this = Nil
-		  Loop Until prev = Nil
+		  Loop Until mLastError <> 0
 		  Return c
 		End Function
 	#tag EndMethod

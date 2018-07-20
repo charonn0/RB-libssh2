@@ -251,7 +251,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_knownhost_addc Lib libssh2 (KnownHosts As Ptr, Host As CString, Salt As Ptr, Key As Ptr, KeyLength As Integer, Comment As Ptr, CommentLength As Integer, TypeMask As Integer, ByRef Store As Ptr) As Integer
+		Private Soft Declare Function libssh2_knownhost_addc Lib libssh2 (KnownHosts As Ptr, Host As CString, Salt As Ptr, Key As Ptr, KeyLength As UInt32, Comment As Ptr, CommentLength As UInt32, TypeMask As Integer, ByRef Store As libssh2_knownhost) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
