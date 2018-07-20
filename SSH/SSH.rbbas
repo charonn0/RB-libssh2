@@ -854,18 +854,11 @@ Protected Module SSH
 
 
 	#tag Structure, Name = libssh2_knownhost, Flags = &h21
-		ListNode As Ptr
+		Magic As UInt32
+		  Node As Ptr
 		  Name As Ptr
-		  NameLen As UInt32
-		  Port As Integer
-		  TypeMask As Integer
-		  Salt As Ptr
-		  SaltLen As UInt32
 		  Key As Ptr
-		  KeyTypeName As Ptr
-		  KeyTypeNameLen As UInt32
-		  Comment As Ptr
-		CommentLen As UInt32
+		TypeMask As Integer
 	#tag EndStructure
 
 	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21
