@@ -18,7 +18,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Connect(Address As String, Port As Integer = 22, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
@@ -35,7 +35,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Connect(Address As String, Port As Integer = 22, Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server as Username with the PublicKey and PrivateKey MemoryBlocks.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If 
@@ -52,7 +52,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Connect(Address As String, Port As Integer = 22, Username As String, Password As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		Protected Function Connect(Address As String, Port As Integer, Username As String, Password As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server with the Username and Password.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
