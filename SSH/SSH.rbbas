@@ -4,7 +4,23 @@ Protected Module SSH
 		Protected Function CheckHost(Session As SSH.Session, Hosts As FolderItem) As Boolean
 		  Dim fingerprint As MemoryBlock = Session.HostKeyHash(SSH.HashType.SHA1)
 		  fingerprint = EncodeBase64(fingerprint)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticate to the server with the Username and Password.
+		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
+		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
+		  Dim d As Dictionary = ParseURL(URL)
+		  Dim host As String = d.Value("host")
+		  Dim port As Integer = d.Lookup("port", 22)
+		  Dim user As String = d.Lookup("username", "")
+		  Dim pass As String = d.Lookup("password", "")
+		  Return Connect(host, port, user, pass, KnownHostList, AddHost)
 		End Function
 	#tag EndMethod
 
@@ -60,9 +76,20 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Execute(Session As SSH.Session, Command As String) As SSH.SSHStream
+		Protected Function Execute(Optional Session As SSH.Session, Command As String) As SSH.SSHStream
+		  If Session = Nil Then 
+		    Dim d As Dictionary = ParseURL(Command)
+		    Dim host As String = d.Value("host")
+		    Dim port As Integer = d.Lookup("port", 22)
+		    Dim user As String = d.Lookup("username", "")
+		    Dim pass As String = d.Lookup("password", "")
+		    Session = Connect(host, port, user, pass)
+		    Command = Replace(d.Value("path"), "/", "")
+		  End If
 		  Dim sh As Channel = OpenChannel(Session)
-		  If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		  If Command <> "" Then
+		    If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		  End If
 		  Return sh
 		End Function
 	#tag EndMethod
@@ -505,7 +532,7 @@ Protected Module SSH
 		  
 		  If InStr(URL, "://") > 0 Then
 		    Dim scheme As String = NthField(URL, "://", 1)
-		    Parsed.Value("scheme") = scheme
+		    Parsed.Value("scheme") = URLDecode(scheme)
 		    URL = URL.Replace(scheme + "://", "")
 		  End If
 		  
@@ -518,8 +545,8 @@ Protected Module SSH
 		    Dim u, p As String
 		    u = NthField(userinfo, ":", 1)
 		    p = NthField(userinfo, ":", 2)
-		    parsed.Value("username") = u
-		    parsed.Value("password") = p
+		    parsed.Value("username") = URLDecode(u)
+		    parsed.Value("password") = URLDecode(p)
 		    URL = URL.Replace(userinfo + "@", "")
 		  End If
 		  
@@ -548,7 +575,6 @@ Protected Module SSH
 		    'URL = URL.Replace("]/", "]")
 		  End If
 		  
-		  
 		  If Instr(URL, "#") > 0 Then
 		    Dim f As String = NthField(URL, "#", 2)  //    #fragment
 		    parsed.Value("fragment") = f
@@ -556,17 +582,17 @@ Protected Module SSH
 		  End If
 		  
 		  Dim h As String = NthField(URL, "/", 1)  //  [sub.]domain.tld
-		  parsed.Value("host") = h
+		  parsed.Value("host") = URLDecode(h)
 		  URL = URL.Replace(h, "")
 		  
 		  If InStr(URL, "?") > 0 Then
 		    Dim p As String = NthField(URL, "?", 1) //    /foo/bar.php
-		    parsed.Value("path") = p
+		    parsed.Value("path") = URLDecode(p)
 		    URL = URL.Replace(p + "?", "")
 		    parsed.Value("arguments") = URL
 		  Else
 		    Dim p As String = URL.Trim
-		    parsed.Value("path") = p
+		    parsed.Value("path") = URLDecode(p)
 		    URL = Replace(URL, p, "")
 		    parsed.Value("arguments") = ""
 		  End If
@@ -612,6 +638,24 @@ Protected Module SSH
 		  Else
 		    Raise New RuntimeException
 		  End Select
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function URLDecode(Data As MemoryBlock) As String
+		  Dim bs As New BinaryStream(Data)
+		  Dim decoded As New MemoryBlock(0)
+		  Dim dcbs As New BinaryStream(decoded)
+		  Do Until bs.EOF
+		    Dim char As String = bs.Read(1)
+		    If AscB(char) = 37 Then ' %
+		      dcbs.Write(ChrB(Val("&h" + bs.Read(2))))
+		    Else
+		      dcbs.Write(char)
+		    End If
+		  Loop
+		  dcbs.Close
+		  Return DefineEncoding(decoded, Encodings.UTF8)
 		End Function
 	#tag EndMethod
 
