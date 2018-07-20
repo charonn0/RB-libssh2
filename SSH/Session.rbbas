@@ -15,7 +15,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function CheckHost(Hosts As SSH.KnownHosts, AddHost As Boolean) As Boolean
-		  If Hosts.Check(Me) Then Return True
+		  If Hosts.Lookup(Me) Then Return True
 		  If Not AddHost Then
 		    mSocket.Close()
 		    mLastError = ERR_UNKNOWN_HOST
