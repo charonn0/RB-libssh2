@@ -723,6 +723,9 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_BANNER_SEND, Type = Double, Dynamic = False, Default = \"-3", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_ERROR_BUFFER_TOO_SMALL, Type = Double, Dynamic = False, Default = \"-38", Scope = Public
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_ERROR_CHANNEL_CLOSED, Type = Double, Dynamic = False, Default = \"-26", Scope = Private
 	#tag EndConstant
 
