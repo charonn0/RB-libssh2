@@ -1,6 +1,23 @@
 #tag Module
 Protected Module SSH
 	#tag Method, Flags = &h1
+		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticate to the server with the Username and Password.
+		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
+		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  
+		  Dim d As Dictionary = ParseURL(URL)
+		  Dim host As String = d.Value("host")
+		  Dim port As Integer = d.Lookup("port", 22)
+		  Dim user As String = d.Lookup("username", "")
+		  Dim pass As String = d.Lookup("password", "")
+		  Return Connect(host, port, user, pass, KnownHostList, AddHost)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer = 22, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
