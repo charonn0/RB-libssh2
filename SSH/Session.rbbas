@@ -613,10 +613,6 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mPassword As String
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mRemoteHost As String
 	#tag EndProperty
 
@@ -637,21 +633,8 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mUserName As String
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mVerbose As Boolean
 	#tag EndProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  return mPassword
-			End Get
-		#tag EndGetter
-		Password As String
-	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -708,15 +691,6 @@ Implements ChannelParent
 			End Set
 		#tag EndSetter
 		UseCompression As Boolean
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  return mUserName
-			End Get
-		#tag EndGetter
-		UserName As String
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -791,6 +765,16 @@ Implements ChannelParent
 			Type="Boolean"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="IsConnected"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="KeepAlivePeriod"
+			Group="Behavior"
+			Type="Integer"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Left"
 			Visible=true
 			Group="Position"
@@ -802,6 +786,21 @@ Implements ChannelParent
 			Visible=true
 			Group="ID"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Password"
+			Group="Behavior"
+			Type="String"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="RemoteHost"
+			Group="Behavior"
+			Type="String"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="RemotePort"
+			Group="Behavior"
+			Type="Integer"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Super"
@@ -820,6 +819,16 @@ Implements ChannelParent
 			Group="Position"
 			InitialValue="0"
 			InheritedFrom="Object"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="UseCompression"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="UserName"
+			Group="Behavior"
+			Type="String"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Verbose"
