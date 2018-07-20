@@ -506,7 +506,7 @@ Protected Module SSH
 		  
 		  If InStr(URL, "://") > 0 Then
 		    Dim scheme As String = NthField(URL, "://", 1)
-		    Parsed.Value("scheme") = scheme
+		    Parsed.Value("scheme") = URLDecode(scheme)
 		    URL = URL.Replace(scheme + "://", "")
 		  End If
 		  
@@ -519,8 +519,8 @@ Protected Module SSH
 		    Dim u, p As String
 		    u = NthField(userinfo, ":", 1)
 		    p = NthField(userinfo, ":", 2)
-		    parsed.Value("username") = u
-		    parsed.Value("password") = p
+		    parsed.Value("username") = URLDecode(u)
+		    parsed.Value("password") = URLDecode(p)
 		    URL = URL.Replace(userinfo + "@", "")
 		  End If
 		  
@@ -549,7 +549,6 @@ Protected Module SSH
 		    'URL = URL.Replace("]/", "]")
 		  End If
 		  
-		  
 		  If Instr(URL, "#") > 0 Then
 		    Dim f As String = NthField(URL, "#", 2)  //    #fragment
 		    parsed.Value("fragment") = f
@@ -557,17 +556,17 @@ Protected Module SSH
 		  End If
 		  
 		  Dim h As String = NthField(URL, "/", 1)  //  [sub.]domain.tld
-		  parsed.Value("host") = h
+		  parsed.Value("host") = URLDecode(h)
 		  URL = URL.Replace(h, "")
 		  
 		  If InStr(URL, "?") > 0 Then
 		    Dim p As String = NthField(URL, "?", 1) //    /foo/bar.php
-		    parsed.Value("path") = p
+		    parsed.Value("path") = URLDecode(p)
 		    URL = URL.Replace(p + "?", "")
 		    parsed.Value("arguments") = URL
 		  Else
 		    Dim p As String = URL.Trim
-		    parsed.Value("path") = p
+		    parsed.Value("path") = URLDecode(p)
 		    URL = Replace(URL, p, "")
 		    parsed.Value("arguments") = ""
 		  End If
@@ -613,6 +612,24 @@ Protected Module SSH
 		  Else
 		    Raise New RuntimeException
 		  End Select
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function URLDecode(Data As MemoryBlock) As String
+		  Dim bs As New BinaryStream(Data)
+		  Dim decoded As New MemoryBlock(0)
+		  Dim dcbs As New BinaryStream(decoded)
+		  Do Until bs.EOF
+		    Dim char As String = bs.Read(1)
+		    If AscB(char) = 37 Then ' %
+		      dcbs.Write(ChrB(Val("&h" + bs.Read(2))))
+		    Else
+		      dcbs.Write(char)
+		    End If
+		  Loop
+		  dcbs.Close
+		  Return DefineEncoding(decoded, Encodings.UTF8)
 		End Function
 	#tag EndMethod
 
