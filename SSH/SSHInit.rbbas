@@ -22,9 +22,15 @@ Private Class SSHInit
 
 	#tag Method, Flags = &h0
 		 Shared Function GetInstance() As SSHInit
-		  Static instance As SSHInit
-		  If instance = Nil Then instance = New SSHInit
-		  Return instance
+		  Static instance As WeakRef
+		  Dim init As SSHInit
+		  If instance = Nil Then
+		    init = New SSHInit
+		    instance = New WeakRef(init)
+		  Else
+		    init = SSHInit(instance.Value)
+		  End If
+		  Return init
 		End Function
 	#tag EndMethod
 
