@@ -80,7 +80,9 @@ Protected Module SSH
 		    Command = Replace(d.Value("path"), "/", "")
 		  End If
 		  Dim sh As Channel = OpenChannel(Session)
-		  If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		  If Command <> "" Then
+		    If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		  End If
 		  Return sh
 		End Function
 	#tag EndMethod
