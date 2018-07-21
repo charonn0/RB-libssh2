@@ -18,7 +18,7 @@ Implements ChannelParent
 		  If Hosts.Lookup(Me) Then Return True
 		  If Not AddHost Then
 		    mSocket.Close()
-		    mLastError = ERR_UNKNOWN_HOST
+		    mLastError = Hosts.LastError
 		    Return False
 		  End If
 		  Hosts.AddHost(Me)
