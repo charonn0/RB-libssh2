@@ -27,29 +27,15 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Connect(Address As String, Port As Integer, Optional Hosts As FolderItem, AddHost As Boolean = False) As Boolean
-		  Dim kh As SSH.KnownHosts
-		  If Hosts <> Nil Then
-		    kh = New SSH.KnownHosts(Me)
-		    If Hosts.Exists Then Call kh.Load(Hosts)
-		  End If
-		  If Me.Connect(Address, Port, kh, AddHost) Then
-		    If kh <> Nil Then kh.Save(Hosts)
-		    Return True
-		  End If
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function Connect(Address As String, Port As Integer, Hosts As SSH.KnownHosts, AddHost As Boolean) As Boolean
+		Function Connect(Address As String, Port As Integer, AddHost As Boolean) As Boolean
 		  mRemoteHost = Address
 		  mRemotePort = Port
 		  Dim sock As New TCPSocket
 		  sock.Address = Address
 		  sock.Port = Port
 		  If Not Me.Connect(sock) Then Return False
-		  If Hosts <> Nil Then
-		    If Not Me.CheckHost(Hosts, AddHost) Then Return False
+		  If Me.KnownHosts <> Nil Then
+		    If Not Me.CheckHost(Me.KnownHosts, AddHost) Then Return False
 		  End If
 		  Return IsConnected
 		End Function
@@ -334,6 +320,12 @@ Implements ChannelParent
 		Private Delegate Sub PasswordChangeRequestCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, Abstract As Integer)
 	#tag EndDelegateDeclaration
 
+	#tag Method, Flags = &h0
+		Sub Poll()
+		  If mSocket <> Nil Then mSocket.Poll()
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub RegisterChannel(Chan As Channel)
 		  mChannels = New Dictionary
@@ -604,6 +596,10 @@ Implements ChannelParent
 		#tag EndSetter
 		KeepAlivePeriod As Integer
 	#tag EndComputedProperty
+
+	#tag Property, Flags = &h0
+		KnownHosts As SSH.KnownHosts
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mChannels As Dictionary
