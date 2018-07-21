@@ -110,7 +110,7 @@ Protected Module SSH
 		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Get(path)
 		  Else
-		    Raise New RuntimeException
+		    Raise New SSHException(ERR_INVALID_SCHEME)
 		  End Select
 		End Function
 	#tag EndMethod
@@ -504,7 +504,7 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  If scheme <> "ssh" Then Raise New RuntimeException
+		  If scheme <> "ssh" Then Raise New SSHException(ERR_INVALID_SCHEME)
 		  Dim Session As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
 		  If Not Session.IsConnected Or Not Session.IsAuthenticated Then Raise New SSHException(Session.LastError)
 		  Return OpenChannel(Session)
@@ -628,12 +628,13 @@ Protected Module SSH
 		  If Session = Nil Then Session = Connect(host, port, user, pass)
 		  Select Case scheme
 		  Case "scp"
-		    Return Channel.CreateSCP(Session, path, Mode, Length, 0, 0)
+		    If Length <= 0 Then Raise New SSHException(ERR_LENGTH_REQUIRED)
+		    Return Channel.CreateSCP(Session, path, &o644, Length, 0, 0)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Put(path, Overwrite, Mode)
 		  Else
-		    Raise New RuntimeException
+		    Raise New SSHException(ERR_INVALID_SCHEME)
 		  End Select
 		End Function
 	#tag EndMethod
