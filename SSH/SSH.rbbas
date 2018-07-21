@@ -101,7 +101,7 @@ Protected Module SSH
 		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
 		  Select Case scheme
 		  Case "scp"
-		    Return Channel.OpenSCP(Session, d.Value("path"))
+		    Return Channel.OpenSCP(Session, path)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Get(path)
