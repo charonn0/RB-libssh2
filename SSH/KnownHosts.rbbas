@@ -37,6 +37,18 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub Constructor(Session As SSH.Session, KnownHostsFile As FolderItem)
+		  Me.Constructor(Session)
+		  #If Not DebugBuild Then
+		    Call Me.Load(KnownHostsFile)
+		  #Else
+		    Dim c As Integer = Me.Load(KnownHostsFile)
+		    If c <> Me.Count Then Break
+		  #EndIf
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Count() As Integer
 		  Dim this, prev As Ptr
 		  Dim c As Integer
