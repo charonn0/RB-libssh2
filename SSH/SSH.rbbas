@@ -683,6 +683,12 @@ Protected Module SSH
 	#tag Constant, Name = ERR_INVALID_PORT, Type = Double, Dynamic = False, Default = \"-506", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = ERR_INVALID_SCHEME, Type = Double, Dynamic = False, Default = \"-511", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_LENGTH_REQUIRED, Type = Double, Dynamic = False, Default = \"-512", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-504", Scope = Protected
 	#tag EndConstant
 
@@ -712,7 +718,16 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_CHANNEL_WINDOW_DEFAULT, Type = Double, Dynamic = False, Default = \"262144", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_ERROR_AGENT_PROTOCOL, Type = Double, Dynamic = False, Default = \" -42", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_ERROR_ALLOC, Type = Double, Dynamic = False, Default = \"-6", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_BAD_SOCKET, Type = Double, Dynamic = False, Default = \" -45", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_BAD_USE, Type = Double, Dynamic = False, Default = \" -39", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_BANNER_NONE, Type = Double, Dynamic = False, Default = \"-2", Scope = Protected
@@ -748,10 +763,19 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED, Type = Double, Dynamic = False, Default = \"-24", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_ERROR_CHANNEL_WINDOW_FULL, Type = Double, Dynamic = False, Default = \" -47", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_COMPRESS, Type = Double, Dynamic = False, Default = \" -40", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_ERROR_DECRYPT, Type = Double, Dynamic = False, Default = \"-12", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_EAGAIN, Type = Double, Dynamic = False, Default = \"-37", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_ENCRYPT, Type = Double, Dynamic = False, Default = \" -44", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_FILE, Type = Double, Dynamic = False, Default = \"-16", Scope = Protected
@@ -778,6 +802,9 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE, Type = Double, Dynamic = False, Default = \"-8", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_ERROR_KNOWN_HOSTS, Type = Double, Dynamic = False, Default = \" -46", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_ERROR_METHOD_NONE, Type = Double, Dynamic = False, Default = \"-17", Scope = Protected
 	#tag EndConstant
 
@@ -785,6 +812,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_NONE, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_OUT_OF_BOUNDARY, Type = Double, Dynamic = False, Default = \" -41", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_PASSWORD_EXPIRED, Type = Double, Dynamic = False, Default = \"-15", Scope = Protected
@@ -815,6 +845,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_SOCKET_NONE, Type = Double, Dynamic = False, Default = \"-1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_SOCKET_RECV, Type = Double, Dynamic = False, Default = \" -43", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_SOCKET_SEND, Type = Double, Dynamic = False, Default = \"-7", Scope = Protected
