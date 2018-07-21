@@ -26,6 +26,7 @@ Protected Class Agent
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
+		  mInit = SSHInit.GetInstance()
 		  mAgent = libssh2_agent_init(Session.Handle)
 		  If mAgent = Nil Then Raise New SSHException(0)
 		End Sub
@@ -114,6 +115,10 @@ Protected Class Agent
 
 	#tag Property, Flags = &h21
 		Private mAgent As Ptr
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mInit As SSHInit
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
