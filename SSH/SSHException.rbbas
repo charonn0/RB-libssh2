@@ -109,8 +109,14 @@ Inherits RuntimeException
 		    Return "ERR_RESOLVE"
 		  Case ERR_SOCKET
 		    Return "ERR_SOCKET"
-		  Case ERR_UNKNOWN_HOST
-		    Return "ERR_UNKNOWN_HOST"
+		  Case ERR_HOSTKEY_NOTFOUND
+		    Return "ERR_HOSTKEY_NOTFOUND"
+		  Case ERR_HOSTKEY_MISMATCH
+		    Return "ERR_HOSTKEY_MISMATCH"
+		  Case ERR_HOSTKEY_FAIL
+		    Return "ERR_HOSTKEY_FAIL"
+		  Case ERR_HOSTKEY_NOTFOUND
+		    Return "ERR_HOSTKEY_NOTFOUND"
 		  Else
 		    Return "Unknown error number."
 		    
