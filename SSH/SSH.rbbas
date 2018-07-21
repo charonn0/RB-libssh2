@@ -27,7 +27,9 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  If sess.Connect(Address, Port, KnownHostList, AddHost) Then
+		  If KnownHostList <> Nil Then sess.KnownHosts = New SSH.KnownHosts(sess, KnownHostList)
+		  
+		  If sess.Connect(Address, Port, AddHost) Then
 		    Call sess.SetCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
 		  End If
 		  Return sess
@@ -44,7 +46,8 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  If sess.Connect(Address, Port, KnownHostList, AddHost) Then
+		  If KnownHostList <> Nil Then sess.KnownHosts = New SSH.KnownHosts(sess, KnownHostList)
+		  If sess.Connect(Address, Port, AddHost) Then
 		    Call sess.SetCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
 		  End If
 		  Return sess
@@ -61,7 +64,8 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  If sess.Connect(Address, Port, KnownHostList, AddHost) Then
+		  If KnownHostList <> Nil Then sess.KnownHosts = New SSH.KnownHosts(sess, KnownHostList)
+		  If sess.Connect(Address, Port, AddHost) Then
 		    Call sess.SetCredentials(Username, Password)
 		  End If
 		  Return sess
@@ -88,7 +92,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Get(Optional Session As SSH.Session, URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
+		Protected Function Get(Optional Session As SSH.Session, URL As String) As SSH.SSHStream
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
@@ -98,7 +102,7 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  If Session = Nil Then Session = Connect(host, port, user, pass)
 		  Select Case scheme
 		  Case "scp"
 		    Return Channel.OpenSCP(Session, path)
@@ -621,7 +625,7 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  If Session = Nil Then Session = Connect(host, port, user, pass, KnownHostList, AddHost)
+		  If Session = Nil Then Session = Connect(host, port, user, pass)
 		  Select Case scheme
 		  Case "scp"
 		    Return Channel.CreateSCP(Session, path, Mode, Length, 0, 0)
