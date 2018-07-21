@@ -615,7 +615,7 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As Integer, Mode As Integer, Overwrite As Boolean, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.SSHStream
+		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32 = 0, Overwrite As Boolean = False) As SSH.SSHStream
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
@@ -632,7 +632,7 @@ Protected Module SSH
 		    Return Channel.CreateSCP(Session, path, &o644, Length, 0, 0)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
-		    Return sftp.Put(path, Overwrite, Mode)
+		    Return sftp.Put(path, Overwrite, &o644)
 		  Else
 		    Raise New SSHException(ERR_INVALID_SCHEME)
 		  End Select
