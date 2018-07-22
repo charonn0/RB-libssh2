@@ -343,6 +343,39 @@ Implements ChannelParent
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function SendCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String) As Boolean
+		  Dim pub, priv As MemoryBlock
+		  pub = PublicKey.AbsolutePath
+		  priv = PrivateKey.AbsolutePath
+		  Do
+		    mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, pub, priv, PrivateKeyPassword)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function SendCredentials(Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String) As Boolean
+		  ' Authenticate to the server with a key from memory.
+		  ' https://www.libssh2.org/libssh2_userauth_publickey_frommemory.html
+		  
+		  Do
+		    mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function SendCredentials(Username As String, Password As String) As Boolean
+		  Do
+		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub Sess_Debug(AlwaysDisplay As Integer, Message As MemoryBlock, MessageLength As Integer, Language As MemoryBlock)
 		  Dim m As String = Message.StringValue(0, MessageLength)
@@ -420,39 +453,6 @@ Implements ChannelParent
 		    Raise New RuntimeException
 		  End Select
 		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function SetCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String) As Boolean
-		  Dim pub, priv As MemoryBlock
-		  pub = PublicKey.AbsolutePath
-		  priv = PrivateKey.AbsolutePath
-		  Do
-		    mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, pub, priv, PrivateKeyPassword)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function SetCredentials(Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String) As Boolean
-		  ' Authenticate to the server with a key from memory.
-		  ' https://www.libssh2.org/libssh2_userauth_publickey_frommemory.html
-		  
-		  Do
-		    mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function SetCredentials(Username As String, Password As String) As Boolean
-		  Do
-		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
-		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
