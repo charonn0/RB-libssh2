@@ -71,6 +71,20 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub DeleteHost(ActiveSession As SSH.Session)
+		  Dim fingerprint As MemoryBlock = ActiveSession.HostKey
+		  Dim type As Integer
+		  If ActiveSession.HostKeyType = LIBSSH2_HOSTKEY_TYPE_RSA Then
+		    type = LIBSSH2_KNOWNHOST_KEY_SSHRSA
+		  Else
+		    type = LIBSSH2_KNOWNHOST_KEY_SSHDSS
+		  End If
+		  type = type Or LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
+		  DeleteHost(ActiveSession.RemoteHost, ActiveSession.RemotePort, fingerprint, type)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub DeleteHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer)
 		  Dim tmp As libssh2_knownhost
 		  If Me.Lookup(Host, Port, Key, Type, tmp) Then
