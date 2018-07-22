@@ -232,12 +232,6 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Session() As SSH.Session
-		  Return mSession
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Sub SetEnvironmentVariable(Name As String, Value As String)
 		  Do
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
@@ -363,6 +357,15 @@ Implements SSHStream
 			End Get
 		#tag EndGetter
 		ReadWindow As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mSession
+			End Get
+		#tag EndGetter
+		Session As SSH.Session
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
