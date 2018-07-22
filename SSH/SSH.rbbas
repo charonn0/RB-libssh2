@@ -2,11 +2,11 @@
 Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
-		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
-		  ' Authenticate to the server with the Username and Password.
+		  ' Attemt a new SSH connection to the server specified by the URL. Authenticate to the server
+		  ' with the Username and Password also encoded in the URL.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
-		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
-		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
+		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host As String = d.Value("host")
