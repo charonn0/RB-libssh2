@@ -15,6 +15,11 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function CheckHost(Hosts As SSH.KnownHosts, AddHost As Boolean) As Boolean
+		  ' Compares the current session to a list of known host+key combinations.
+		  ' If AddHost=True then the current session's host+key will be added to the list.
+		  ' If AddHost=False and the host+key of the current session were found in the list
+		  ' this method returns True. Check Session.LastError if it returns False.
+		  
 		  If Hosts.Lookup(Me) Then Return True
 		  mLastError = Hosts.LastError
 		  If Not AddHost Then Return False
@@ -25,6 +30,9 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer) As Boolean
+		  ' Opens a TCP connection to the Address:Port and then performs the SSH handshake.
+		  ' Returns True on success. Check Session.LastError if it returns False.
+		  
 		  mRemoteHost = Address
 		  mRemotePort = Port
 		  Dim sock As New TCPSocket
@@ -36,6 +44,9 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function Connect(Socket As TCPSocket) As Boolean
+		  ' Opens a TCP connection using the specified Socket and then performs the SSH handshake.
+		  ' Returns True on success. Check Session.LastError if it returns False.
+		  
 		  mSocket = Socket
 		  AddHandler mSocket.Connected, WeakAddressOf ConnectedHandler
 		  AddHandler mSocket.DataAvailable, WeakAddressOf DataAvailableHandler
