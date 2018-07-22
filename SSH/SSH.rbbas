@@ -27,9 +27,12 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  If KnownHostList <> Nil Then sess.KnownHosts = New SSH.KnownHosts(sess, KnownHostList)
 		  
-		  If sess.Connect(Address, Port, AddHost) Then
+		  If sess.Connect(Address, Port) Then
+		    If KnownHostList <> Nil Then
+		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
+		      If Not sess.CheckHost(kh, AddHost) Then Return sess
+		    End If
 		    Call sess.SetCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
 		  End If
 		  Return sess
@@ -46,8 +49,11 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  If KnownHostList <> Nil Then sess.KnownHosts = New SSH.KnownHosts(sess, KnownHostList)
-		  If sess.Connect(Address, Port, AddHost) Then
+		  If sess.Connect(Address, Port) Then
+		    If KnownHostList <> Nil Then
+		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
+		      If Not sess.CheckHost(kh, AddHost) Then Return sess
+		    End If
 		    Call sess.SetCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
 		  End If
 		  Return sess
@@ -64,8 +70,11 @@ Protected Module SSH
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
-		  If KnownHostList <> Nil Then sess.KnownHosts = New SSH.KnownHosts(sess, KnownHostList)
-		  If sess.Connect(Address, Port, AddHost) Then
+		  If sess.Connect(Address, Port) Then
+		    If KnownHostList <> Nil Then
+		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
+		      If Not sess.CheckHost(kh, AddHost) Then Return sess
+		    End If
 		    Call sess.SetCredentials(Username, Password)
 		  End If
 		  Return sess

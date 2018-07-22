@@ -166,14 +166,17 @@ Protected Class KnownHosts
 		  End If
 		  ' libssh2_knownhost_check doesn't return a standard error code
 		  Select Case mLastError
+		  Case 0
+		    Return True
 		  Case LIBSSH2_KNOWNHOST_CHECK_MISMATCH
 		    mLastError = ERR_HOSTKEY_MISMATCH
 		  Case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND
 		    mLastError = ERR_HOSTKEY_NOTFOUND
 		  Case LIBSSH2_KNOWNHOST_CHECK_FAILURE
 		    mLastError = ERR_HOSTKEY_FAIL
+		  Else
+		    Raise New SSHException(mLastError)
 		  End Select
-		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
