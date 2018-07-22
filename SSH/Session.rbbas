@@ -16,28 +16,21 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function CheckHost(Hosts As SSH.KnownHosts, AddHost As Boolean) As Boolean
 		  If Hosts.Lookup(Me) Then Return True
-		  If Not AddHost Then
-		    mSocket.Close()
-		    mLastError = Hosts.LastError
-		    Return False
-		  End If
+		  mLastError = Hosts.LastError
+		  If Not AddHost Then Return False
 		  Hosts.AddHost(Me)
 		  Return True
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Connect(Address As String, Port As Integer, AddHost As Boolean) As Boolean
+		Function Connect(Address As String, Port As Integer) As Boolean
 		  mRemoteHost = Address
 		  mRemotePort = Port
 		  Dim sock As New TCPSocket
 		  sock.Address = Address
 		  sock.Port = Port
-		  If Not Me.Connect(sock) Then Return False
-		  If Me.KnownHosts <> Nil Then
-		    If Not Me.CheckHost(Me.KnownHosts, AddHost) Then Return False
-		  End If
-		  Return IsConnected
+		  Return Me.Connect(sock)
 		End Function
 	#tag EndMethod
 
@@ -251,7 +244,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function LastError() As Integer
-		  If mLastError <> 0 Then Return mLastError Else Return GetLastError() 
+		  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
 		End Function
 	#tag EndMethod
 
@@ -596,10 +589,6 @@ Implements ChannelParent
 		#tag EndSetter
 		KeepAlivePeriod As Integer
 	#tag EndComputedProperty
-
-	#tag Property, Flags = &h0
-		KnownHosts As SSH.KnownHosts
-	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mChannels As Dictionary
