@@ -33,7 +33,7 @@ Protected Module SSH
 		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
 		    End If
-		    Call sess.SetCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		    Call sess.SendCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
 		  End If
 		  Return sess
 		End Function
@@ -54,7 +54,7 @@ Protected Module SSH
 		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
 		    End If
-		    Call sess.SetCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
+		    Call sess.SendCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
 		  End If
 		  Return sess
 		End Function
@@ -75,7 +75,7 @@ Protected Module SSH
 		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
 		    End If
-		    Call sess.SetCredentials(Username, Password)
+		    Call sess.SendCredentials(Username, Password)
 		  End If
 		  Return sess
 		End Function
