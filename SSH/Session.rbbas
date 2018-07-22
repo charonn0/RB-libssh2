@@ -100,9 +100,10 @@ Implements ChannelParent
 		  Do
 		    abstract = abstract + 1
 		  Loop Until Not Sessions.HasKey(abstract)
-		  Sessions.Value(abstract) = New WeakRef(Me)
 		  mSession = libssh2_session_init_ex(Nil, Nil, Nil, abstract)
 		  If mSession = Nil Then Raise New RuntimeException
+		  mAbstract = abstract
+		  Sessions.Value(abstract) = New WeakRef(Me)
 		  Me.SetCallback(CB_Disconnect, AddressOf DisconnectHandler)
 		  Me.SetCallback(CB_Ignore, AddressOf IgnoreHandler)
 		  Me.SetCallback(CB_MACError, AddressOf MACErrorHandler)
@@ -149,6 +150,10 @@ Implements ChannelParent
 		  End If
 		  If mSocket <> Nil Then mSocket.Close
 		  mChannels = Nil
+		  If Sessions <> Nil And Sessions.HasKey(mAbstract) Then
+		    Sessions.Remove(mAbstract)
+		    If Sessions.Count = 0 Then Sessions = Nil
+		  End If
 		End Sub
 	#tag EndMethod
 
@@ -600,6 +605,10 @@ Implements ChannelParent
 		#tag EndSetter
 		KeepAlivePeriod As Integer
 	#tag EndComputedProperty
+
+	#tag Property, Flags = &h21
+		Private mAbstract As Integer
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mChannels As Dictionary
