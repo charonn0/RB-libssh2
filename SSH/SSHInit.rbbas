@@ -11,12 +11,14 @@ Private Class SSHInit
 		    err = libssh2_init(0)
 		  End If
 		  If err <> 0 Then Raise New SSHException(err)
+		  mInit = True
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If SSH.IsAvailable Then libssh2_exit()
+		  If mInit Then libssh2_exit()
+		  mInit = False
 		End Sub
 	#tag EndMethod
 
@@ -33,6 +35,11 @@ Private Class SSHInit
 		  Return init
 		End Function
 	#tag EndMethod
+
+
+	#tag Property, Flags = &h21
+		Private mInit As Boolean
+	#tag EndProperty
 
 
 End Class
