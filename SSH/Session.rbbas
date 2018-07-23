@@ -259,6 +259,19 @@ Implements ChannelParent
 		End Function
 	#tag EndMethod
 
+	#tag DelegateDeclaration, Flags = &h21
+		Private Delegate Sub KeyboardAuthCallback(Name As Ptr, NameLength As Integer, Instruction As Ptr, InstructionLength As Integer, PromptCount As Integer, Prompts As Ptr, Responses As Ptr, ByRef Abstract As Integer)
+	#tag EndDelegateDeclaration
+
+	#tag Method, Flags = &h21
+		Private Shared Sub KeyboardAuthHandler(Name As Ptr, NameLength As Integer, Instruction As Ptr, InstructionLength As Integer, PromptCount As Integer, Prompts As Ptr, Responses As Ptr, ByRef Abstract As Integer)
+		  If Sessions = Nil Then Return
+		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
+		  If w = Nil Or w.Value = Nil Then Return
+		  SSH.Session(w.Value).Sess_KeyboardAuth(Name, NameLength, Instruction, InstructionLength, PromptCount, Prompts, Responses)
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function LastError() As Integer
 		  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
@@ -345,6 +358,15 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function SendCredentials(Username As String) As Boolean
+		  Do
+		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String) As Boolean
 		  Dim pub, priv As MemoryBlock
 		  pub = PublicKey.AbsolutePath
@@ -397,6 +419,29 @@ Implements ChannelParent
 		Private Sub Sess_Ignore(Message As MemoryBlock, MessageLength As Integer)
 		  Dim m As String = Message.StringValue(0, MessageLength)
 		  RaiseEvent IgnoreMessage(m)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub Sess_KeyboardAuth(Name As MemoryBlock, NameLength As Integer, Instruction As MemoryBlock, InstructionLength As Integer, PromptCount As Integer, Prompts As Ptr, Responses As Ptr)
+		  Dim nm, ins As String
+		  If NameLength > 0 Then nm = Name.StringValue(0, NameLength)
+		  If InstructionLength > 0 Then ins = Instruction.StringValue(0, InstructionLength)
+		  
+		  For i As Integer = 0 To PromptCount - 1
+		    Dim p As Ptr = Prompts.Ptr(i * 4)
+		    Dim r As Ptr = Responses.Ptr(i * 4)
+		    Dim prmt As LIBSSH2_USERAUTH_KBDINT_PROMPT = p.LIBSSH2_USERAUTH_KBDINT_PROMPT
+		    Dim mb As MemoryBlock = prmt.Text
+		    mb = mb.StringValue(0, prmt.Length)
+		    Dim response As String
+		    If Not RaiseEvent Authenticate(nm, ins, mb, response) Then Return
+		    Dim rsp As LIBSSH2_USERAUTH_KBDINT_RESPONSE = r.LIBSSH2_USERAUTH_KBDINT_RESPONSE
+		    mb = response
+		    Dim txt As MemoryBlock = rsp.Text
+		    txt.StringValue(0, mb.Size) = mb
+		    rsp.Length = mb.Size
+		  Next
 		End Sub
 	#tag EndMethod
 
@@ -492,6 +537,10 @@ Implements ChannelParent
 		End Sub
 	#tag EndMethod
 
+
+	#tag Hook, Flags = &h0
+		Event Authenticate(Name As String, Instruction As String, Prompt As String, ByRef Response As String) As Boolean
+	#tag EndHook
 
 	#tag Hook, Flags = &h0
 		Event Connected(Banner As String)
@@ -763,6 +812,18 @@ Implements ChannelParent
 
 	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_OUTBOUND, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
 	#tag EndConstant
+
+
+	#tag Structure, Name = LIBSSH2_USERAUTH_KBDINT_PROMPT, Flags = &h21
+		Text As Ptr
+		  Length As UInt32
+		Echo As Ptr
+	#tag EndStructure
+
+	#tag Structure, Name = LIBSSH2_USERAUTH_KBDINT_RESPONSE, Flags = &h21
+		Text As Ptr
+		Length As UInt32
+	#tag EndStructure
 
 
 	#tag ViewBehavior
