@@ -143,13 +143,14 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
+		  If Me.IsConnected Then Me.Disconnect()
 		  If mSession <> Nil Then
 		    mLastError = libssh2_session_free(mSession)
 		    mSession = Nil
 		    If mLastError <> 0 Then Raise New SSHException(mLastError)
 		  End If
-		  If mSocket <> Nil Then mSocket.Close
 		  mChannels = Nil
+		  mSocket = Nil
 		  If Sessions <> Nil And Sessions.HasKey(mAbstract) Then
 		    Sessions.Remove(mAbstract)
 		    If Sessions.Count = 0 Then Sessions = Nil
@@ -158,12 +159,12 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Disconnect(Description As String, Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
+		Sub Disconnect(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
 		  If mSession = Nil Then Return
 		  Do
 		    mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  mSocket.Disconnect()
+		  If mSocket <> Nil Then mSocket.Close()
 		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
