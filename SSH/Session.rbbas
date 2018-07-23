@@ -128,11 +128,11 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub DebugCallback(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, Abstract As Integer)
+		Private Delegate Sub DebugCallback(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, ByRef Abstract As Integer)
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h21
-		Private Shared Sub DebugHandler(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, Abstract As Integer)
+		Private Shared Sub DebugHandler(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, ByRef Abstract As Integer)
 		  #pragma Unused Session
 		  If Sessions = Nil Then Return
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
@@ -169,11 +169,11 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub DisconnectCallback(Session As Ptr, Reason As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, LanguageLength As Integer, Abstract As Integer)
+		Private Delegate Sub DisconnectCallback(Session As Ptr, Reason As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, LanguageLength As Integer, ByRef Abstract As Integer)
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h21
-		Private Shared Sub DisconnectHandler(Session As Ptr, Reason As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, LanguageLength As Integer, Abstract As Integer)
+		Private Shared Sub DisconnectHandler(Session As Ptr, Reason As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, LanguageLength As Integer, ByRef Abstract As Integer)
 		  #pragma Unused Session
 		  If Sessions = Nil Then Return
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
@@ -237,11 +237,11 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub IgnoreCallback(Session As Ptr, Message As Ptr, MessageLength As Integer, Abstract As Integer)
+		Private Delegate Sub IgnoreCallback(Session As Ptr, Message As Ptr, MessageLength As Integer, ByRef Abstract As Integer)
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h21
-		Private Shared Sub IgnoreHandler(Session As Ptr, Message As Ptr, MessageLength As Integer, Abstract As Integer)
+		Private Shared Sub IgnoreHandler(Session As Ptr, Message As Ptr, MessageLength As Integer, ByRef Abstract As Integer)
 		  #pragma Unused Session
 		  If Sessions = Nil Then Return
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
@@ -295,11 +295,11 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Function MACErrorCallback(Session As Ptr, Packet As Ptr, PacketLength As Integer, Abstract As Integer) As Integer
+		Private Delegate Function MACErrorCallback(Session As Ptr, Packet As Ptr, PacketLength As Integer, ByRef Abstract As Integer) As Integer
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h21
-		Private Shared Function MACErrorHandler(Session As Ptr, Packet As Ptr, PacketLength As Integer, Abstract As Integer) As Integer
+		Private Shared Function MACErrorHandler(Session As Ptr, Packet As Ptr, PacketLength As Integer, ByRef Abstract As Integer) As Integer
 		  #pragma Unused Session
 		  If Sessions = Nil Then Return 1
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
@@ -316,7 +316,7 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Shared Sub PasswordChangeReqCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, Abstract As Integer)
+		Private Shared Sub PasswordChangeReqCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, ByRef Abstract As Integer)
 		  #pragma Unused Session
 		  If Sessions = Nil Then Return
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
@@ -326,7 +326,7 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub PasswordChangeRequestCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, Abstract As Integer)
+		Private Delegate Sub PasswordChangeRequestCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, ByRef Abstract As Integer)
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h0
@@ -478,11 +478,11 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub X11OpenCallback(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, Abstract As Integer)
+		Private Delegate Sub X11OpenCallback(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, ByRef Abstract As Integer)
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h21
-		Private Shared Sub X11OpenHandler(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, Abstract As Integer)
+		Private Shared Sub X11OpenHandler(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, ByRef Abstract As Integer)
 		  #pragma Unused Session
 		  If Sessions = Nil Then Return
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
