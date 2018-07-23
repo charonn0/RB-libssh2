@@ -304,7 +304,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_poll Lib libssh2 (Descriptors As Ptr, NumDescriptors As UInt32, TimeOut As Integer) As Integer
+		Private Soft Declare Function libssh2_poll Lib libssh2 (Descriptors As Integer, NumDescriptors As UInt32, TimeOut As Integer) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -612,17 +612,49 @@ Protected Module SSH
 
 	#tag Method, Flags = &h0
 		Function Poll(Extends Stream As SSH.SSHStream, Timeout As Integer = 1000) As Boolean
-		  Dim descriptor As Ptr
+		  Dim descriptor As Integer
 		  Select Case Stream
 		  Case IsA Channel
-		    descriptor = Channel(Stream).Handle
+		    descriptor = Channel(Stream).Session.Descriptor
 		  Case IsA SFTPStream
-		    descriptor = SFTPStream(Stream).Handle
+		    descriptor = SFTPStream(Stream).Session.Session.Descriptor
 		  Else
 		    Raise New RuntimeException
 		  End Select
 		  Dim i As Integer = libssh2_poll(descriptor, 1, Timeout)
 		  Return i > 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Poll1(Extends Stream As SSH.SSHStream, Timeout As Integer = 1000) As Boolean
+		  Dim session As SSH.Session
+		  Select Case Stream
+		  Case IsA Channel
+		    session = Channel(Stream).Session
+		  Case IsA SFTPStream
+		    session = SFTPStream(Stream).Session.Session
+		  Else
+		    Raise New RuntimeException
+		  End Select
+		  
+		  Dim time As timeval
+		  time.tv_sec = Timeout \ 1000
+		  time.tv_usec = (Timeout Mod 1000) \ 1000
+		  Dim eset, rset, wset As fdset
+		  Declare Function selectsocket Lib "Ws2_32" Alias "select" (Reserved As Integer, ByRef readfds As fdset, ByRef writefds As fdset, ByRef exceptfds As fdset, timeout As timeval) As Integer
+		  Declare Function WSAGetLastError Lib "Ws2_32" () As Integer
+		  If session.BlockInbound Then
+		    rset.Descriptors = session.Descriptor
+		    rset.Count = 1
+		  ElseIf session.BlockOutbound Then
+		    wset.Descriptors = session.Descriptor
+		    wset.Count = 1
+		  End If
+		  Dim err As Integer = selectsocket(0, rset, wset, eset, time)
+		  If err > 0 Then Return True
+		  If err = -1 Then err = WSAGetLastError()
+		  Return False
 		End Function
 	#tag EndMethod
 
@@ -913,6 +945,11 @@ Protected Module SSH
 	#tag EndConstant
 
 
+	#tag Structure, Name = fdset, Flags = &h21
+		Count As UInt32
+		Descriptors As Integer
+	#tag EndStructure
+
 	#tag Structure, Name = libssh2_agent_publickey, Flags = &h21
 		Magic As UInt32
 		  Node As Ptr
@@ -937,6 +974,11 @@ Protected Module SSH
 		  Perms As UInt32
 		  ATime As UInt32
 		MTime As UInt32
+	#tag EndStructure
+
+	#tag Structure, Name = timeval, Flags = &h21
+		tv_sec As Integer
+		tv_usec As Integer
 	#tag EndStructure
 
 
