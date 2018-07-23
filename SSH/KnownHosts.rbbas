@@ -278,6 +278,15 @@ Protected Class KnownHosts
 		Private mSession As SSH.Session
 	#tag EndProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mSession
+			End Get
+		#tag EndGetter
+		Session As SSH.Session
+	#tag EndComputedProperty
+
 
 	#tag Constant, Name = LIBSSH2_KNOWNHOST_FILE_OPENSSH, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
