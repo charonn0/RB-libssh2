@@ -131,12 +131,6 @@ Protected Class SFTPSession
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Function Session() As SSH.Session
-		  Return mSession
-		End Function
-	#tag EndMethod
-
 
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
@@ -153,6 +147,15 @@ Protected Class SFTPSession
 	#tag Property, Flags = &h21
 		Private mSFTP As Ptr
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mSession
+			End Get
+		#tag EndGetter
+		Session As SSH.Session
+	#tag EndComputedProperty
 
 
 	#tag Constant, Name = LIBSSH2_FXF_APPEND, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Private
