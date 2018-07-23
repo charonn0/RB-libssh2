@@ -9,6 +9,7 @@ Protected Class KnownHosts
 		  Else
 		    type = LIBSSH2_KNOWNHOST_KEY_SSHDSS
 		  End If
+		  type = type Or LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
 		  AddHost(ActiveSession.RemoteHost, ActiveSession.RemotePort, fingerprint, Comment, type)
 		End Sub
 	#tag EndMethod
@@ -17,7 +18,6 @@ Protected Class KnownHosts
 		Sub AddHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Comment As MemoryBlock, Type As Integer)
 		  If Port > 0 And Port <> 22 Then Host = "[" + Host + "]:" + Str(Port, "####0")
 		  Dim store As libssh2_knownhost
-		  Type = Type Or LIBSSH2_KNOWNHOST_TYPE_PLAIN Or LIBSSH2_KNOWNHOST_KEYENC_RAW
 		  If Comment = Nil Then
 		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Nil, 0, Type, store)
 		  Else
@@ -64,9 +64,15 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Index As Integer)
-		  Dim tmp As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
-		  mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
-		  If mLastError <> 0 Then Raise New RuntimeException
+		  Dim this As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  DeleteHost(this)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Sub DeleteHost(Host As libssh2_knownhost)
+		  mLastError = libssh2_knownhost_del(mKnownHosts, Host)
+		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
@@ -86,10 +92,9 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer)
-		  Dim tmp As libssh2_knownhost
-		  If Me.Lookup(Host, Port, Key, Type, tmp) Then
-		    mLastError = libssh2_knownhost_del(mKnownHosts, tmp)
-		    If mLastError <> 0 Then Raise New RuntimeException
+		  Dim this As libssh2_knownhost
+		  If Me.Lookup(Host, Port, Key, Type, this) Then
+		    DeleteHost(this)
 		  Else
 		    Raise New KeyNotFoundException
 		  End If
