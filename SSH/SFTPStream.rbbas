@@ -108,8 +108,9 @@ Implements  SSHStream
 		Sub Write(text As String)
 		  // Part of the Writeable interface.
 		  If mDirectory Then Raise New IOException
-		  Dim mb As MemoryBlock = text
-		  Do
+		  Dim buffer As New BinaryStream(text)
+		  Do Until buffer.EOF
+		    Dim mb As MemoryBlock = buffer.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT)
 		    mLastError = libssh2_sftp_write(mStream, mb, mb.Size)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError < 0 Then Raise New SSHException(mLastError)
