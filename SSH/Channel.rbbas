@@ -43,7 +43,7 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
 		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteHost, RemotePort, LocalHost, LocalPort)
-		  If p = Nil Then Raise New SSHException(ERR_INIT_FAILED)
+		  If p = Nil Then Raise New SSHException(Session.LastError)
 		  Return New Channel(Session, p)
 		End Function
 	#tag EndMethod
