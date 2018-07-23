@@ -682,9 +682,6 @@ Protected Module SSH
 	#tag Constant, Name = ERR_CONNECTION_REFUSED, Type = Double, Dynamic = False, Default = \"-502", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_HOSTKEY_FAIL, Type = Double, Dynamic = False, Default = \"-510", Scope = Protected
-	#tag EndConstant
-
 	#tag Constant, Name = ERR_HOSTKEY_MISMATCH, Type = Double, Dynamic = False, Default = \"-509", Scope = Protected
 	#tag EndConstant
 

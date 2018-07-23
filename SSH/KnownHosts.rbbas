@@ -191,8 +191,6 @@ Protected Class KnownHosts
 		    mLastError = ERR_HOSTKEY_MISMATCH
 		  Case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND
 		    mLastError = ERR_HOSTKEY_NOTFOUND
-		  Case LIBSSH2_KNOWNHOST_CHECK_FAILURE
-		    mLastError = ERR_HOSTKEY_FAIL
 		  Else
 		    Raise New SSHException(mLastError)
 		  End Select

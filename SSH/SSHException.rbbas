@@ -133,8 +133,6 @@ Inherits RuntimeException
 		    Return "ERR_HOSTKEY_NOTFOUND"
 		  Case ERR_HOSTKEY_MISMATCH
 		    Return "ERR_HOSTKEY_MISMATCH"
-		  Case ERR_HOSTKEY_FAIL
-		    Return "ERR_HOSTKEY_FAIL"
 		  Case ERR_HOSTKEY_NOTFOUND
 		    Return "ERR_HOSTKEY_NOTFOUND"
 		  Case ERR_INVALID_SCHEME
