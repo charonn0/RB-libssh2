@@ -549,6 +549,15 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mSocket <> Nil Then Return mSocket.Handle
+			End Get
+		#tag EndGetter
+		Descriptor As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  If mSession = Nil Then Return Nil
 			  Dim sz, typ As Integer
 			  Dim mb As MemoryBlock = libssh2_session_hostkey(mSession, sz, typ)
