@@ -476,7 +476,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_userauth_keyboard_interactive_ex Lib libssh2 (Session As Ptr, Username As Ptr, UsernameLength As UInt32, ResponseCallback As Ptr) As Integer
+		Private Soft Declare Function libssh2_userauth_keyboard_interactive_ex Lib libssh2 (Session As Ptr, Username As CString, UsernameLength As UInt32, ResponseCallback As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
