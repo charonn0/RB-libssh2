@@ -164,6 +164,15 @@ Implements  SSHStream
 		Position As UInt64
 	#tag EndComputedProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mSession
+			End Get
+		#tag EndGetter
+		Session As SSH.SFTPSession
+	#tag EndComputedProperty
+
 
 	#tag Constant, Name = LIBSSH2_SFTP_OPENDIR, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
