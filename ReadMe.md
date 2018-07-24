@@ -47,8 +47,9 @@ libssh2 is not installed by default on most systems, and will need to be install
 RB-libssh2 will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
 
 ## Examples
-* [SFTP download](https://github.com/charonn0/RB-libssh2/wiki/SFTP-GET-Example)
-* [SFTP upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-PUT-Example)
+* [SFTP download](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#download)
+* [SFTP upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#upload)
+* [SFTP directory listing](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#list-directory)
 * [Execute command](https://github.com/charonn0/RB-libssh2/wiki/Process-Start-Example)
 * [Forward a local port to the server](https://github.com/charonn0/RB-libssh2/wiki/TCP-Listener-Example)
 * [Forward a server port to a local port](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunnel-Example)
