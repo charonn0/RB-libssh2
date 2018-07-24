@@ -679,37 +679,37 @@ Protected Module SSH
 	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"LIBSSH2_CHANNEL_PACKET_DEFAULT", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_CONNECTION_REFUSED, Type = Double, Dynamic = False, Default = \"-502", Scope = Protected
+	#tag Constant, Name = ERR_CONNECTION_REFUSED, Type = Double, Dynamic = False, Default = \"-102", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_HOSTKEY_MISMATCH, Type = Double, Dynamic = False, Default = \"-509", Scope = Protected
+	#tag Constant, Name = ERR_HOSTKEY_MISMATCH, Type = Double, Dynamic = False, Default = \"-503", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_HOSTKEY_NOTFOUND, Type = Double, Dynamic = False, Default = \"-508", Scope = Protected
+	#tag Constant, Name = ERR_HOSTKEY_NOTFOUND, Type = Double, Dynamic = False, Default = \"-502", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_ILLEGAL_OPERATION, Type = Double, Dynamic = False, Default = \"-505", Scope = Protected
+	#tag Constant, Name = ERR_ILLEGAL_OPERATION, Type = Double, Dynamic = False, Default = \"-106", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_INIT_FAILED, Type = Double, Dynamic = False, Default = \"-500", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_INVALID_PORT, Type = Double, Dynamic = False, Default = \"-506", Scope = Protected
+	#tag Constant, Name = ERR_INVALID_PORT, Type = Double, Dynamic = False, Default = \"-107", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_INVALID_SCHEME, Type = Double, Dynamic = False, Default = \"-511", Scope = Protected
+	#tag Constant, Name = ERR_INVALID_SCHEME, Type = Double, Dynamic = False, Default = \"-504", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_LENGTH_REQUIRED, Type = Double, Dynamic = False, Default = \"-512", Scope = Protected
+	#tag Constant, Name = ERR_LENGTH_REQUIRED, Type = Double, Dynamic = False, Default = \"-505", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-504", Scope = Protected
+	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-105", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_RESOLVE, Type = Double, Dynamic = False, Default = \"-503", Scope = Protected
+	#tag Constant, Name = ERR_RESOLVE, Type = Double, Dynamic = False, Default = \"-103", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-507", Scope = Protected
+	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-501", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = libssh2, Type = String, Dynamic = False, Default = \"libssh2.so.1", Scope = Private

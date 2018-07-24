@@ -57,20 +57,7 @@ Implements ChannelParent
 		    mSocket.Poll
 		  Loop Until mSocket.IsConnected
 		  If Not mSocket.IsConnected Then
-		    Select Case mSocket.LastErrorCode
-		    Case 102
-		      mLastError = ERR_CONNECTION_REFUSED
-		    Case 103
-		      mLastError = ERR_RESOLVE
-		    Case 105
-		      mLastError = ERR_PORT_IN_USE
-		    Case 106
-		      mLastError = ERR_ILLEGAL_OPERATION
-		    Case 107
-		      mLastError = ERR_INVALID_PORT
-		    Else
-		      mLastError = ERR_SOCKET
-		    End Select
+		    mLastError = -mSocket.LastErrorCode ' make negative like libssh2 errors
 		    Return False
 		  End If
 		  
