@@ -268,6 +268,17 @@ Implements SSHStream
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Sub WaitEOF()
+		  If mChannel = Nil Or Not mOpen Then Return
+		  
+		  Do
+		    mLastError = libssh2_channel_wait_eof(mChannel)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub Write(text As String) Implements Writeable.Write
 		  // Part of the Writeable interface.
