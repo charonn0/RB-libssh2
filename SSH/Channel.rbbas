@@ -11,7 +11,6 @@ Implements SSHStream
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  
 		  mOpen = False
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
