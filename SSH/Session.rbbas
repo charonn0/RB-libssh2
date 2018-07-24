@@ -48,8 +48,6 @@ Implements ChannelParent
 		  ' Opens a TCP connection to the Address:Port and then performs the SSH handshake.
 		  ' Returns True on success. Check Session.LastError if it returns False.
 		  
-		  mRemoteHost = Address
-		  mRemotePort = Port
 		  Dim sock As New TCPSocket
 		  sock.Address = Address
 		  sock.Port = Port
@@ -63,6 +61,7 @@ Implements ChannelParent
 		  ' Returns True on success. Check Session.LastError if it returns False.
 		  
 		  mSocket = Socket
+		  mRemotePort = mSocket.Port
 		  mSocket.Connect()
 		  
 		  Do Until mSocket.LastErrorCode <> 0
@@ -529,10 +528,6 @@ Implements ChannelParent
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
-		Event SocketError(ErrorCode As Integer)
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
 		Event X11Open(Channel As Channel, Host As String, Port As Integer)
 	#tag EndHook
 
@@ -648,10 +643,6 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mRemoteHost As String
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mRemotePort As Integer
 	#tag EndProperty
 
@@ -674,7 +665,7 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  return mRemoteHost
+			  If mSocket <> Nil Then Return mSocket.RemoteAddress
 			End Get
 		#tag EndGetter
 		RemoteHost As String
