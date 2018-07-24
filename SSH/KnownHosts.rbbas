@@ -43,12 +43,8 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session, KnownHostsFile As FolderItem)
 		  Me.Constructor(Session)
-		  #If Not DebugBuild Then
-		    Call Me.Load(KnownHostsFile)
-		  #Else
-		    Dim c As Integer = Me.Load(KnownHostsFile)
-		    If c <> Me.Count Then Break
-		  #EndIf
+		  Dim c As Integer = Me.Load(KnownHostsFile)
+		  If c < 0 Then Raise New SSHException(c)
 		End Sub
 	#tag EndMethod
 
