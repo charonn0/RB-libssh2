@@ -63,9 +63,6 @@ Implements ChannelParent
 		  ' Returns True on success. Check Session.LastError if it returns False.
 		  
 		  mSocket = Socket
-		  AddHandler mSocket.Connected, WeakAddressOf ConnectedHandler
-		  AddHandler mSocket.DataAvailable, WeakAddressOf DataAvailableHandler
-		  AddHandler mSocket.Error, WeakAddressOf ErrorHandler
 		  mSocket.Connect()
 		  
 		  Do Until mSocket.LastErrorCode <> 0
@@ -79,19 +76,10 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then
-		    mSocket.Close
-		    Return False
-		  End If
+		  If mLastError <> 0 Then mSocket.Close
+		  
 		  Return IsConnected
 		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub ConnectedHandler(Sender As TCPSocket)
-		  #pragma Unused Sender
-		  RaiseEvent Connected(GetRemoteBanner)
-		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -119,13 +107,6 @@ Implements ChannelParent
 		    Const zlib1 = "libz.so.1"
 		  #endif
 		  If System.IsFunctionAvailable("zlibVersion", zlib1) Then Me.UseCompression = True
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub DataAvailableHandler(Sender As TCPSocket)
-		  #pragma Unused Sender
-		  Break
 		End Sub
 	#tag EndMethod
 
@@ -171,12 +152,6 @@ Implements ChannelParent
 		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
 		  If w = Nil Or w.Value = Nil Then Return
 		  SSH.Session(w.Value).Sess_Disconnect(Reason, Message, MessageLength, Language, LanguageLength)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub ErrorHandler(Sender As TCPSocket)
-		  RaiseEvent SocketError(Sender.LastErrorCode)
 		End Sub
 	#tag EndMethod
 
@@ -531,10 +506,6 @@ Implements ChannelParent
 
 	#tag Hook, Flags = &h0
 		Event Authenticate(Name As String, Instruction As String, Prompt As String, ByRef Response As String) As Boolean
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event Connected(Banner As String)
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
