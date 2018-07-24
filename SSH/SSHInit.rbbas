@@ -2,7 +2,7 @@
 Private Class SSHInit
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(NoCrypto As Boolean = False)
-		  If Not SSH.IsAvailable Then Raise New RuntimeException
+		  If Not SSH.IsAvailable Then Raise New PlatformNotSupportedException
 		  Const LIBSSH2_INIT_NO_CRYPTO = &h0001
 		  Dim err As Integer
 		  If NoCrypto Then
