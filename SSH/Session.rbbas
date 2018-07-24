@@ -3,12 +3,16 @@ Protected Class Session
 Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function BlockInbound() As Boolean
+		  ' Returns True if reading from the the session (via Channel, SFTPStream, etc.) would block
+		  
 		  Return BitAnd(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_INBOUND) = LIBSSH2_SESSION_BLOCK_INBOUND
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function BlockOutbound() As Boolean
+		  ' Returns True if writing to the the session (via Channel, SFTPStream, etc.) would block
+		  
 		  Return BitAnd(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_OUTBOUND) = LIBSSH2_SESSION_BLOCK_OUTBOUND
 		End Function
 	#tag EndMethod
