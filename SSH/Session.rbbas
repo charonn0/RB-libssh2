@@ -33,6 +33,17 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub Close(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
+		  If mSession <> Nil Then
+		    Do
+		      mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  End If
+		  If mSocket <> Nil Then mSocket.Close()
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Connect(Address As String, Port As Integer) As Boolean
 		  ' Opens a TCP connection to the Address:Port and then performs the SSH handshake.
 		  ' Returns True on success. Check Session.LastError if it returns False.
@@ -134,7 +145,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If Me.IsConnected Then Me.Disconnect()
+		  If Me.IsConnected Then Me.Close()
 		  If mSession <> Nil Then
 		    mLastError = libssh2_session_free(mSession)
 		    mSession = Nil
@@ -146,17 +157,6 @@ Implements ChannelParent
 		    Sessions.Remove(mAbstract)
 		    If Sessions.Count = 0 Then Sessions = Nil
 		  End If
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Sub Disconnect(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
-		  If mSession = Nil Then Return
-		  Do
-		    mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mSocket <> Nil Then mSocket.Close()
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
 		End Sub
 	#tag EndMethod
 
