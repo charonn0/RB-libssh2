@@ -675,7 +675,7 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Version() As String
-		  If System.IsFunctionAvailable("libssh2_version", libssh2) Then Return libssh2_version(MIMIMUM_VERSION)
+		  If System.IsFunctionAvailable("libssh2_version", libssh2) Then Return libssh2_version(0)
 		End Function
 	#tag EndMethod
 
