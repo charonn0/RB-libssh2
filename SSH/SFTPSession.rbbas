@@ -53,7 +53,13 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastErrorCode() As Integer
+		Function LastError() As Integer
+		  Return mLastError
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function LastStatusCode() As Integer
 		  If mSFTP = Nil Then Return 0
 		  Return libssh2_sftp_last_error(mSFTP)
 		End Function
