@@ -316,7 +316,27 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_publickey_add_ex Lib libssh2 (PublicKey As Ptr, Name As Ptr, NameLength As UInt32, Blob As Ptr, BlobLength As UInt32, Overwrite As Ptr, NumAttribs As UInt32, Attribs As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_publickey_init Lib libssh2 (Session As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_publickey_list_fetch Lib libssh2 (PublicKey As Ptr, ByRef NumKeys As UInt32, ByRef List As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Sub libssh2_publickey_list_free Lib libssh2 (PublicKey As Ptr, List As Ptr)
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_publickey_remove_ex Lib libssh2 (PublicKey As Ptr, Name As Ptr, NameLength As UInt32, Blob As Ptr, BlobLength As UInt32) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_publickey_shutdown Lib libssh2 (PublicKey As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -919,6 +939,24 @@ Protected Module SSH
 		  Name As Ptr
 		  Key As Ptr
 		TypeMask As Integer
+	#tag EndStructure
+
+	#tag Structure, Name = libssh2_publickey_attribute, Flags = &h21
+		Name As Ptr
+		  NameLength As UInt32
+		  Value As Ptr
+		  ValueLength As UInt32
+		Mandatory As Ptr
+	#tag EndStructure
+
+	#tag Structure, Name = libssh2_publickey_list, Flags = &h21
+		Packet As Ptr
+		  Name As Ptr
+		  NameLength As UInt32
+		  Blob As Ptr
+		  BlobLength As UInt32
+		  NumAttribs As UInt32
+		Attribs As Ptr
 	#tag EndStructure
 
 	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21
