@@ -704,6 +704,9 @@ Protected Module SSH
 	#tag Constant, Name = ERR_RESOLVE, Type = Double, Dynamic = False, Default = \"-103", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = ERR_SESSION_MISMATCH, Type = Double, Dynamic = False, Default = \"-506", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-501", Scope = Protected
 	#tag EndConstant
 

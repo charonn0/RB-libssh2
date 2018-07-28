@@ -356,6 +356,23 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function SendCredentials(Username As String, Agent As SSH.Agent, KeyIndex As Integer) As Boolean
+		  If Agent = Nil Or Not (Agent.Session Is Me) Then
+		    mLastError = ERR_SESSION_MISMATCH
+		    Return False
+		  End If
+		  If Not Agent.IsConnected Then
+		    If Not Agent.Connect() Then Return False
+		  End If
+		  If Not Agent.Refresh() Then Return False
+		  If Agent.Count - 1 > KeyIndex Then Raise New OutOfBoundsException
+		  If Not Agent.Authenticate(Username, KeyIndex) Then Return False
+		  Agent.Disconnect()
+		  Return True
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Password As String) As Boolean
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)

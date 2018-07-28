@@ -139,6 +139,8 @@ Inherits RuntimeException
 		    Return "ERR_INVALID_SCHEME"
 		  Case ERR_LENGTH_REQUIRED
 		    Return "ERR_LENGTH_REQUIRED"
+		  Case ERR_SESSION_MISMATCH
+		    Return "ERR_SESSION_MISMATCH"
 		  Else
 		    Return "Unknown error number."
 		    
