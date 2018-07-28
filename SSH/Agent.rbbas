@@ -89,8 +89,8 @@ Protected Class Agent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function IsConnected() As Boolean
-		  Return mConnected
+		Function Handle() As Ptr
+		  Return mAgent
 		End Function
 	#tag EndMethod
 
@@ -115,6 +115,15 @@ Protected Class Agent
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mConnected
+			End Get
+		#tag EndGetter
+		IsConnected As Boolean
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mAgent As Ptr
