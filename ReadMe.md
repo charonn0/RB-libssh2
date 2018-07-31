@@ -4,15 +4,16 @@
 The minimum supported libssh2 version is 1.7.0; the recommended minimum version is 2.0.0. The minimum supported Xojo version is RS2010R4.
 
 ## Example
-This example downloads a file over SFTP (SSH File Transfer Protocol.) [**More examples**](https://github.com/charonn0/RB-libssh2/wiki#examples).
+This example starts a command ("uptime") on the remote machine and reads from its StdOut stream: 
+
 ```vbnet
-  Dim reader As SSHStream = SSH.Get("sftp://user:password@public.example.com/bin/file.txt")
-  Dim writer As BinaryStream = BinaryStream.Create(SpecialFolder.Desktop.Child("file.txt"))
-  Do Until reader.EOF
-    writer.Write(reader.Read(1024))
+  Dim sh As SSH.Channel = SSH.OpenChannel("ssh://user:password@public.example.com/")
+  Call sh.Execute("uptime")
+  Dim result As String
+  Do Until sh.EOF
+    result = result + sh.Read(1024, 0)
   Loop
-  reader.Close
-  writer.Close
+  sh.Close
 ```
 ## Hilights
 * Download and upload using SFTP or SCP.
