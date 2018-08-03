@@ -18,6 +18,36 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function Connect(Address As String, Port As Integer, Username As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
+		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticate to the server with the Username and a key managed by a local SSH Agent.
+		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
+		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  
+		  Dim session As New SSH.Session
+		  If Not session.Connect(Address, Port) Then Return session
+		  
+		  If KnownHostList <> Nil Then 
+		    Dim khs As New KnownHosts(session, KnownHostList)
+		    If Not session.CheckHost(khs, AddHost) Then Return session
+		    khs.Save(KnownHostList)
+		  End If
+		  
+		  Dim agent As New SSH.Agent(session)
+		  If Not agent.Connect() Then Return session
+		  If Not agent.Refresh() Then Return session
+		  Dim c As Integer = agent.Count - 1
+		  For i As Integer = 0 To c
+		    If session.SendCredentials(Username, agent, i) Then Exit For
+		  Next
+		  agent.Disconnect()
+		  Return session
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
