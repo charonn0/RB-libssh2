@@ -25,6 +25,8 @@ Protected Module SSH
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
+		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
+		  
 		  Dim session As New SSH.Session
 		  If Not session.Connect(Address, Port) Then Return session
 		  
@@ -55,6 +57,8 @@ Protected Module SSH
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
+		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
+		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
 		  
@@ -78,6 +82,8 @@ Protected Module SSH
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
+		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
+		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
 		  If sess.Connect(Address, Port) Then
@@ -99,6 +105,8 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  
+		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
 		  Dim sess As New SSH.Session()
 		  sess.Blocking = True
@@ -241,6 +249,8 @@ Protected Module SSH
 		    Return "ERR_SESSION_MISMATCH"
 		  Case ERR_INVALID_INDEX
 		    Return "ERR_INVALID_INDEX"
+		  Case ERR_USERNAME_REQUIRED
+		    Return "ERR_USERNAME_REQUIRED"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -875,6 +885,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-501", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_USERNAME_REQUIRED, Type = Double, Dynamic = False, Default = \"-508", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = libssh2, Type = String, Dynamic = False, Default = \"libssh2.so.1", Scope = Private
