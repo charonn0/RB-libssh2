@@ -116,7 +116,13 @@ Protected Module SSH
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
 		      If AddHost Then kh.Save(KnownHostList)
 		    End If
-		    Call sess.SendCredentials(Username, Password)
+		    If Password = "" Then
+		      ' in the unlikely event that the server allows the user to log on with no password GetAuthenticationMethods
+		      ' will actually authenticate the user.
+		      Call sess.GetAuthenticationMethods(Username)
+		    Else
+		      Call sess.SendCredentials(Username, Password)
+		    End If
 		  End If
 		  Return sess
 		End Function
