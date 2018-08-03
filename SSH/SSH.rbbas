@@ -30,10 +30,10 @@ Protected Module SSH
 		  Dim session As New SSH.Session
 		  If Not session.Connect(Address, Port) Then Return session
 		  
-		  If KnownHostList <> Nil Then 
-		    Dim khs As New KnownHosts(session, KnownHostList)
-		    If Not session.CheckHost(khs, AddHost) Then Return session
-		    khs.Save(KnownHostList)
+		  If KnownHostList <> Nil Then
+		    Dim kh As New KnownHosts(session, KnownHostList)
+		    If Not session.CheckHost(kh, AddHost) Then Return session
+		    If AddHost Then kh.Save(KnownHostList)
 		  End If
 		  
 		  Dim agent As New SSH.Agent(session)
@@ -66,7 +66,7 @@ Protected Module SSH
 		    If KnownHostList <> Nil Then
 		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
-		      kh.Save(KnownHostList)
+		      If AddHost Then kh.Save(KnownHostList)
 		    End If
 		    Call sess.SendCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
 		  End If
@@ -78,7 +78,7 @@ Protected Module SSH
 		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticate to the server as Username with the PublicKey and PrivateKey MemoryBlocks.
-		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If 
+		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
@@ -90,7 +90,7 @@ Protected Module SSH
 		    If KnownHostList <> Nil Then
 		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
-		      kh.Save(KnownHostList)
+		      If AddHost Then kh.Save(KnownHostList)
 		    End If
 		    Call sess.SendCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
 		  End If
@@ -114,7 +114,7 @@ Protected Module SSH
 		    If KnownHostList <> Nil Then
 		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
 		      If Not sess.CheckHost(kh, AddHost) Then Return sess
-		      kh.Save(KnownHostList)
+		      If AddHost Then kh.Save(KnownHostList)
 		    End If
 		    Call sess.SendCredentials(Username, Password)
 		  End If
