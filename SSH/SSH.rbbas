@@ -209,6 +209,8 @@ Protected Module SSH
 		    Return "ERR_LENGTH_REQUIRED"
 		  Case ERR_SESSION_MISMATCH
 		    Return "ERR_SESSION_MISMATCH"
+		  Case ERR_INVALID_INDEX
+		    Return "ERR_INVALID_INDEX"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -819,6 +821,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_INIT_FAILED, Type = Double, Dynamic = False, Default = \"-500", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_INVALID_INDEX, Type = Double, Dynamic = False, Default = \"-507", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_INVALID_PORT, Type = Double, Dynamic = False, Default = \"-107", Scope = Protected

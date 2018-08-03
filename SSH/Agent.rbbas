@@ -78,12 +78,12 @@ Protected Class Agent
 		  Do
 		    Dim this As Ptr
 		    mLastError = libssh2_agent_get_identity(mAgent, this, prev)
-		    If mLastError <> 0 Then Raise New SSHException(mLastError)
+		    If mLastError <> 0 Then Exit Do
 		    If c = Index Then Return this
 		    c = c + 1
 		    prev = this
 		  Loop Until mLastError <> 0
-		  If mLastError = 1 Then Raise New OutOfBoundsException
+		  If mLastError = 1 Then mLastError = ERR_INVALID_INDEX
 		  Raise New SSHException(mLastError)
 		End Function
 	#tag EndMethod
