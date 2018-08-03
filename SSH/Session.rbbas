@@ -361,14 +361,20 @@ Implements ChannelParent
 		    mLastError = ERR_SESSION_MISMATCH
 		    Return False
 		  End If
+		  Dim cleanup As Boolean
 		  If Not Agent.IsConnected Then
 		    If Not Agent.Connect() Then Return False
+		    If Not Agent.Refresh() Then Return False
+		    cleanup = True
 		  End If
-		  If Not Agent.Refresh() Then Return False
-		  If Agent.Count - 1 > KeyIndex Then Raise New OutOfBoundsException
-		  If Not Agent.Authenticate(Username, KeyIndex) Then Return False
-		  Agent.Disconnect()
-		  Return True
+		  
+		  Dim ok As Boolean
+		  Try
+		    ok = Agent.Authenticate(Username, KeyIndex)
+		  Finally
+		    If cleanup Then Agent.Disconnect()
+		  End Try
+		  Return ok
 		End Function
 	#tag EndMethod
 
