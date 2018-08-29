@@ -16,9 +16,11 @@ This example starts a command ("uptime") on the remote machine and reads from it
   sh.Close
 ```
 ## Hilights
+* Password, public-key, agent, and interactive authentication.
+* Known host key verification
 * Download and upload using SFTP or SCP.
 * Execute commands on the server and read the results.
-* TCP forwarding and tunnelling
+* TCP forwarding and tunneling
 * [Stream-oriented](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream), using Xojo's built-in [Readable](http://docs.xojo.com/index.php/Readable) and [Writeable](http://docs.xojo.com/index.php/Writeable) interfaces. 
 * A consistent, high-level API over the full range of libssh2's features.
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
@@ -35,6 +37,16 @@ For more thorough documentation of individual classes and methods refer to the [
 Each libssh2 [handle](https://en.wikipedia.org/wiki/Handle_%28computing%29) or handle equivalent is managed by an object class. 
 
 libssh2 uses several different handle types or equivalents:
+
+|Handle Type|Comment|
+|-----------|-------|
+|[`Session`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session)|A secure connection to the server over which one or more channels can be multiplexed.| 
+|[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A local key management agent.|
+|[`Channel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel)|A data stream that is multiplexed over a Session.|
+|[`KnownHosts`](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts)|A list of known hosts and their associated key fingerprints.|
+|[`SFTPSession`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession)|A SFTP session that is multiplexed over a Session`.|
+|[`SSHStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream)|An interface which aggregates the Readable and Writeable interfaces, representing a channel or other stream.|
+
 
 ## How to incorporate libssh2 into your Realbasic/Xojo project
 ### Import the SSH module
