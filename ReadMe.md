@@ -28,7 +28,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
 ## Synopsis
 
 ***
-It is strongly recommended that you familiarize yourself with version [libssh2](https://www.libssh2.org/docs.html), as this project preserves the semantics of libssh2's API in an object-oriented, Xojo-flavored wrapper. 
+It is strongly recommended that you familiarize yourself with [libssh2](https://www.libssh2.org/docs.html), as this project preserves the semantics of libssh2's API in an object-oriented, Xojo-flavored wrapper. 
 
 For more thorough documentation of individual classes and methods refer to the [wiki](https://github.com/charonn0/RB-libssh2/wiki).
 
@@ -41,9 +41,9 @@ libssh2 uses several different handle types or equivalents:
 |Handle Type|Comment|
 |-----------|-------|
 |[`Session`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session)|A secure connection to the server over which one or more channels can be multiplexed.| 
-|[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A local key management agent.|
 |[`Channel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel)|A data stream that is multiplexed over a Session.|
 |[`KnownHosts`](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts)|A list of known hosts and their associated key fingerprints.|
+|[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A local key management agent.|
 |[`SFTPSession`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession)|A SFTP session that is multiplexed over a Session`.|
 |[`SSHStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream)|An interface which aggregates the Readable and Writeable interfaces, representing a channel or other stream.|
 
