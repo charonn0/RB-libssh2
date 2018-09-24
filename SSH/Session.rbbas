@@ -397,6 +397,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h21
 		Private Sub Sess_Disconnect(Reason As Integer, Message As MemoryBlock, MessageLength As Integer, Language As MemoryBlock, LanguageLength As Integer)
+		  If MessageLength = 0 Then Return
 		  Dim m As String = Message.StringValue(0, MessageLength)
 		  Dim l As String = Language.StringValue(0, LanguageLength)
 		  RaiseEvent Disconnected(DisconnectReason(Reason), m, l)
