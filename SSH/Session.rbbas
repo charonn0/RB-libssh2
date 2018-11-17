@@ -62,14 +62,17 @@ Implements ChannelParent
 		  
 		  mSocket = Socket
 		  mRemotePort = mSocket.Port
-		  mSocket.Connect()
 		  
-		  Do Until mSocket.LastErrorCode <> 0
-		    mSocket.Poll
-		  Loop Until mSocket.IsConnected
 		  If Not mSocket.IsConnected Then
-		    mLastError = -mSocket.LastErrorCode ' make negative like libssh2 errors
-		    Return False
+		    mSocket.Connect()
+		    
+		    Do Until mSocket.LastErrorCode <> 0
+		      mSocket.Poll
+		    Loop Until mSocket.IsConnected
+		    If Not mSocket.IsConnected Then
+		      mLastError = -mSocket.LastErrorCode ' make negative like libssh2 errors
+		      Return False
+		    End If
 		  End If
 		  
 		  Do
