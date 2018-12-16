@@ -712,7 +712,7 @@ Protected Module SSH
 		  ' Pass a URI string to parse. e.g. http://user:password@www.example.com:8080/?foo=bar&bat=baz#Top
 		  
 		  Dim parsed As New Dictionary
-		  Dim isIPv6 As Boolean
+		  'Dim isIPv6 As Boolean
 		  
 		  If InStr(URL, "://") > 0 Then
 		    Dim scheme As String = NthField(URL, "://", 1)
@@ -748,15 +748,11 @@ Protected Module SSH
 		      URL = URL.Replace(":" + Format(p, "######"), "")
 		    End If
 		  ElseIf Left(URL, 1) = "[" And InStr(URL, "]:") > 0 Then ' ipv6 with port
-		    isIPv6 = True
 		    Dim s As String = NthField(URL, "]:", 2)
 		    s = NthField(s, "?", 1)
 		    Dim p As Integer = Val(s)
 		    parsed.Value("port") = p
 		    URL = URL.Replace("]:" + Format(p, "######"), "]")
-		  ElseIf Left(URL, 1) = "[" And InStr(URL, "]/") > 0 Then ' ipv6 with path
-		    isIPv6 = True
-		    'URL = URL.Replace("]/", "]")
 		  End If
 		  
 		  If Instr(URL, "#") > 0 Then
