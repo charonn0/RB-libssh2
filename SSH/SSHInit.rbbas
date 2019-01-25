@@ -26,7 +26,7 @@ Private Class SSHInit
 		 Shared Function GetInstance() As SSHInit
 		  Static instance As WeakRef
 		  Dim init As SSHInit
-		  If instance = Nil Then
+		  If instance = Nil Or instance.Value = Nil Then
 		    init = New SSHInit
 		    instance = New WeakRef(init)
 		  Else
