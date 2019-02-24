@@ -2,7 +2,7 @@
 Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
-		  ' Attemt a new SSH connection to the server specified by the URL. Authenticate to the server
+		  ' Attempts a new SSH connection to the server specified by the URL. Authenticates to the server
 		  ' with the Username and Password also encoded in the URL.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
@@ -19,8 +19,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer, Username As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
-		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
-		  ' Authenticate to the server with the Username and a key managed by a local SSH Agent.
+		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticates to the server with the Username and a key managed by a local SSH Agent.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
@@ -51,8 +51,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKeyFile As FolderItem, PrivateKeyFile As FolderItem, PrivateKeyFilePassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
-		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
-		  ' Authenticate to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
+		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticates to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
@@ -76,8 +76,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer, Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
-		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
-		  ' Authenticate to the server as Username with the PublicKey and PrivateKey MemoryBlocks.
+		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticates to the server as Username with the PublicKey and PrivateKey MemoryBlocks.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
@@ -100,8 +100,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Connect(Address As String, Port As Integer, Username As String, Password As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
-		  ' Attemt a new SSH connection to the server specified by the Address and Port parameters.
-		  ' Authenticate to the server with the Username and Password.
+		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
+		  ' Authenticates to the server with the Username and Password.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
 		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
@@ -117,8 +117,8 @@ Protected Module SSH
 		      If AddHost Then kh.Save(KnownHostList)
 		    End If
 		    If Password = "" Then
-		      ' in the unlikely event that the server allows the user to log on with no password GetAuthenticationMethods
-		      ' will actually authenticate the user.
+		      ' in the unlikely event that the server allows the user to log on with no password, calling
+		      ' GetAuthenticationMethods() will actually authenticate the user.
 		      Call sess.GetAuthenticationMethods(Username)
 		    Else
 		      Call sess.SendCredentials(Username, Password)
