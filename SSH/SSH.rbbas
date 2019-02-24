@@ -22,8 +22,8 @@ Protected Module SSH
 		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticates to the server with the Username and a key managed by a local SSH Agent.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
-		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
-		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
+		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -54,8 +54,8 @@ Protected Module SSH
 		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticates to the server as Username with the PublicKeyFile and PrivateKeyFile FolderItems.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
-		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
-		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
+		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -79,8 +79,8 @@ Protected Module SSH
 		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticates to the server as Username with the PublicKey and PrivateKey MemoryBlocks.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
-		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
-		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
+		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -103,8 +103,8 @@ Protected Module SSH
 		  ' Attempts a new SSH connection to the server specified by the Address and Port parameters.
 		  ' Authenticates to the server with the Username and Password.
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
-		  ' AddHost is False and the fingerprint is not in the KnownHostList then an exception will
-		  ' be raised; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
+		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
