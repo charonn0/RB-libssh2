@@ -266,7 +266,10 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Execute(Optional Session As SSH.Session, Command As String) As SSH.SSHStream
-		  If Session = Nil Then 
+		  ' Executes a shell command on the remote machine. Returns a SSHStream from which you
+		  ' Read() the standard output stream of the executing command.
+		  
+		  If Session = Nil Then
 		    Dim d As Dictionary = ParseURL(Command)
 		    Dim host As String = d.Value("host")
 		    Dim port As Integer = d.Lookup("port", 22)
@@ -285,6 +288,9 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Get(Optional Session As SSH.Session, URL As String) As SSH.SSHStream
+		  ' Prepares a file download over SCP or SFTP. Returns a SSHStream that you
+		  ' Read() the download from.
+		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
@@ -799,6 +805,9 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32 = 0, Overwrite As Boolean = False) As SSH.SSHStream
+		  ' Prepares a file upload over SCP or SFTP. Returns a SSHStream that you
+		  ' Write() the upload to.
+		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
