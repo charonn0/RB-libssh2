@@ -67,7 +67,7 @@ Implements ChannelParent
 		    mSocket.Connect()
 		    
 		    Do Until mSocket.LastErrorCode <> 0
-		      mSocket.Poll
+		      mSocket.Poll()
 		    Loop Until mSocket.IsConnected
 		    If Not mSocket.IsConnected Then
 		      mLastError = -mSocket.LastErrorCode ' make negative like libssh2 errors
@@ -78,7 +78,7 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then mSocket.Close
+		  If mLastError <> 0 Then mSocket.Close()
 		  
 		  Return IsConnected
 		End Function
