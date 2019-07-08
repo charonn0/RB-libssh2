@@ -78,22 +78,41 @@ Implements  SSHStream
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
-		  Dim buffer As New MemoryBlock(Count)
-		  If Not mDirectory Then  ' read a file
-		    Do
-		      mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
-		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		    
-		  Else ' read directory listing
-		    Dim longentry As New MemoryBlock(512)
+		  If mDirectory Then ' read directory listing
+		    Dim longentry As MemoryBlock
 		    Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-		    Do
-		      mLastError = libssh2_sftp_readdir_ex(mStream, buffer, buffer.Size, longentry, longentry.Size, attribs)
-		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		    Return ReadDirectoryEntry(attribs, longentry, encoding)
 		  End If
 		  
+		  Dim buffer As New MemoryBlock(Count)
+		  Do
+		    mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  
 		  If mLastError > 0 Then ' error is the size
-		    Return DefineEncoding(buffer.StringValue(0, mLastError), encoding)
+		    buffer.Size = mLastError
+		    Return DefineEncoding(buffer, encoding)
+		  ElseIf mLastError = 0 Then
+		    mEOF = True
+		  Else
+		    Raise New SSHException(mLastError)
+		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function ReadDirectoryEntry(ByRef SFTPAttributes As LIBSSH2_SFTP_ATTRIBUTES, ByRef LongEntry As MemoryBlock, Encoding As TextEncoding = Nil) As String
+		  If Not mDirectory Then Return ""
+		  Dim buffer As New MemoryBlock(1024 * 16)
+		  LongEntry = New MemoryBlock(512)
+		  
+		  Do
+		    mLastError = libssh2_sftp_readdir_ex(mStream, buffer, buffer.Size, LongEntry, LongEntry.Size, SFTPAttributes)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  
+		  If mLastError > 0 Then ' error is the size
+		    buffer.Size = mLastError
+		    Return DefineEncoding(buffer, Encoding)
 		  ElseIf mLastError = 0 Then
 		    mEOF = True
 		  Else
