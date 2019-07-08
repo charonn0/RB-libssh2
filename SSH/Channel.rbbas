@@ -42,8 +42,7 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
 		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteHost, RemotePort, LocalHost, LocalPort)
-		  If p = Nil Then Raise New SSHException(Session.LastError)
-		  Return New Channel(Session, p)
+		  If p <> Nil Then Return New Channel(Session, p)
 		End Function
 	#tag EndMethod
 
@@ -136,9 +135,8 @@ Implements SSHStream
 		  Do
 		    Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size - 1, WindowSize, PacketSize, msg, msg.Size - 1)
 		    If c = Nil Then
-		      Dim e As Integer = Session.GetLastError
-		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      If e <> 0 Then Raise New SSHException(e)
+		      If Session.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Return Nil
 		    End If
 		    Return New Channel(Session, c)
 		  Loop
@@ -151,9 +149,8 @@ Implements SSHStream
 		  Do
 		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
 		    If c = Nil Then
-		      Dim e As Integer = Session.GetLastError
-		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(e)
+		      If Session.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Return Nil
 		    End If
 		  Loop Until c <> Nil
 		  Return New Channel(Session, c)
