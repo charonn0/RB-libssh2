@@ -41,6 +41,10 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
+		  ' Tunnel a TCP/IP connection through the SSH transport via the remote host to a third party.
+		  ' Communication from the client to the SSH server remains encrypted, communication from the
+		  ' server to the 3rd party host travels in cleartext.
+		  
 		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteHost, RemotePort, LocalHost, LocalPort)
 		  If p <> Nil Then Return New Channel(Session, p)
 		End Function
