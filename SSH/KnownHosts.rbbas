@@ -161,7 +161,7 @@ Protected Class KnownHosts
 		Function Load(KnownHostsFile As FolderItem) As Integer
 		  ' Load a list of known hosts from a file.
 		  
-		  Return libssh2_knownhost_readfile(mKnownHosts, KnownHostsFile.AbsolutePath, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
+		  Return libssh2_knownhost_readfile(mKnownHosts, KnownHostsFile.AbsolutePath_, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		End Function
 	#tag EndMethod
 
@@ -236,7 +236,7 @@ Protected Class KnownHosts
 		Sub Save(KnownHostsFile As FolderItem)
 		  ' Save the list of known hosts to a file
 		  
-		  mLastError = libssh2_knownhost_writefile(mKnownHosts, KnownHostsFile.AbsolutePath, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
+		  mLastError = libssh2_knownhost_writefile(mKnownHosts, KnownHostsFile.AbsolutePath_, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		  If mLastError <> 0 Then Raise New IOException
 		End Sub
 	#tag EndMethod

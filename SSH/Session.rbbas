@@ -337,8 +337,8 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String) As Boolean
 		  Dim pub, priv As MemoryBlock
-		  pub = PublicKey.AbsolutePath
-		  priv = PrivateKey.AbsolutePath
+		  pub = PublicKey.AbsolutePath_
+		  priv = PrivateKey.AbsolutePath_
 		  Do
 		    mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, pub, priv, PrivateKeyPassword)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN

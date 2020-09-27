@@ -41,6 +41,13 @@ Implements  SSHStream
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Function EndOfFile() As Boolean
+		  // Part of the Readable interface.
+		  Return EOF()
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function EOF() As Boolean
 		  // Part of the Readable interface.

@@ -1,5 +1,15 @@
 #tag Module
 Protected Module SSH
+	#tag Method, Flags = &h21
+		Private Function AbsolutePath_(Extends f As FolderItem) As String
+		  #If RBVersion > 2019 Then
+		    Return f.NativePath
+		  #Else
+		    Return f.AbsolutePath
+		  #endif
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h1
 		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attempts a new SSH connection to the server specified by the URL. Authenticates to the server
@@ -296,7 +306,7 @@ Protected Module SSH
 		  host = d.Lookup("host", "")
 		  user = d.Lookup("username", "")
 		  pass = d.Lookup("password", "")
-		  scheme = d.Lookup("scheme", "").Lowercase
+		  scheme = d.Lookup("scheme", "")
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
@@ -702,7 +712,7 @@ Protected Module SSH
 		  host = d.Lookup("host", "")
 		  user = d.Lookup("username", "")
 		  pass = d.Lookup("password", "")
-		  scheme = d.Lookup("scheme", "").Lowercase
+		  scheme = d.Lookup("scheme", "")
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
@@ -722,7 +732,7 @@ Protected Module SSH
 		  
 		  If InStr(URL, "://") > 0 Then
 		    Dim scheme As String = NthField(URL, "://", 1)
-		    Parsed.Value("scheme") = URLDecode(scheme)
+		    Parsed.Value("scheme") = URLDecode(scheme).Lowercase
 		    URL = URL.Replace(scheme + "://", "")
 		  End If
 		  
@@ -813,7 +823,7 @@ Protected Module SSH
 		  host = d.Lookup("host", "")
 		  user = d.Lookup("username", "")
 		  pass = d.Lookup("password", "")
-		  scheme = d.Lookup("scheme", "").Lowercase
+		  scheme = d.Lookup("scheme", "")
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
