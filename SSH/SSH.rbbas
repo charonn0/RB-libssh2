@@ -741,7 +741,6 @@ Protected Module SSH
 		  If pos > 0 Then tmp = Left(URL, pos - 1)
 		  If InStr(tmp, "@") > 0 Then //  USER:PASS@Domain
 		    Dim userinfo As String = NthField(tmp, "@", 1)
-		    tmp = tmp.Replace(userinfo + "@", "")
 		    Dim u, p As String
 		    u = NthField(userinfo, ":", 1)
 		    p = NthField(userinfo, ":", 2)
