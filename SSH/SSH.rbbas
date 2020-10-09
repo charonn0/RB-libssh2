@@ -267,6 +267,8 @@ Protected Module SSH
 		    Return "ERR_INVALID_INDEX"
 		  Case ERR_USERNAME_REQUIRED
 		    Return "ERR_USERNAME_REQUIRED"
+		  Case ERR_TIMEOUT_ELAPSED
+		    Return "ERR_TIMEOUT_ELAPSED"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -905,6 +907,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-501", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_TIMEOUT_ELAPSED, Type = Double, Dynamic = False, Default = \"-509", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_USERNAME_REQUIRED, Type = Double, Dynamic = False, Default = \"-508", Scope = Protected

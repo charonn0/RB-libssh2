@@ -44,31 +44,43 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Connect(Address As String, Port As Integer) As Boolean
+		Function Connect(Address As String, Port As Integer, TimeOut As UInt32 = 0) As Boolean
 		  ' Opens a TCP connection to the Address:Port and then performs the SSH handshake.
+		  ' If TimeOut is specified then the connection attempt will be abandoned after the TimeOut
+		  ' period elapses. The TimeOut period is measured in milliseconds.
 		  ' Returns True on success. Check Session.LastError if it returns False.
 		  
 		  Dim sock As New TCPSocket
 		  sock.Address = Address
 		  sock.Port = Port
-		  Return Me.Connect(sock)
+		  Return Me.Connect(sock, TimeOut)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Connect(Socket As TCPSocket) As Boolean
+		Function Connect(Socket As TCPSocket, TimeOut As UInt32 = 0) As Boolean
 		  ' Opens a TCP connection using the specified Socket and then performs the SSH handshake.
+		  ' If TimeOut is specified then the connection attempt will be abandoned after the TimeOut
+		  ' period elapses. The TimeOut period is measured in milliseconds.
 		  ' Returns True on success. Check Session.LastError if it returns False.
 		  
 		  mSocket = Socket
 		  mRemotePort = mSocket.Port
 		  
+		  Dim timestart As UInt32 = Microseconds / 1000
+		  
 		  If Not mSocket.IsConnected Then
 		    mSocket.Connect()
 		    
 		    Do Until mSocket.LastErrorCode <> 0
+		      If TimeOut > 0 And (Microseconds / 1000) - timestart >= TimeOut Then
+		        mSocket.Close()
+		        mLastError = ERR_TIMEOUT_ELAPSED
+		        Return False
+		      End If
 		      mSocket.Poll()
 		    Loop Until mSocket.IsConnected
+		    
 		    If Not mSocket.IsConnected Then
 		      mLastError = -mSocket.LastErrorCode ' make negative like libssh2 errors
 		      Return False
