@@ -1,7 +1,7 @@
 ## Introduction
 [libssh2](https://www.libssh2.org/) is a cross-platform library implementing the SSH2 protocol. **RB-libssh2** is a libssh2 [binding](http://en.wikipedia.org/wiki/Language_binding) for Realbasic and Xojo ("classic" framework) projects. 
 
-The minimum supported libssh2 version is 1.7.0; the recommended minimum version is 2.0.0. The minimum supported Xojo version is RS2010R4.
+The minimum supported libssh2 version is 1.7.0. The minimum supported Xojo version is RS2010R4.
 
 ## Example
 This example starts a command ("uptime") on the remote machine and reads from its StdOut stream: 
@@ -44,7 +44,7 @@ libssh2 uses several different handle types or equivalents:
 |[`Channel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel)|A data stream that is multiplexed over a Session.|
 |[`KnownHosts`](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts)|A list of known hosts and their associated key fingerprints.|
 |[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A local key management agent.|
-|[`SFTPSession`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession)|A SFTP session that is multiplexed over a Session`.|
+|[`SFTPSession`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession)|A SFTP session that is multiplexed over a Session.|
 |[`SSHStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream)|An interface which aggregates the Readable and Writeable interfaces, representing a channel or other stream.|
 
 
@@ -55,7 +55,7 @@ libssh2 uses several different handle types or equivalents:
 3. Copy the `SSH` module into your project and save.
 
 ### Ensure the libssh2 shared library is installed
-libssh2 is not installed by default on most systems, and will need to be installed separately (or shipped with your app).
+libssh2 is not installed by default on most systems, and will need to be installed separately (or shipped with your app). Pre-built binaries for Windows can be [downloaded from the libcurl project](https://curl.haxx.se/windows/dl-7.72.0_5/libssh2-1.9.0_5-win32-mingw.zip).
 
 RB-libssh2 will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
 
