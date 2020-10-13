@@ -627,7 +627,7 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return libssh2_userauth_authenticated(mSession) = 1
+			  If mSession <> Nil Then Return libssh2_userauth_authenticated(mSession) = 1
 			End Get
 		#tag EndGetter
 		IsAuthenticated As Boolean
