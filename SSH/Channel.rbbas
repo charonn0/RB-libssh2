@@ -4,6 +4,8 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Close()
 		  // Part of the SSHStream interface.
+		  ' Sends the SSH close message to the server. 
+		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  
 		  Do
@@ -26,6 +28,13 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		 Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
+		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to the returned
+		  ' Channel object. Make sure to call Channel.Close() when finished.
+		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
+		  ' Mode is the Unix-style permissions of the remote file. Length is the total size in bytes
+		  ' of the file being uploaded. ModTime and AccessTime may be zero, in which case the current 
+		  ' date and time are used.
+		  
 		  Dim c As Ptr
 		  Do
 		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
@@ -41,7 +50,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
-		  ' Tunnel a TCP/IP connection through the SSH transport via the remote host to a third party.
+		  ' Creates a new channel over the Session which tunnels a TCP/IP connection via the remote host to a third party.
 		  ' Communication from the client to the SSH server remains encrypted, communication from the
 		  ' server to the 3rd party host travels in cleartext.
 		  
@@ -72,6 +81,8 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function EOF() As Boolean
 		  // Part of the Readable interface.
+		  ' Returns True if the server has indicated that no further data will be sent over the channel.
+		  
 		  Do
 		    mLastError = libssh2_channel_eof(mChannel)
 		    Select Case mLastError
@@ -90,6 +101,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub EOF(Assigns b As Boolean)
+		  ' Informs the server that no further data will be sent over the channel.
+		  
 		  If Not b Then Return
 		  Do
 		    mLastError = libssh2_channel_send_eof(mChannel)
@@ -100,6 +113,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function Execute(Command As String) As Boolean
+		  ' Execute a program on the server and attach its stdin, stdout, and stderr streams to this channel.
+		  
 		  Return ProcessStart("exec", Command)
 		End Function
 	#tag EndMethod
@@ -135,12 +150,21 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		 Shared Function Open(Session As SSH.Session) As SSH.Channel
+		  ' Creates a new channel over the Session of type "session". This is the most commonly used channel type.
+		  
 		  Return Open(Session, "session", LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, "")
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		 Shared Function Open(Session As SSH.Session, Type As String, WindowSize As UInt32, PacketSize As UInt32, Message As String) As SSH.Channel
+		  ' Creates a new channel over the Session.
+		  ' Type is typically either "session", "direct-tcpip", or "tcpip-forward".
+		  ' WindowSize is the maximum amount of unacknowledged data remote host is allowed to send
+		  ' before receiving an SSH_MSG_CHANNEL_WINDOW_ADJUST packet.
+		  ' PacketSize is the maximum number of bytes remote host is allowed to send in a single packet.
+		  ' Message contains additional data as required by the selected channel Type.
+		  
 		  Dim typ As MemoryBlock = Type + Chr(0)
 		  Dim msg As MemoryBlock = Message + Chr(0)
 		  Do
@@ -156,6 +180,10 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		 Shared Function OpenSCP(Session As SSH.Session, Path As String) As SSH.Channel
+		  ' Creates a new channel over the session for downloading over SCP. Perform the download by 
+		  ' reading from the returned Channel object until Channel.EOF returns True.
+		  ' Session is an existing SSH session. Path is the full remote path of the file being downloaded.
+		  
 		  Dim c As Ptr
 		  Do
 		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
@@ -170,12 +198,21 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function Poll() As Boolean
+		  ' Returns True if data is available in the channel's read buffer.
+		  
 		  If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function ProcessStart(Request As String, Message As String) As Boolean
+		  ' Runs the requested command, executable, or subsystem indicated by the Request parameter.
+		  ' Defined requests are "exec", "shell", or "subsystem". The Message parameter contains 
+		  ' request-specific data to pass to the process. Once the process is started you can read/write
+		  ' from its StdIn/Out/Err with the Read and Write methods.
+		  '
+		  ' See: https://tools.ietf.org/html/rfc4254#section-6.5
+		  
 		  Dim req As MemoryBlock = Request
 		  Dim msg As MemoryBlock = Message
 		  Do
@@ -187,6 +224,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
+		  ' Attempts to read up to the specified number of bytes from the specified StreamID.
+		  
 		  Dim buffer As New MemoryBlock(Count)
 		  Do
 		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
@@ -213,12 +252,17 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub RequestShell()
+		  ' Requests that the user's default shell be started at the other end.
+		  
 		  Call Me.ProcessStart("shell", "")
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub RequestTerminal(Terminal As String, Width As Integer, Height As Integer, Modes As MemoryBlock, PixelDimensions As Boolean = False)
+		  ' Requests a pseudoterminal (PTY). Note that this does not make sense for all channel types
+		  ' and may be ignored by the server despite returning success.
+		  
 		  Dim pw, ph, cw, ch As Integer
 		  If PixelDimensions Then
 		    pw = Width
@@ -240,6 +284,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub SetEnvironmentVariable(Name As String, Value As String)
+		  ' Set an environment variable in the remote process space. Note that this does not make sense for all
+		  ' channel types and may be ignored by the server despite returning success. 
+		  
 		  Do
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -249,6 +296,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function TryRead(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
+		  ' EXPERIMENTAL. Attempt to read from the channel without blocking.
+		  
 		  Dim buffer As New MemoryBlock(Count)
 		  Do
 		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
@@ -268,6 +317,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub WaitClose()
+		  ' Enter a temporary blocking state until the remote host closes the channel.
+		  ' Typically sent after calling Close() in order to examine the exit status. 
+		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  Do
 		    mLastError = libssh2_channel_wait_closed(mChannel)
@@ -278,6 +330,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub WaitEOF()
+		  ' Wait for the server to indicate that no further data will be sent over the channel.
+		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  
 		  Do
@@ -296,6 +350,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
+		  ' Writes the text to the specified StreamID.
+		  
 		  Dim buffer As New BinaryStream(text)
 		  Do Until buffer.EOF
 		    Dim packet As MemoryBlock = buffer.Read(WriteWindow)
@@ -319,6 +375,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the number of bytes actually available to be read.
+			  
 			  Dim avail, initial As UInt32
 			  If mChannel <> Nil Then Call libssh2_channel_window_read_ex(mChannel, avail,  initial)
 			  Return avail
@@ -330,6 +388,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the number of bytes which the remote end may send without overflowing the window.
+			  
 			  Dim avail, initial As UInt32
 			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
 			End Get
@@ -340,6 +400,11 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the exit code of the process running on the server. Note that the exit status may 
+			  ' not be available if the remote end has not yet set its status to closed. Call Close() to 
+			  ' set the local status to closed, and then WaitClose() to wait for the server to change its
+			  ' status too.
+			  
 			  If mChannel <> Nil Then Return libssh2_channel_get_exit_status(mChannel)
 			End Get
 		#tag EndGetter
@@ -369,6 +434,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the window size as defined when the channel was created.
+			  
 			  Dim avail, initial As UInt32
 			  If mChannel <> Nil Then Call libssh2_channel_window_read_ex(mChannel, avail,  initial)
 			  Return initial
@@ -389,6 +456,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the window size as defined when the channel was created.
+			  
 			  Dim initial As UInt32
 			  If mChannel <> Nil Then Return libssh2_channel_window_write_ex(mChannel,  initial)
 			  Return initial
