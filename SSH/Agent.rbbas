@@ -95,7 +95,7 @@ Protected Class Agent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Integer
+		Function LastError() As Int32
 		  Return mLastError
 		End Function
 	#tag EndMethod
@@ -138,7 +138,7 @@ Protected Class Agent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mLastError As Integer
+		Private mLastError As Int32
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
