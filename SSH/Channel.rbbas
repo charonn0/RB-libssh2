@@ -143,7 +143,7 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Integer
+		Function LastError() As Int32
 		  Return mLastError
 		End Function
 	#tag EndMethod
@@ -420,7 +420,7 @@ Implements SSHStream
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mLastError As Integer
+		Private mLastError As Int32
 	#tag EndProperty
 
 	#tag Property, Flags = &h21

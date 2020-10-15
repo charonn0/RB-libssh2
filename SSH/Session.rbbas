@@ -34,6 +34,8 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub Close(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
+		  ' Ends the SSH session and closes the socket.
+		  
 		  If mSession <> Nil Then
 		    Do
 		      mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
@@ -253,7 +255,7 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Integer
+		Function LastError() As Int32
 		  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
 		End Function
 	#tag EndMethod
@@ -264,6 +266,7 @@ Implements ChannelParent
 		  Dim mb As New MemoryBlock(1024)
 		  Dim sz As Integer
 		  Call libssh2_session_last_error(mSession, mb, sz, mb.Size)
+		  If mb.Ptr(0) <> Nil Then mb = mb.Ptr(0)
 		  Return mb.StringValue(0, sz)
 		  
 		End Function
