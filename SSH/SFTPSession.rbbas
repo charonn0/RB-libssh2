@@ -21,8 +21,8 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Get(FileName As String) As SSH.SSHStream
-		  Return New SFTPStream(Me, FileName, LIBSSH2_FXF_READ, 0)
+		Function Get(FileName As String) As SSH.SFTPStream
+		  Return New SFTPStreamPtr(Me, FileName, LIBSSH2_FXF_READ, 0)
 		End Function
 	#tag EndMethod
 
@@ -66,8 +66,8 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function ListDirectory(DirectoryName As String) As SSH.SSHStream
-		  Return New SFTPStream(Me, DirectoryName, 0, 0, True)
+		Function ListDirectory(DirectoryName As String) As SSH.SFTPStream
+		  Return New SFTPStreamPtr(Me, DirectoryName, 0, 0, True)
 		End Function
 	#tag EndMethod
 
@@ -82,10 +82,10 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SSHStream
+		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
 		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
 		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
-		  Return New SFTPStream(Me, FileName, flags, Mode)
+		  Return New SFTPStreamPtr(Me, FileName, flags, Mode)
 		End Function
 	#tag EndMethod
 

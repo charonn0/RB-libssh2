@@ -14,6 +14,7 @@ Class=Channel;SSH/Channel.rbbas;&hDC537FF;&h514D3FFF;false
 Class=Session;SSH/Session.rbbas;&h81C0FFF;&h514D3FFF;false
 Class=SSHInit;SSH/SSHInit.rbbas;&h496F2FFF;&h514D3FFF;false
 Class=KnownHosts;SSH/KnownHosts.rbbas;&h140FAFFF;&h514D3FFF;false
+Class=SFTPStreamPtr;SSH/SFTPStreamPtr.rbbas;&h41FA2FFF;&h514D3FFF;false
 MajorVersion=1
 MinorVersion=0
 SubVersion=0

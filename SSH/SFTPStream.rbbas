@@ -1,6 +1,6 @@
 #tag Class
-Private Class SFTPStream
-Implements  SSHStream
+Protected Class SFTPStream
+Implements SSHStream
 	#tag Method, Flags = &h1
 		Protected Function Channel() As Ptr
 		  If mStream <> Nil Then Return libssh2_sftp_get_channel(mStream)
@@ -19,8 +19,8 @@ Implements  SSHStream
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
+	#tag Method, Flags = &h1
+		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
 		  mInit = SSHInit.GetInstance()
 		  Dim fn As MemoryBlock = RemoteName
 		  If Not Directory Then
