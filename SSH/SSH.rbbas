@@ -918,6 +918,7 @@ Protected Module SSH
 	#tag Constant, Name = libssh2, Type = String, Dynamic = False, Default = \"libssh2.so.1", Scope = Private
 		#Tag Instance, Platform = Windows, Language = Default, Definition  = \"libssh2.dll"
 		#Tag Instance, Platform = Linux, Language = Default, Definition  = \"libssh2.so.1"
+		#Tag Instance, Platform = Mac OS, Language = Default, Definition  = \"@executable_path/../Frameworks/libssh2.1.dylib"
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_CHANNEL_FLUSH_ALL, Type = Double, Dynamic = False, Default = \"-2", Scope = Private
