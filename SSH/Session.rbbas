@@ -183,7 +183,7 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetLastError() As Integer
+		Function GetLastError() As Int32
 		  If mSession = Nil Then Return 0
 		  Return libssh2_session_last_errno(mSession)
 		End Function
