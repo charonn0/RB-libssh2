@@ -16,6 +16,14 @@ Inherits RuntimeException
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h1000
+		Sub Constructor(Session As SSH.SFTPSession)
+		  Me.Constructor(Session.LastError)
+		  Dim s As String = Session.Session.LastErrorMsg
+		  If s.Trim <> "" Then Me.Message = s
+		End Sub
+	#tag EndMethod
+
 
 End Class
 #tag EndClass
