@@ -41,7 +41,7 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetLastError() As Integer
+		Function GetLastError() As Int32
 		  Return mSession.GetLastError()
 		End Function
 	#tag EndMethod
