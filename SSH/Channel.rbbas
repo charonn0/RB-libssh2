@@ -27,7 +27,7 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		 Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
+		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
 		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to the returned
 		  ' Channel object. Make sure to call Channel.Close() when finished.
 		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
@@ -181,8 +181,8 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		 Shared Function OpenSCP(Session As SSH.Session, Path As String) As SSH.Channel
-		  ' Creates a new channel over the session for downloading over SCP. Perform the download by 
+		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function OpenSCP(Session As SSH.Session, Path As String) As SSH.Channel
+		  ' Creates a new channel over the session for downloading over SCP. Perform the download by
 		  ' reading from the returned Channel object until Channel.EOF returns True.
 		  ' Session is an existing SSH session. Path is the full remote path of the file being downloaded.
 		  

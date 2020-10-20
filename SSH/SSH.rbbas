@@ -315,7 +315,7 @@ Protected Module SSH
 		  If Session = Nil Then Session = Connect(host, port, user, pass)
 		  Select Case scheme
 		  Case "scp"
-		    Return Channel.OpenSCP(Session, path)
+		    Return New SCPStream(Session, path)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Get(path)
@@ -848,7 +848,7 @@ Protected Module SSH
 		  Select Case scheme
 		  Case "scp"
 		    If Length <= 0 Then Raise New SSHException(ERR_LENGTH_REQUIRED)
-		    Return Channel.CreateSCP(Session, path, &o644, Length, 0, 0)
+		    Return New SCPStream(Session, path, &o644, Length, 0, 0)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
 		    Return sftp.Put(path, Overwrite, &o644)
