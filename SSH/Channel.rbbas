@@ -415,8 +415,28 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns the exit code of the process running on the server. Note that the exit status may 
-			  ' not be available if the remote end has not yet set its status to closed. Call Close() to 
+			  Return mDataMode
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If mChannel = Nil Then Return
+			  
+			  Do
+			    mLastError = libssh2_channel_handle_extended_data2(mChannel, CType(value, Integer))
+			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  
+			  If mLastError < 0 Then Raise New SSHException(mLastError)
+			End Set
+		#tag EndSetter
+		DataMode As SSH.Channel.ExtendedDataMode
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the exit code of the process running on the server. Note that the exit status may
+			  ' not be available if the remote end has not yet set its status to closed. Call Close() to
 			  ' set the local status to closed, and then WaitClose() to wait for the server to change its
 			  ' status too.
 			  
@@ -428,6 +448,10 @@ Implements SSHStream
 
 	#tag Property, Flags = &h21
 		Private mChannel As Ptr
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mDataMode As ExtendedDataMode
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
@@ -480,6 +504,13 @@ Implements SSHStream
 		#tag EndGetter
 		WriteWindow As UInt32
 	#tag EndComputedProperty
+
+
+	#tag Enum, Name = ExtendedDataMode, Type = Integer, Flags = &h0
+		Normal
+		  Ignore
+		Merge
+	#tag EndEnum
 
 
 	#tag ViewBehavior
