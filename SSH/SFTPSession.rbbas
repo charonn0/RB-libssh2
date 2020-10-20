@@ -11,7 +11,7 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function CreateStream(FileName As String, Flags As Integer, Mode As Integer, Directory As Boolean) As SSH.SFTPStream
-		  Return New SFTPStreamPtr(Me, FileName, Flags, Mode)
+		  Return New SFTPStreamPtr(Me, FileName, Flags, Mode, Directory)
 		End Function
 	#tag EndMethod
 
