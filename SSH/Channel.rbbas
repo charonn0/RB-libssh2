@@ -63,8 +63,10 @@ Implements SSHStream
 		Private Sub Destructor()
 		  If mChannel <> Nil Then
 		    Me.Close
-		    mLastError = libssh2_channel_free(mChannel)
-		    If mLastError <> 0 Then Raise New SSHException(mLastError)
+		    If mFreeable Then
+		      mLastError = libssh2_channel_free(mChannel)
+		      If mLastError <> 0 Then Raise New SSHException(mLastError)
+		    End If
 		  End If
 		  ChannelParent(Me.Session).UnregisterChannel(Me)
 		  mChannel = Nil
@@ -452,6 +454,10 @@ Implements SSHStream
 
 	#tag Property, Flags = &h21
 		Private mDataMode As ExtendedDataMode
+	#tag EndProperty
+
+	#tag Property, Flags = &h1
+		Protected mFreeable As Boolean = True
 	#tag EndProperty
 
 	#tag Property, Flags = &h21

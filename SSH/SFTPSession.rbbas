@@ -144,6 +144,23 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mChannel = Nil And mSFTP <> Nil Then
+			    Dim ch As Ptr = libssh2_sftp_get_channel(mSFTP)
+			    If ch <> Nil Then mChannel = New ChannelPtr(Session, ch)
+			  End If
+			  Return mChannel
+			End Get
+		#tag EndGetter
+		Channel As SSH.Channel
+	#tag EndComputedProperty
+
+	#tag Property, Flags = &h21
+		Private mChannel As SSH.Channel
+	#tag EndProperty
+
 	#tag Property, Flags = &h21
 		Private mInit As SSHInit
 	#tag EndProperty
