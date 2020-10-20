@@ -850,6 +850,59 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function SFTPErrorName(SFTPStatusCode As Int32) As String
+		  Select Case SFTPStatusCode 
+		  Case SFTPStream.LIBSSH2_FX_BAD_MESSAGE
+		    Return "LIBSSH2_FX_BAD_MESSAGE"
+		  Case SFTPStream.LIBSSH2_FX_CONNECTION_LOST
+		    Return "LIBSSH2_FX_CONNECTION_LOST"
+		  Case SFTPStream.LIBSSH2_FX_DIR_NOT_EMPTY
+		    Return "LIBSSH2_FX_DIR_NOT_EMPTY"
+		  Case SFTPStream.LIBSSH2_FX_EOF
+		    Return "LIBSSH2_FX_EOF"
+		  Case SFTPStream.LIBSSH2_FX_FAILURE
+		    Return "LIBSSH2_FX_FAILURE"
+		  Case SFTPStream.LIBSSH2_FX_FILE_ALREADY_EXISTS
+		    Return "LIBSSH2_FX_FILE_ALREADY_EXISTS"
+		  Case SFTPStream.LIBSSH2_FX_INVALID_FILENAME
+		    Return "LIBSSH2_FX_INVALID_FILENAME"
+		  Case SFTPStream.LIBSSH2_FX_INVALID_HANDLE
+		    Return "LIBSSH2_FX_INVALID_HANDLE"
+		  Case SFTPStream.LIBSSH2_FX_LINK_LOOP
+		    Return "LIBSSH2_FX_LINK_LOOP"
+		  Case SFTPStream.LIBSSH2_FX_LOCK_CONFLICT
+		    Return "LIBSSH2_FX_LOCK_CONFLICT"
+		  Case SFTPStream.LIBSSH2_FX_NOT_A_DIRECTORY
+		    Return "LIBSSH2_FX_NOT_A_DIRECTORY"
+		  Case SFTPStream.LIBSSH2_FX_NO_CONNECTION
+		    Return "LIBSSH2_FX_NO_CONNECTION"
+		  Case SFTPStream.LIBSSH2_FX_NO_MEDIA
+		    Return "LIBSSH2_FX_NO_MEDIA"
+		  Case SFTPStream.LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM
+		    Return "LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM"
+		  Case SFTPStream.LIBSSH2_FX_NO_SUCH_FILE
+		    Return "LIBSSH2_FX_NO_SUCH_FILE"
+		  Case SFTPStream.LIBSSH2_FX_NO_SUCH_PATH
+		    Return "LIBSSH2_FX_NO_SUCH_PATH"
+		  Case SFTPStream.LIBSSH2_FX_OK
+		    Return "LIBSSH2_FX_OK"
+		  Case SFTPStream.LIBSSH2_FX_OP_UNSUPPORTED
+		    Return "LIBSSH2_FX_OP_UNSUPPORTED"
+		  Case SFTPStream.LIBSSH2_FX_PERMISSION_DENIED
+		    Return "LIBSSH2_FX_PERMISSION_DENIED"
+		  Case SFTPStream.LIBSSH2_FX_QUOTA_EXCEEDED
+		    Return "LIBSSH2_FX_QUOTA_EXCEEDED"
+		  Case SFTPStream.LIBSSH2_FX_UNKNOWN_PRINCIPAL
+		    Return "LIBSSH2_FX_UNKNOWN_PRINCIPAL"
+		  Case SFTPStream.LIBSSH2_FX_WRITE_PROTECT
+		    Return "LIBSSH2_FX_WRITE_PROTECT"
+		  Else
+		    Return "Unknown SFTP error code: " + Str(SFTPStatusCode)
+		  End Select
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Function URLDecode(Data As MemoryBlock) As String
 		  Dim bs As New BinaryStream(Data)
