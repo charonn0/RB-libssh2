@@ -1199,7 +1199,7 @@ Protected Module SSH
 		TypeMask As Integer
 	#tag EndStructure
 
-	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21
+	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21, Attributes = \"StructureAlignment \x3D 8"
 		Flags As UInt32
 		  FileSize As UInt64
 		  UID As UInt32
