@@ -351,16 +351,31 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
 		  ' Writes the text to the specified StreamID.
+		  ' Waits for the sent data to be ack'd before sending the rest
 		  
-		  Dim buffer As New BinaryStream(text)
-		  Do Until buffer.EOF
-		    Dim packet As MemoryBlock = buffer.Read(WriteWindow)
-		    If packet = Nil Or packet.Size = 0 Then Exit Do
-		    Do
-		      mLastError = libssh2_channel_write_ex(mChannel, StreamID, packet, packet.Size)
-		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Dim buffer As MemoryBlock = text
+		  Dim size As Integer = buffer.Size
+		  Do
+		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, buffer, size)
+		    Select Case mLastError
+		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
+		      Continue
+		      
+		    Case Is > 0 ' the amount ack'd
+		      If mLastError = size Then
+		        Exit Do ' done
+		      Else
+		        ' update the size and call libssh2_channel_write_ex() again
+		        size = size - mLastError
+		        Continue
+		      End If
+		      
+		    Case Is < 0 ' error
+		      Exit Do
+		    End Select
 		  Loop
 		  If mLastError < 0 Then Raise New SSHException(mLastError)
+		  mLastError = 0
 		End Sub
 	#tag EndMethod
 
