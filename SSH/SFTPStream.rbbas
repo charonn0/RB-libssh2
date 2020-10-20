@@ -138,13 +138,30 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String)
-		  // Part of the Writeable interface.
+		  ' Waits for the sent data to be ack'd before sending the rest
+		  
 		  If mDirectory Then Raise New IOException
-		  Dim buffer As New BinaryStream(text)
-		  Do Until buffer.EOF
-		    Dim mb As MemoryBlock = buffer.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT)
-		    mLastError = libssh2_sftp_write(mStream, mb, mb.Size)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Dim buffer As MemoryBlock = text
+		  Dim size As Integer = buffer.Size
+		  Do
+		    mLastError = libssh2_sftp_write(mStream, buffer, size)
+		    Select Case mLastError
+		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
+		      Continue
+		      
+		    Case Is > 0 ' the amount ack'd
+		      If mLastError = size Then
+		        Exit Do ' done
+		      Else
+		        ' update the size and call libssh2_sftp_write() again
+		        size = size - mLastError
+		        Continue
+		      End If
+		      
+		    Case Is < 0 ' error
+		      Exit Do
+		    End Select
+		  Loop
 		  If mLastError < 0 Then Raise New SSHException(mLastError)
 		  mLastError = 0
 		End Sub
