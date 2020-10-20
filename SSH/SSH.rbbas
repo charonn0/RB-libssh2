@@ -618,6 +618,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_fstat_ex Lib libssh2 (Session As Ptr, ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES, SetStat As Int32) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_sftp_fsync Lib libssh2 (SFTP As Ptr) As Integer
 	#tag EndExternalMethod
 
