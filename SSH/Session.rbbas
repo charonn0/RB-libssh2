@@ -184,6 +184,8 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetLastError() As Int32
+		  ' Returns the most recent error code known to libshh2
+		  
 		  If mSession = Nil Then Return 0
 		  Return libssh2_session_last_errno(mSession)
 		End Function
@@ -256,12 +258,17 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function LastError() As Int32
+		  ' Returns the most recent error code returned from a libssh2 function call. If the last
+		  ' recorded error is zero then calls GetLastError()
+		  
 		  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function LastErrorMsg() As String
+		  ' Returns a human readable error message for the most recent error.
+		  
 		  If mSession = Nil Then Return ""
 		  Dim mb As New MemoryBlock(1024)
 		  Dim sz As Integer

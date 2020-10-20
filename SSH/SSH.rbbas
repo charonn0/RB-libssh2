@@ -674,6 +674,14 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Sub libssh2_trace Lib libssh2 (Session As Ptr, Bitmask As Int32)
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_trace_sethandler Lib libssh2 (Session As Ptr, Context As Integer, TraceHandler As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_userauth_authenticated Lib libssh2 (Session As Ptr) As Integer
 	#tag EndExternalMethod
 
