@@ -17,6 +17,7 @@ Inherits SSH.Channel
 		  Loop Until c <> Nil
 		  
 		  // Calling the overridden superclass constructor.
+		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
 		  Super.Constructor(Session, c)
 		End Sub
 	#tag EndMethod
@@ -41,6 +42,7 @@ Inherits SSH.Channel
 		  Loop Until c <> Nil
 		  
 		  // Calling the overridden superclass constructor.
+		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
 		  Super.Constructor(Session, c)
 		End Sub
 	#tag EndMethod

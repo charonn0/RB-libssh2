@@ -151,7 +151,7 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		 Shared Function Open(Session As SSH.Session) As SSH.Channel
+		Attributes( deprecated = "SSH.OpenChannel" )  Shared Function Open(Session As SSH.Session) As SSH.Channel
 		  ' Creates a new channel over the Session of type "session". This is the most commonly used channel type.
 		  
 		  Return Open(Session, "session", LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, "")
