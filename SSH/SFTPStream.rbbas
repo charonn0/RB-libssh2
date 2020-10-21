@@ -210,6 +210,7 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mStream = Nil Then Return Nil
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -224,6 +225,7 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -248,6 +250,7 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mStream = Nil Then Return 0
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -260,6 +263,7 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -295,6 +299,7 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mStream = Nil Then Return Nil
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -307,6 +312,7 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -326,6 +332,7 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mStream = Nil Then Return Nil
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -340,6 +347,7 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
@@ -372,12 +380,12 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return libssh2_sftp_tell64(mStream)
+			  If mStream <> Nil Then Return libssh2_sftp_tell64(mStream)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
-			  libssh2_sftp_seek64(mStream, value)
+			  If mStream <> Nil Then libssh2_sftp_seek64(mStream, value)
 			End Set
 		#tag EndSetter
 		Position As UInt64
