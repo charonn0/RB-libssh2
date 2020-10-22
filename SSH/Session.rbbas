@@ -33,13 +33,14 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Close(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested)
+		Sub Close(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested, Language As String = "")
 		  ' Ends the SSH session and closes the socket.
 		  
 		  If mSession <> Nil Then
 		    Do
-		      mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, "")
+		      mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, Language)
 		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		    RaiseEvent Disconnected(Reason, Description, Language)
 		  End If
 		  If mSocket <> Nil Then mSocket.Close()
 		End Sub
