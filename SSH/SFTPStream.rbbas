@@ -467,21 +467,6 @@ Implements SSHStream
 	#tag Constant, Name = LIBSSH2_FX_WRITE_PROTECT, Type = Double, Dynamic = False, Default = \"12", Scope = Public
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_ACMODTIME, Type = Double, Dynamic = False, Default = \"8", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_EXTENDED, Type = Double, Dynamic = False, Default = \"&h80000000", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_PERMISSIONS, Type = Double, Dynamic = False, Default = \"4", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_SIZE, Type = Double, Dynamic = False, Default = \"1", Scope = Private
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_UIDGID, Type = Double, Dynamic = False, Default = \"2", Scope = Private
-	#tag EndConstant
-
 	#tag Constant, Name = LIBSSH2_SFTP_OPENDIR, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
 

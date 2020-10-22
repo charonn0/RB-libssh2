@@ -1178,6 +1178,21 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_OUTBOUND, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_SFTP_ATTR_ACMODTIME, Type = Double, Dynamic = False, Default = \"8", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_ATTR_EXTENDED, Type = Double, Dynamic = False, Default = \"&h80000000", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_ATTR_PERMISSIONS, Type = Double, Dynamic = False, Default = \"4", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_ATTR_SIZE, Type = Double, Dynamic = False, Default = \"1", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_ATTR_UIDGID, Type = Double, Dynamic = False, Default = \"2", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = MIMIMUM_VERSION, Type = Double, Dynamic = False, Default = \"&h00010700", Scope = Private
 	#tag EndConstant
 

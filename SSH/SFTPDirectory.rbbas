@@ -231,21 +231,6 @@ Protected Class SFTPDirectory
 	#tag EndComputedProperty
 
 
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_ACMODTIME, Type = Double, Dynamic = False, Default = \"8", Scope = Protected
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_EXTENDED, Type = Double, Dynamic = False, Default = \"&h80000000", Scope = Protected
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_PERMISSIONS, Type = Double, Dynamic = False, Default = \"4", Scope = Protected
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_SIZE, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_SFTP_ATTR_UIDGID, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
-	#tag EndConstant
-
 	#tag Constant, Name = LIBSSH2_SFTP_S_IFBLK, Type = Double, Dynamic = False, Default = \"&o060000", Scope = Protected
 	#tag EndConstant
 
