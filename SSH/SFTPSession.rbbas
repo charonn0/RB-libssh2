@@ -187,24 +187,6 @@ Protected Class SFTPSession
 	#tag EndComputedProperty
 
 
-	#tag Constant, Name = LIBSSH2_FXF_APPEND, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FXF_CREAT, Type = Double, Dynamic = False, Default = \"&h00000008", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FXF_EXCL, Type = Double, Dynamic = False, Default = \"&h00000020", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FXF_READ, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FXF_TRUNC, Type = Double, Dynamic = False, Default = \"&h00000010", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FXF_WRITE, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Public
-	#tag EndConstant
-
 	#tag Constant, Name = LIBSSH2_SFTP_RENAME_ATOMIC, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Public
 	#tag EndConstant
 

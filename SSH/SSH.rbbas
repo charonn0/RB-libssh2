@@ -1151,6 +1151,24 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_ZLIB, Type = Double, Dynamic = False, Default = \"-29", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_FXF_APPEND, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_CREAT, Type = Double, Dynamic = False, Default = \"&h00000008", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_EXCL, Type = Double, Dynamic = False, Default = \"&h00000020", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_READ, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_TRUNC, Type = Double, Dynamic = False, Default = \"&h00000010", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FXF_WRITE, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_DSS, Type = Double, Dynamic = False, Default = \"2", Scope = Private
 	#tag EndConstant
 
