@@ -16,14 +16,16 @@ This example starts a command ("uptime") on the remote machine and reads from it
   sh.Close
 ```
 ## Hilights
-* Password, public-key, agent, and interactive authentication.
+* Password, public-key, agent, and interactive<sup>1</sup> authentication.
 * Known host key verification
 * Download and upload using SFTP or SCP.
 * Execute commands on the server and read the results.
-* TCP forwarding and tunneling
+* TCP forwarding and tunneling<sup>1</sup>
 * [Stream-oriented](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream), using Xojo's built-in [Readable](http://docs.xojo.com/index.php/Readable) and [Writeable](http://docs.xojo.com/index.php/Writeable) interfaces. 
 * A consistent, high-level API over the full range of libssh2's features.
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
+
+<sup>1</sup> Not fully implemented or currently broken
 
 ## Synopsis
 
@@ -34,11 +36,13 @@ For more thorough documentation of individual classes and methods refer to the [
 
 ***
 
-Each libssh2 [handle](https://en.wikipedia.org/wiki/Handle_%28computing%29) or handle equivalent is managed by an object class. 
+The SSH2 protocol permits an arbitrary number (up to 2<sup>32</sup>-1) of simultaneous [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)) binary data streams to be efficiently and securely [multiplexed](https://en.wikipedia.org/wiki/Multiplexing) over a single TCP connection. A data stream can be an upload or download using SFTP or SCP, the input/output of a program being executed on the server, or your own custom protocol.
 
-libssh2 uses several different handle types or equivalents:
+For simple, one-off operations you can usually use the [Get](https://github.com/charonn0/RB-libssh2/wiki/SSH.Get), [Put](https://github.com/charonn0/RB-libssh2/wiki/SSH.Put), [Execute](https://github.com/charonn0/RB-libssh2/wiki/SSH.Execute), or [OpenChannel](https://github.com/charonn0/RB-libssh2/wiki/SSH.OpenChannel) convenience methods in the SSH module. See also the [Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect) convenience method if you want to perform several such operations on the same connection.
 
-|Handle Type|Comment|
+For more complex operations you will need to dig into the libssh2 API a bit more. libssh2 exposes its API through a number of different [handle](https://en.wikipedia.org/wiki/Handle_%28computing%29) types. Each libssh2 handle or handle equivalent corresponds to an object class implemented in the binding.
+
+|Object Class|Comment|
 |-----------|-------|
 |[`Session`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session)|A secure connection to the server over which one or more channels can be multiplexed.| 
 |[`Channel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel)|A data stream that is multiplexed over a Session.|
@@ -49,6 +53,17 @@ libssh2 uses several different handle types or equivalents:
 |[`SCPStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SCPStream)|A SCP upload or download that is multiplexed over a Session.|
 |[`SSHStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream)|An interface which aggregates the Readable and Writeable interfaces, representing a channel or other stream.|
 
+The general order of operations is something like this:
+
+1. Create a new instance of the `Session` class.
+1. Call [Session.Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Connect) with the address and port of the server, or a Xojo `TCPSocket` which is already connected to the server.
+1. Optionally use the `KnownHosts` class to [load a list of acceptable server fingerprints](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Load), and then [compare the newly connected session's fingerprint to that list](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Lookup).
+1. Call [Session.SendCredentials](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials) to send the user's credentials to the server.
+1. Check the [Session.IsAuthenticated](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.IsAuthenticated) property to see if the credentials were accepted.
+1. Create data streams over the session, for example the `Channel` or `SFTPSession` classes.
+1. Interact with the created data streams through their [Read](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Read), [Write](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Write), etc. methods.
+1. When finished with a data stream call its [Close](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Close) method.
+1. After all data streams are finished and closed, call [Session.Close](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Close) to end the connection.
 
 ## How to incorporate libssh2 into your Realbasic/Xojo project
 ### Import the SSH module
