@@ -72,8 +72,8 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function ListDirectory(DirectoryName As String) As SSH.SFTPStream
-		  Return CreateStream(DirectoryName, 0, 0, True)
+		Function ListDirectory(DirectoryName As String) As SSH.SFTPDirectory
+		  Return New SFTPDirectory(Me, DirectoryName)
 		End Function
 	#tag EndMethod
 
