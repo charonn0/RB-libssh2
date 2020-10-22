@@ -26,20 +26,40 @@ Protected Class SFTPDirectory
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetFile(Flags As Integer, Mode As Integer) As SSH.SFTPStream
-		  If CurrentName <> "" And CurrentType = EntryType.File Then Return New SFTPStreamPtr(Me.Session, CurrentName, Flags, Mode, False)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function GetSubdirectory() As SSH.SFTPDirectory
-		  If CurrentName <> "" And CurrentType = EntryType.Directory Then Return New SFTPDirectory(Me.Session, CurrentName)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function LastError() As Int32
 		  Return mLastError
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function OpenFile(Optional FileName As String) As SSH.SFTPStream
+		  If FileName = "" Then ' get the current file
+		    If CurrentName <> "" And CurrentType = EntryType.File Then 
+		      FileName = CurrentName
+		    Else
+		      Return Nil
+		    End If
+		  End If
+		  
+		  FileName = mName + "/" + FileName
+		  
+		  Return New SFTPStreamPtr(Me.Session, FileName, LIBSSH2_FXF_READ, 0, False)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function OpenSubdirectory(Optional DirectoryName As String) As SSH.SFTPDirectory
+		  If DirectoryName = "" Then ' get the current directory
+		    If CurrentName <> "" And CurrentType = EntryType.Directory Then
+		      DirectoryName = CurrentName
+		    Else
+		      Return Nil
+		    End If
+		  End If
+		  
+		  DirectoryName = mName + "/" + DirectoryName
+		  
+		  Return New SFTPDirectory(Me.Session, DirectoryName)
 		End Function
 	#tag EndMethod
 
