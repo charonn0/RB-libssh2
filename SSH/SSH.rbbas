@@ -860,7 +860,9 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function SFTPErrorName(SFTPStatusCode As Int32) As String
-		  Select Case SFTPStatusCode 
+		  ' Returns the name for the code returned from SFTPSession.LastStatusCode
+		  
+		  Select Case SFTPStatusCode
 		  Case SFTPStream.LIBSSH2_FX_BAD_MESSAGE
 		    Return "LIBSSH2_FX_BAD_MESSAGE"
 		  Case SFTPStream.LIBSSH2_FX_CONNECTION_LOST
