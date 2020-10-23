@@ -18,6 +18,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.Session, ChannelPtr As Ptr)
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
 		  mSession = Session
@@ -68,7 +69,7 @@ Implements SSHStream
 		      If mLastError <> 0 Then Raise New SSHException(mLastError)
 		    End If
 		  End If
-		  ChannelParent(Me.Session).UnregisterChannel(Me)
+		  If mSession <> Nil Then ChannelParent(Me.Session).UnregisterChannel(Me)
 		  mChannel = Nil
 		End Sub
 	#tag EndMethod

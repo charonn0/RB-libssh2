@@ -15,6 +15,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
+		  If Not Session.Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  mInit = SSHInit.GetInstance()
 		  Dim fn As MemoryBlock = RemoteName
 		  If Not Directory Then

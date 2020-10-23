@@ -7,6 +7,7 @@ Inherits SSH.Channel
 		  ' reading from this object until Channel.EOF returns True. Session is an existing SSH session.
 		  ' Path is the full remote path of the file being downloaded.
 		  
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Dim c As Ptr
 		  Do
 		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)

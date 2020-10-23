@@ -269,6 +269,8 @@ Protected Module SSH
 		    Return "ERR_USERNAME_REQUIRED"
 		  Case ERR_TIMEOUT_ELAPSED
 		    Return "ERR_TIMEOUT_ELAPSED"
+		  Case ERR_NOT_AUTHENTICATED
+		    Return "ERR_NOT_AUTHENTICATED"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -966,6 +968,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_LENGTH_REQUIRED, Type = Double, Dynamic = False, Default = \"-505", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_NOT_AUTHENTICATED, Type = Double, Dynamic = False, Default = \"-510", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-105", Scope = Protected
