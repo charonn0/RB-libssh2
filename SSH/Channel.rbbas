@@ -208,6 +208,34 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function PollReadable(Timeout As Integer = 1000) As Boolean
+		  Dim pollfd As LIBSSH2_POLLFD
+		  pollfd.Type = LIBSSH2_POLLFD_CHANNEL
+		  pollfd.Descriptor = Me.Handle
+		  pollfd.Events = LIBSSH2_POLLFD_POLLIN
+		  If libssh2_poll(pollfd, 1, Timeout) <> 1 Then Return False
+		  
+		  Select Case True
+		  Case BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN
+		    RaiseEvent DataAvailable(False)
+		    Return True
+		  Case BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
+		    RaiseEvent DataAvailable(True)
+		    Return True
+		  Case BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLERR) = LIBSSH2_POLLFD_POLLERR, _
+		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLHUP) = LIBSSH2_POLLFD_POLLHUP, _
+		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_SESSION_CLOSED) = LIBSSH2_POLLFD_SESSION_CLOSED, _
+		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLNVAL) = LIBSSH2_POLLFD_POLLNVAL, _
+		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLEX) = LIBSSH2_POLLFD_POLLEX, _
+		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_CHANNEL_CLOSED) = LIBSSH2_POLLFD_CHANNEL_CLOSED, _
+		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_LISTENER_CLOSED) = LIBSSH2_POLLFD_LISTENER_CLOSED
+		    RaiseEvent Error(pollfd.REvents)
+		  End Select
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function ProcessStart(Request As String, Message As String) As Boolean
 		  ' Runs the requested command, executable, or subsystem indicated by the Request parameter.
 		  ' Defined requests are "exec", "shell", or "subsystem". The Message parameter contains 
@@ -388,6 +416,15 @@ Implements SSHStream
 		  Return False
 		End Function
 	#tag EndMethod
+
+
+	#tag Hook, Flags = &h0
+		Event DataAvailable(ExtendedStream As Boolean)
+	#tag EndHook
+
+	#tag Hook, Flags = &h0
+		Event Error(Reasons As Integer)
+	#tag EndHook
 
 
 	#tag ComputedProperty, Flags = &h0

@@ -512,7 +512,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_poll Lib libssh2 (Descriptors As Ptr, NumDescriptors As UInt32, TimeOut As Integer) As Integer
+		Private Soft Declare Function libssh2_poll Lib libssh2 (ByRef Descriptor As LIBSSH2_POLLFD, NumDescriptors As UInt32, TimeOut As Integer) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -818,17 +818,19 @@ Protected Module SSH
 
 	#tag Method, Flags = &h0
 		Function Poll(Extends Stream As SSH.SSHStream, Timeout As Integer = 1000) As Boolean
-		  Dim descriptor As Ptr
-		  Select Case Stream
-		  Case IsA Channel
-		    descriptor = Channel(Stream).Handle
-		  Case IsA SFTPStream
-		    descriptor = SFTPStream(Stream).Handle
-		  Else
-		    Raise New RuntimeException
-		  End Select
-		  Dim i As Integer = libssh2_poll(descriptor, 1, Timeout)
-		  Return i > 0
+		  ' Dim pollfd As LIBSSH2_POLLFD
+		  ' Select Case Stream
+		  ' Case IsA Channel
+		  ' pollfd.Type = LIBSSH2_POLLFD_CHANNEL
+		  ' pollfd.Descriptor = Channel(Stream).Handle
+		  ' pollfd.Events = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
+		  ' Case IsA SFTPStream
+		  ' descriptor = SFTPStream(Stream).Handle
+		  ' Else
+		  ' Raise New RuntimeException
+		  ' End Select
+		  ' Dim i As Integer = libssh2_poll(pollfd, 1, Timeout)
+		  ' Return i > 0
 		End Function
 	#tag EndMethod
 
@@ -1195,6 +1197,48 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_KNOWNHOST_CHECK_NOTFOUND, Type = Double, Dynamic = False, Default = \"2", Scope = Private
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_POLLFD_CHANNEL, Type = Double, Dynamic = False, Default = \"2", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_CHANNEL_CLOSED, Type = Double, Dynamic = False, Default = \"&h0080", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_LISTENER, Type = Double, Dynamic = False, Default = \"3", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_LISTENER_CLOSED, Type = Double, Dynamic = False, Default = \"&h0080", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLERR, Type = Double, Dynamic = False, Default = \"&h0008", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLEX, Type = Double, Dynamic = False, Default = \"&h0040", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLEXT, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLHUP, Type = Double, Dynamic = False, Default = \"&h0010", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLIN, Type = Double, Dynamic = False, Default = \"&h0001", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLNVAL, Type = Double, Dynamic = False, Default = \"&h0020", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLOUT, Type = Double, Dynamic = False, Default = \"&h0004", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLPRI, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_SESSION_CLOSED, Type = Double, Dynamic = False, Default = \"&h0010", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_POLLFD_SOCKET, Type = Double, Dynamic = False, Default = \"1", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_SESSION_BLOCK_INBOUND, Type = Double, Dynamic = False, Default = \"&h0001", Scope = Private
 	#tag EndConstant
 
@@ -1237,6 +1281,13 @@ Protected Module SSH
 		  Name As Ptr
 		  Key As Ptr
 		TypeMask As Integer
+	#tag EndStructure
+
+	#tag Structure, Name = LIBSSH2_POLLFD, Flags = &h21, Attributes = \"StructureAlignment \x3D 8"
+		Type As UInt8
+		  Descriptor As Ptr
+		  Events As UInt32
+		REvents As UInt32
 	#tag EndStructure
 
 	#tag Structure, Name = LIBSSH2_SFTP_ATTRIBUTES, Flags = &h21, Attributes = \"StructureAlignment \x3D 8"
