@@ -30,6 +30,10 @@ Protected Class SFTPSession
 	#tag Method, Flags = &h0
 		Function Get(FileName As String) As SSH.SFTPStream
 		  Return CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
+		  
+		Exception err As SSHException
+		  mLastError = err.ErrorNumber
+		  If mLastError = 0 Then mLastError = LastStatusCode()
 		End Function
 	#tag EndMethod
 
