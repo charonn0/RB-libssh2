@@ -366,6 +366,8 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String) As Boolean
+		  ' EXPERIMENTAL. Authenticate as the specified user through the Authenticate() event.
+		  
 		  Do
 		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -375,11 +377,16 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String) As Boolean
-		  Dim pub, priv As MemoryBlock
-		  pub = PublicKey.AbsolutePath_
-		  priv = PrivateKey.AbsolutePath_
+		  ' Authenticate as the specified user with keys stored in files.
+		  ' PublicKey MAY be Nil if libssh2 was built against OpenSSL.
+		  ' https://www.libssh2.org/libssh2_userauth_publickey_fromfile_ex.html
+		  
 		  Do
-		    mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, pub, priv, PrivateKeyPassword)
+		    If PublicKey <> Nil Then
+		      mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, PublicKey.AbsolutePath_, PrivateKey.AbsolutePath_, PrivateKeyPassword)
+		    Else
+		      mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, Nil, PrivateKey.AbsolutePath_, PrivateKeyPassword)
+		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  Return mLastError = 0
 		End Function
@@ -387,11 +394,16 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String) As Boolean
-		  ' Authenticate to the server with a key from memory.
+		  ' Authenticate as the specified user with keys from memory.
+		  ' PublicKey MAY be Nil if libssh2 was built against OpenSSL.
 		  ' https://www.libssh2.org/libssh2_userauth_publickey_frommemory.html
 		  
 		  Do
-		    mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
+		    If PublicKey <> Nil Then
+		      mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
+		    Else
+		      mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, Nil, 0, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
+		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  Return mLastError = 0
 		End Function
@@ -399,6 +411,9 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Agent As SSH.Agent, KeyIndex As Integer) As Boolean
+		  ' Authenticate as the specified user with the key at the specified
+		  ' index in the Agent's list of keys.
+		  
 		  If Agent = Nil Or Not (Agent.Session Is Me) Then
 		    mLastError = ERR_SESSION_MISMATCH
 		    Return False
@@ -422,6 +437,8 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Password As String) As Boolean
+		  ' Authenticate as the specified user with a password.
+		  
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
