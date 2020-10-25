@@ -213,7 +213,6 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Function PollEvents(Timeout As Integer, EventMask As Integer) As Integer
-		  System.DebugLog(CurrentMethodName + "(" + Str(Timeout) + ", &h" + Hex(EventMask) + ")")
 		  If Not mOpen Then Return 0
 		  Dim pollfd As LIBSSH2_POLLFD
 		  pollfd.Type = LIBSSH2_POLLFD_CHANNEL
@@ -226,7 +225,6 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function PollReadable(Timeout As Integer = 1000, PollStdErr As Boolean = False) As Boolean
-		  System.DebugLog(CurrentMethodName + "(" + Str(Timeout) + ", " + Str(PollStdErr) + ")")
 		  If Not mOpen Then Return False
 		  If Not PollStdErr Then
 		    mLastError = LIBSSH2_POLLFD_POLLIN

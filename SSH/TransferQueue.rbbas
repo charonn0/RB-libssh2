@@ -2,7 +2,6 @@
 Protected Class TransferQueue
 	#tag Method, Flags = &h0
 		Sub AddDownload(Source As SSH.SSHStream, Destination As Writeable)
-		  System.DebugLog(CurrentMethodName)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
 		  mStreams.Value(Source) = DIRECTION_DOWN:Destination
 		End Sub
@@ -81,7 +80,6 @@ Protected Class TransferQueue
 
 	#tag Method, Flags = &h0
 		Function PerformOnce() As Boolean
-		  System.DebugLog(CurrentMethodName + "(" + Str(Count) + ")")
 		  Dim done() As SSHStream
 		  For Each chan As Object In mStreams.Keys
 		    Dim sh As SSHStream = SSHStream(chan)
