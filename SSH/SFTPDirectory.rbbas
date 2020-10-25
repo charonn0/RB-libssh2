@@ -21,7 +21,6 @@ Protected Class SFTPDirectory
 		    Raise New SSHException(Me)
 		  End If
 		  mIndex = -1
-		  If Not ReadNextEntry() Then Raise New SSHException(Session.GetLastError)
 		  mName = RemoteName
 		  mSession = Session
 		End Sub
@@ -111,6 +110,7 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return Nil
+			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
 			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
 			    d.TotalSeconds = d.TotalSeconds + mCurrentAttribs.ATime
@@ -133,6 +133,7 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mIndex = -1 And Not ReadNextEntry() Then Return 0
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) = LIBSSH2_SFTP_ATTR_SIZE Then
 			    Return mCurrentAttribs.FileSize
 			  End If
@@ -145,6 +146,7 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return Nil
+			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
 			    Return New Permissions(mCurrentAttribs.Perms)
 			  End If
@@ -157,6 +159,7 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return Nil
+			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
 			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
 			    d.TotalSeconds = d.TotalSeconds + mCurrentAttribs.MTime
@@ -170,6 +173,7 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mIndex = -1 And Not ReadNextEntry() Then Return ""
 			  return mCurrentName
 			End Get
 		#tag EndGetter
@@ -180,6 +184,7 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return EntryType.Unknown
+			  If mIndex = -1 And Not ReadNextEntry() Then Return EntryType.Unknown
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
 			    Select Case BitAnd(mCurrentAttribs.Perms, LIBSSH2_SFTP_S_IFMT)
 			    Case LIBSSH2_SFTP_S_IFDIR
@@ -218,7 +223,7 @@ Protected Class SFTPDirectory
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mIndex As Integer
+		Private mIndex As Integer = -1
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
