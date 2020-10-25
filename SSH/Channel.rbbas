@@ -378,27 +378,6 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function TryRead(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
-		  ' EXPERIMENTAL. Attempt to read from the channel without blocking.
-		  
-		  Dim buffer As New MemoryBlock(Count)
-		  Do
-		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
-		  Loop Until mLastError <> 0
-		  Select Case mLastError
-		  Case LIBSSH2_ERROR_EAGAIN
-		    Return ""
-		  Case Is < 0
-		    Raise New SSHException(mLastError)
-		  Else
-		    If mLastError <> buffer.Size Then buffer.Size = mLastError
-		    mLastError = 0
-		    Return DefineEncoding(buffer, encoding)
-		  End Select
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Sub WaitClose()
 		  ' Enter a temporary blocking state until the remote host closes the channel.
 		  ' Typically sent after calling Close() in order to examine the exit status. 
