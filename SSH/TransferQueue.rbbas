@@ -85,7 +85,15 @@ Protected Class TransferQueue
 		    Dim sh As SSHStream = SSHStream(chan)
 		    Dim reader As Readable = GetUpStream(sh)
 		    Dim writer As Writeable = GetDownStream(sh)
-		    writer.Write(reader.Read(1024 * 32))
+		    If Not (sh IsA SFTPStream) Then ' poll the channel
+		      Dim ch As SSH.Channel = SSH.Channel(sh)
+		      If  (writer Is ch And ch.PollWriteable) Or _
+		        (reader Is ch And ch.PollReadable) Then ' data is availble
+		        writer.Write(reader.Read(1024 * 32))
+		      End If
+		    Else
+		      writer.Write(reader.Read(1024 * 32))
+		    End If
 		    If reader.EOF Then done.Append(sh)
 		  Next
 		  
