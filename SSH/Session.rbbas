@@ -335,9 +335,25 @@ Implements ChannelParent
 	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h0
-		Sub Poll()
-		  If mSocket <> Nil Then mSocket.Poll()
-		End Sub
+		Function Poll(Timeout As Integer = 1000, EventMask As Integer = 0) As Boolean
+		  If Not IsConnected Then Return False
+		  If EventMask = 0 Then EventMask = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLOUT
+		  Dim pollfd As LIBSSH2_POLLFD
+		  pollfd.Type = LIBSSH2_POLLFD_SOCKET
+		  pollfd.Descriptor = Ptr(mSocket.Handle)
+		  pollfd.Events = EventMask
+		  If libssh2_poll(pollfd, 1, Timeout) <> 1 Then
+		    mLastError = 0
+		    Return False
+		  End If
+		  mLastError = pollfd.REvents
+		  Select Case True
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLOUT) = LIBSSH2_POLLFD_POLLOUT, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
+		    Return True
+		  End Select
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
