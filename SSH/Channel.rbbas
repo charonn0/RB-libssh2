@@ -18,7 +18,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.Session, ChannelPtr As Ptr)
-		  If Not Session.IsAuthenticated Then
+		  mSession = Session
+		  If Not mSession.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
 		    Raise New SSHException(Me)
 		  End If
@@ -558,8 +559,8 @@ Implements SSHStream
 		Private mOpen As Boolean
 	#tag EndProperty
 
-	#tag Property, Flags = &h21
-		Private mSession As SSH.Session
+	#tag Property, Flags = &h1
+		Protected mSession As SSH.Session
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0

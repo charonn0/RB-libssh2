@@ -2,15 +2,15 @@
 Protected Class SFTPSession
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
-		  If Not Session.IsAuthenticated Then 
+		  mSession = Session
+		  If Not mSession.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
 		    Raise New SSHException(Me)
 		  End If
 		  
 		  mInit = SSHInit.GetInstance()
-		  mSFTP = libssh2_sftp_init(Session.Handle)
-		  If mSFTP = Nil Then Raise New SSHException(Session)
-		  mSession = Session
+		  mSFTP = libssh2_sftp_init(mSession.Handle)
+		  If mSFTP = Nil Then Raise New SSHException(mSession)
 		End Sub
 	#tag EndMethod
 

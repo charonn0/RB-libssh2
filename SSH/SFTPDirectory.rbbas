@@ -9,20 +9,20 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
-		  If Not Session.Session.IsAuthenticated Then
+		  mSession = Session
+		  If Not mSession.Session.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
 		    Raise New SSHException(Me)
 		  End If
 		  
 		  mInit = SSHInit.GetInstance()
-		  mStream = New SFTPStreamPtr(Session, RemoteName, 0, 0, True)
+		  mStream = New SFTPStreamPtr(mSession, RemoteName, 0, 0, True)
 		  If mStream = Nil Then
-		    mLastError = Session.LastStatusCode
+		    mLastError = mSession.LastStatusCode
 		    Raise New SSHException(Me)
 		  End If
 		  mIndex = -1
 		  mName = RemoteName
-		  mSession = Session
 		End Sub
 	#tag EndMethod
 

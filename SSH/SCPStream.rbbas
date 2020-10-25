@@ -7,7 +7,8 @@ Inherits SSH.Channel
 		  ' reading from this object until Channel.EOF returns True. Session is an existing SSH session.
 		  ' Path is the full remote path of the file being downloaded.
 		  
-		  If Not Session.IsAuthenticated Then
+		  mSession = Session
+		  If Not mSession.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
 		    Raise New SSHException(Me)
 		  End If
@@ -15,9 +16,9 @@ Inherits SSH.Channel
 		  Dim c As Ptr
 		  Dim stat As New MemoryBlock(64)
 		  Do
-		    c = libssh2_scp_recv2(Session.Handle, Path, stat)
+		    c = libssh2_scp_recv2(mSession.Handle, Path, stat)
 		    If c = Nil Then
-		      If Session.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
+		      If mSession.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
 		      Raise New SSHException(Session)
 		    End If
 		  Loop Until c <> Nil
@@ -27,7 +28,7 @@ Inherits SSH.Channel
 		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
-		  Super.Constructor(Session, c)
+		  Super.Constructor(mSession, c)
 		End Sub
 	#tag EndMethod
 
@@ -40,11 +41,12 @@ Inherits SSH.Channel
 		  ' of the file being uploaded. ModTime and AccessTime may be zero, in which case the current
 		  ' date and time are used.
 		  
+		  mSession = Session
 		  Dim c As Ptr
 		  Do
-		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    c = libssh2_scp_send_ex(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
-		      mLastError = Session.GetLastError
+		      mLastError = mSession.GetLastError
 		      If mLastError = LIBSSH2_ERROR_EAGAIN Then Continue
 		      Raise New SSHException(Me)
 		    End If
@@ -55,7 +57,7 @@ Inherits SSH.Channel
 		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
-		  Super.Constructor(Session, c)
+		  Super.Constructor(mSession, c)
 		End Sub
 	#tag EndMethod
 

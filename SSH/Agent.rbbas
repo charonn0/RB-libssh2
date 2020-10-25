@@ -29,13 +29,13 @@ Protected Class Agent
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
+		  mSession = Session
 		  mInit = SSHInit.GetInstance()
 		  mAgent = libssh2_agent_init(Session.Handle)
 		  If mAgent = Nil Then
 		    mLastError = ERR_INIT_FAILED
 		    Raise New SSHException(Me)
 		  End If
-		  mSession = Session
 		End Sub
 	#tag EndMethod
 

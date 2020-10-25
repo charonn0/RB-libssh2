@@ -33,13 +33,13 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
+		  mSession = Session
 		  mInit = SSHInit.GetInstance()
-		  mKnownHosts = libssh2_knownhost_init(Session.Handle)
+		  mKnownHosts = libssh2_knownhost_init(mSession.Handle)
 		  If mKnownHosts = Nil Then
-		    mLastError = Session.GetLastError()
+		    mLastError = mSession.GetLastError()
 		    Raise New SSHException(Me)
 		  End If
-		  mSession = Session
 		End Sub
 	#tag EndMethod
 
