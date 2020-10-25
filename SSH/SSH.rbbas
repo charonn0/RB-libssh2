@@ -817,20 +817,22 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Poll(Extends Stream As SSH.SSHStream, Timeout As Integer = 1000) As Boolean
-		  ' Dim pollfd As LIBSSH2_POLLFD
-		  ' Select Case Stream
-		  ' Case IsA Channel
-		  ' pollfd.Type = LIBSSH2_POLLFD_CHANNEL
-		  ' pollfd.Descriptor = Channel(Stream).Handle
-		  ' pollfd.Events = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
-		  ' Case IsA SFTPStream
-		  ' descriptor = SFTPStream(Stream).Handle
-		  ' Else
-		  ' Raise New RuntimeException
-		  ' End Select
-		  ' Dim i As Integer = libssh2_poll(pollfd, 1, Timeout)
-		  ' Return i > 0
+		Function Poll(Extends Stream As SSH.SSHStream, EventsMask As Integer, Timeout As Integer = 1000) As Integer
+		  If EventsMask = 0 Then EventsMask = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
+		  Dim pollfd As LIBSSH2_POLLFD
+		  pollfd.Events = EventsMask
+		  Select Case Stream
+		  Case IsA Channel
+		    pollfd.Type = LIBSSH2_POLLFD_CHANNEL
+		    pollfd.Descriptor = Channel(Stream).Handle
+		  Case IsA SFTPStream
+		    pollfd.Type = LIBSSH2_POLLFD_CHANNEL
+		    pollfd.Descriptor = SFTPStream(Stream).Session.Handle
+		  Else
+		    Return 0
+		  End Select
+		  
+		  If libssh2_poll(pollfd, 1, Timeout) = 1 Then Return pollfd.REvents
 		End Function
 	#tag EndMethod
 
@@ -1206,34 +1208,34 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_POLLFD_LISTENER, Type = Double, Dynamic = False, Default = \"3", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_LISTENER_CLOSED, Type = Double, Dynamic = False, Default = \"&h0080", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_LISTENER_CLOSED, Type = Double, Dynamic = False, Default = \"&h0080", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLERR, Type = Double, Dynamic = False, Default = \"&h0008", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLERR, Type = Double, Dynamic = False, Default = \"&h0008", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLEX, Type = Double, Dynamic = False, Default = \"&h0040", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLEX, Type = Double, Dynamic = False, Default = \"&h0040", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLEXT, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLEXT, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLHUP, Type = Double, Dynamic = False, Default = \"&h0010", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLHUP, Type = Double, Dynamic = False, Default = \"&h0010", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLIN, Type = Double, Dynamic = False, Default = \"&h0001", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLIN, Type = Double, Dynamic = False, Default = \"&h0001", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLNVAL, Type = Double, Dynamic = False, Default = \"&h0020", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLNVAL, Type = Double, Dynamic = False, Default = \"&h0020", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLOUT, Type = Double, Dynamic = False, Default = \"&h0004", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLOUT, Type = Double, Dynamic = False, Default = \"&h0004", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_POLLPRI, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_POLLPRI, Type = Double, Dynamic = False, Default = \"&h0002", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_POLLFD_SESSION_CLOSED, Type = Double, Dynamic = False, Default = \"&h0010", Scope = Private
+	#tag Constant, Name = LIBSSH2_POLLFD_SESSION_CLOSED, Type = Double, Dynamic = False, Default = \"&h0010", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_POLLFD_SOCKET, Type = Double, Dynamic = False, Default = \"1", Scope = Private

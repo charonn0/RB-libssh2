@@ -86,7 +86,7 @@ Implements SSHStream
 		  // Part of the Readable interface.
 		  ' Returns True if the server has indicated that no further data will be sent over the channel.
 		  
-		  Do
+		  Do Until Not mOpen
 		    mLastError = libssh2_channel_eof(mChannel)
 		    Select Case mLastError
 		    Case Is >= 0
@@ -99,6 +99,8 @@ Implements SSHStream
 		      Raise New SSHException(mLastError)
 		    End Select
 		  Loop
+		  
+		  Return Not mOpen
 		End Function
 	#tag EndMethod
 
@@ -201,35 +203,87 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function Poll() As Boolean
-		  ' Returns True if data is available in the channel's read buffer.
+		  ' ' Returns True if data is available in the channel's read buffer.
+		  ' 
+		  ' If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
 		  
-		  If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
+		  Return PollReadable() Or PollReadable(1000, True) Or PollWriteable()
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function PollEvents(Timeout As Integer, EventMask As Integer) As Integer
+		  System.DebugLog(CurrentMethodName + "(" + Str(Timeout) + ", &h" + Hex(EventMask) + ")")
+		  If Not mOpen Then Return 0
+		  Dim pollfd As LIBSSH2_POLLFD
+		  pollfd.Type = LIBSSH2_POLLFD_CHANNEL
+		  pollfd.Descriptor = Me.Handle
+		  pollfd.Events = EventMask
+		  If libssh2_poll(pollfd, 1, Timeout) <> 1 Then Return 0
+		  Return pollfd.REvents
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function PollReadable(Timeout As Integer = 1000) As Boolean
-		  Dim pollfd As LIBSSH2_POLLFD
-		  pollfd.Type = LIBSSH2_POLLFD_CHANNEL
-		  pollfd.Descriptor = Me.Handle
-		  pollfd.Events = LIBSSH2_POLLFD_POLLIN
-		  If libssh2_poll(pollfd, 1, Timeout) <> 1 Then Return False
+		Function PollReadable(Timeout As Integer = 1000, PollStdErr As Boolean = False) As Boolean
+		  System.DebugLog(CurrentMethodName + "(" + Str(Timeout) + ", " + Str(PollStdErr) + ")")
+		  If Not mOpen Then Return False
+		  If Not PollStdErr Then
+		    mLastError = LIBSSH2_POLLFD_POLLIN
+		  Else
+		    mLastError = LIBSSH2_POLLFD_POLLEXT
+		  End If
+		  mLastError = PollEvents(Timeout, mLastError)
 		  
 		  Select Case True
-		  Case BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN
-		    RaiseEvent DataAvailable(False)
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN, BitAnd(mLastError, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
+		    mLastError = 0
+		    RaiseEvent DataAvailable(PollStdErr)
 		    Return True
-		  Case BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
-		    RaiseEvent DataAvailable(True)
+		    
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLERR) = LIBSSH2_POLLFD_POLLERR, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLHUP) = LIBSSH2_POLLFD_POLLHUP, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) = LIBSSH2_POLLFD_SESSION_CLOSED, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLNVAL) = LIBSSH2_POLLFD_POLLNVAL, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLEX) = LIBSSH2_POLLFD_POLLEX
+		    RaiseEvent Error(mLastError)
+		    mOpen = False
+		    
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED) = LIBSSH2_POLLFD_CHANNEL_CLOSED, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_LISTENER_CLOSED) = LIBSSH2_POLLFD_LISTENER_CLOSED
+		    ' disconnected but there may be data available in the buffer still
+		    mLastError = Session.LastError()
+		    RaiseEvent Disconnected()
+		    mOpen = False
+		  End Select
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function PollWriteable(Timeout As Integer = 1000) As Boolean
+		  System.DebugLog(CurrentMethodName + "(" + Str(Timeout) + ")")
+		  If Not mOpen Then Return False
+		  mLastError = LIBSSH2_POLLFD_POLLOUT
+		  mLastError = PollEvents(Timeout, mLastError)
+		  
+		  Select Case True
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLOUT) = LIBSSH2_POLLFD_POLLOUT
+		    mLastError = 0
 		    Return True
-		  Case BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLERR) = LIBSSH2_POLLFD_POLLERR, _
-		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLHUP) = LIBSSH2_POLLFD_POLLHUP, _
-		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_SESSION_CLOSED) = LIBSSH2_POLLFD_SESSION_CLOSED, _
-		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLNVAL) = LIBSSH2_POLLFD_POLLNVAL, _
-		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_POLLEX) = LIBSSH2_POLLFD_POLLEX, _
-		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_CHANNEL_CLOSED) = LIBSSH2_POLLFD_CHANNEL_CLOSED, _
-		    BitAnd(pollfd.REvents, LIBSSH2_POLLFD_LISTENER_CLOSED) = LIBSSH2_POLLFD_LISTENER_CLOSED
-		    RaiseEvent Error(pollfd.REvents)
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLERR) = LIBSSH2_POLLFD_POLLERR, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLHUP) = LIBSSH2_POLLFD_POLLHUP, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) = LIBSSH2_POLLFD_SESSION_CLOSED, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLNVAL) = LIBSSH2_POLLFD_POLLNVAL, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLEX) = LIBSSH2_POLLFD_POLLEX
+		    RaiseEvent Error(mLastError)
+		    mOpen = False
+		    
+		  Case BitAnd(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED) = LIBSSH2_POLLFD_CHANNEL_CLOSED, _
+		    BitAnd(mLastError, LIBSSH2_POLLFD_LISTENER_CLOSED) = LIBSSH2_POLLFD_LISTENER_CLOSED
+		    mLastError = Session.LastError()
+		    RaiseEvent Disconnected()
+		    mOpen = False
 		  End Select
 		  
 		End Function
@@ -423,6 +477,10 @@ Implements SSHStream
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
+		Event Disconnected()
+	#tag EndHook
+
+	#tag Hook, Flags = &h0
 		Event Error(Reasons As Integer)
 	#tag EndHook
 
@@ -484,6 +542,15 @@ Implements SSHStream
 			End Get
 		#tag EndGetter
 		ExitStatus As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mOpen
+			End Get
+		#tag EndGetter
+		IsOpen As Boolean
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
