@@ -206,12 +206,12 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Poll() As Boolean
+		Function Poll(Timeout As Integer = 1000) As Boolean
 		  ' ' Returns True if data is available in the channel's read buffer.
 		  ' 
 		  ' If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
 		  
-		  Return PollReadable() Or PollReadable(1000, True) Or PollWriteable()
+		  Return PollReadable(Timeout) Or PollReadable(Timeout, True) Or PollWriteable()
 		End Function
 	#tag EndMethod
 
