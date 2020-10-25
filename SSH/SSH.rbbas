@@ -816,26 +816,6 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Function Poll(Extends Stream As SSH.SSHStream, EventsMask As Integer, Timeout As Integer = 1000) As Integer
-		  If EventsMask = 0 Then EventsMask = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
-		  Dim pollfd As LIBSSH2_POLLFD
-		  pollfd.Events = EventsMask
-		  Select Case Stream
-		  Case IsA Channel
-		    pollfd.Type = LIBSSH2_POLLFD_CHANNEL
-		    pollfd.Descriptor = Channel(Stream).Handle
-		  Case IsA SFTPStream
-		    pollfd.Type = LIBSSH2_POLLFD_CHANNEL
-		    pollfd.Descriptor = SFTPStream(Stream).Session.Handle
-		  Else
-		    Return 0
-		  End Select
-		  
-		  If libssh2_poll(pollfd, 1, Timeout) = 1 Then Return pollfd.REvents
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h1
 		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32 = 0, Overwrite As Boolean = False) As SSH.SSHStream
 		  ' Prepares a file upload over SCP or SFTP. Returns a SSHStream that you
