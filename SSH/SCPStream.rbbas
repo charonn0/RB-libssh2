@@ -7,7 +7,11 @@ Inherits SSH.Channel
 		  ' reading from this object until Channel.EOF returns True. Session is an existing SSH session.
 		  ' Path is the full remote path of the file being downloaded.
 		  
-		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  If Not Session.IsAuthenticated Then
+		    mLastError = ERR_NOT_AUTHENTICATED
+		    Raise New SSHException(Me)
+		  End If
+		  
 		  Dim c As Ptr
 		  Do
 		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
@@ -36,9 +40,9 @@ Inherits SSH.Channel
 		  Do
 		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
-		      Dim e As Integer = Session.GetLastError
-		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(e)
+		      mLastError = Session.GetLastError
+		      If mLastError = LIBSSH2_ERROR_EAGAIN Then Continue
+		      Raise New SSHException(Me)
 		    End If
 		  Loop Until c <> Nil
 		  

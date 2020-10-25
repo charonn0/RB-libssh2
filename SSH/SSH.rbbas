@@ -869,49 +869,49 @@ Protected Module SSH
 		  ' Returns the name for the code returned from SFTPSession.LastStatusCode
 		  
 		  Select Case SFTPStatusCode
-		  Case SFTPStream.LIBSSH2_FX_BAD_MESSAGE
+		  Case LIBSSH2_FX_BAD_MESSAGE
 		    Return "LIBSSH2_FX_BAD_MESSAGE"
-		  Case SFTPStream.LIBSSH2_FX_CONNECTION_LOST
+		  Case LIBSSH2_FX_CONNECTION_LOST
 		    Return "LIBSSH2_FX_CONNECTION_LOST"
-		  Case SFTPStream.LIBSSH2_FX_DIR_NOT_EMPTY
+		  Case LIBSSH2_FX_DIR_NOT_EMPTY
 		    Return "LIBSSH2_FX_DIR_NOT_EMPTY"
-		  Case SFTPStream.LIBSSH2_FX_EOF
+		  Case LIBSSH2_FX_EOF
 		    Return "LIBSSH2_FX_EOF"
-		  Case SFTPStream.LIBSSH2_FX_FAILURE
+		  Case LIBSSH2_FX_FAILURE
 		    Return "LIBSSH2_FX_FAILURE"
-		  Case SFTPStream.LIBSSH2_FX_FILE_ALREADY_EXISTS
+		  Case LIBSSH2_FX_FILE_ALREADY_EXISTS
 		    Return "LIBSSH2_FX_FILE_ALREADY_EXISTS"
-		  Case SFTPStream.LIBSSH2_FX_INVALID_FILENAME
+		  Case LIBSSH2_FX_INVALID_FILENAME
 		    Return "LIBSSH2_FX_INVALID_FILENAME"
-		  Case SFTPStream.LIBSSH2_FX_INVALID_HANDLE
+		  Case LIBSSH2_FX_INVALID_HANDLE
 		    Return "LIBSSH2_FX_INVALID_HANDLE"
-		  Case SFTPStream.LIBSSH2_FX_LINK_LOOP
+		  Case LIBSSH2_FX_LINK_LOOP
 		    Return "LIBSSH2_FX_LINK_LOOP"
-		  Case SFTPStream.LIBSSH2_FX_LOCK_CONFLICT
+		  Case LIBSSH2_FX_LOCK_CONFLICT
 		    Return "LIBSSH2_FX_LOCK_CONFLICT"
-		  Case SFTPStream.LIBSSH2_FX_NOT_A_DIRECTORY
+		  Case LIBSSH2_FX_NOT_A_DIRECTORY
 		    Return "LIBSSH2_FX_NOT_A_DIRECTORY"
-		  Case SFTPStream.LIBSSH2_FX_NO_CONNECTION
+		  Case LIBSSH2_FX_NO_CONNECTION
 		    Return "LIBSSH2_FX_NO_CONNECTION"
-		  Case SFTPStream.LIBSSH2_FX_NO_MEDIA
+		  Case LIBSSH2_FX_NO_MEDIA
 		    Return "LIBSSH2_FX_NO_MEDIA"
-		  Case SFTPStream.LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM
+		  Case LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM
 		    Return "LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM"
-		  Case SFTPStream.LIBSSH2_FX_NO_SUCH_FILE
+		  Case LIBSSH2_FX_NO_SUCH_FILE
 		    Return "LIBSSH2_FX_NO_SUCH_FILE"
-		  Case SFTPStream.LIBSSH2_FX_NO_SUCH_PATH
+		  Case LIBSSH2_FX_NO_SUCH_PATH
 		    Return "LIBSSH2_FX_NO_SUCH_PATH"
-		  Case SFTPStream.LIBSSH2_FX_OK
+		  Case LIBSSH2_FX_OK
 		    Return "LIBSSH2_FX_OK"
-		  Case SFTPStream.LIBSSH2_FX_OP_UNSUPPORTED
+		  Case LIBSSH2_FX_OP_UNSUPPORTED
 		    Return "LIBSSH2_FX_OP_UNSUPPORTED"
-		  Case SFTPStream.LIBSSH2_FX_PERMISSION_DENIED
+		  Case LIBSSH2_FX_PERMISSION_DENIED
 		    Return "LIBSSH2_FX_PERMISSION_DENIED"
-		  Case SFTPStream.LIBSSH2_FX_QUOTA_EXCEEDED
+		  Case LIBSSH2_FX_QUOTA_EXCEEDED
 		    Return "LIBSSH2_FX_QUOTA_EXCEEDED"
-		  Case SFTPStream.LIBSSH2_FX_UNKNOWN_PRINCIPAL
+		  Case LIBSSH2_FX_UNKNOWN_PRINCIPAL
 		    Return "LIBSSH2_FX_UNKNOWN_PRINCIPAL"
-		  Case SFTPStream.LIBSSH2_FX_WRITE_PROTECT
+		  Case LIBSSH2_FX_WRITE_PROTECT
 		    Return "LIBSSH2_FX_WRITE_PROTECT"
 		  Else
 		    Return "Unknown SFTP error code: " + Str(SFTPStatusCode)
@@ -1176,6 +1176,72 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_FXF_WRITE, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_BAD_MESSAGE, Type = Double, Dynamic = False, Default = \"5", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_CONNECTION_LOST, Type = Double, Dynamic = False, Default = \"7", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_DIR_NOT_EMPTY, Type = Double, Dynamic = False, Default = \"18", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_EOF, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_FAILURE, Type = Double, Dynamic = False, Default = \"4", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_FILE_ALREADY_EXISTS, Type = Double, Dynamic = False, Default = \"11", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_INVALID_FILENAME, Type = Double, Dynamic = False, Default = \"20", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_INVALID_HANDLE, Type = Double, Dynamic = False, Default = \"9", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_LINK_LOOP, Type = Double, Dynamic = False, Default = \"21", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_LOCK_CONFLICT, Type = Double, Dynamic = False, Default = \"17", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_NOT_A_DIRECTORY, Type = Double, Dynamic = False, Default = \"19", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_NO_CONNECTION, Type = Double, Dynamic = False, Default = \"6", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_NO_MEDIA, Type = Double, Dynamic = False, Default = \"13", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM, Type = Double, Dynamic = False, Default = \"14", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_NO_SUCH_FILE, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_NO_SUCH_PATH, Type = Double, Dynamic = False, Default = \"10", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_OK, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_OP_UNSUPPORTED, Type = Double, Dynamic = False, Default = \"8", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_PERMISSION_DENIED, Type = Double, Dynamic = False, Default = \"3", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_QUOTA_EXCEEDED, Type = Double, Dynamic = False, Default = \"15", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_UNKNOWN_PRINCIPAL, Type = Double, Dynamic = False, Default = \"16", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_FX_WRITE_PROTECT, Type = Double, Dynamic = False, Default = \"12", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_HOSTKEY_TYPE_DSS, Type = Double, Dynamic = False, Default = \"2", Scope = Private

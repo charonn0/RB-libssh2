@@ -18,7 +18,11 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.Session, ChannelPtr As Ptr)
-		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  If Not Session.IsAuthenticated Then
+		    mLastError = ERR_NOT_AUTHENTICATED
+		    Raise New SSHException(Me)
+		  End If
+		  
 		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
 		  mSession = Session
@@ -66,7 +70,7 @@ Implements SSHStream
 		    Me.Close
 		    If mFreeable Then
 		      mLastError = libssh2_channel_free(mChannel)
-		      If mLastError <> 0 Then Raise New SSHException(mLastError)
+		      If mLastError <> 0 Then Raise New SSHException(Me)
 		    End If
 		  End If
 		  If mSession <> Nil Then ChannelParent(Me.Session).UnregisterChannel(Me)
@@ -96,7 +100,7 @@ Implements SSHStream
 		      Continue
 		      
 		    Else
-		      Raise New SSHException(mLastError)
+		      Raise New SSHException(Me)
 		    End Select
 		  Loop
 		  
@@ -112,7 +116,7 @@ Implements SSHStream
 		  Do
 		    mLastError = libssh2_channel_send_eof(mChannel)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -136,7 +140,7 @@ Implements SSHStream
 		  Do
 		    mLastError = libssh2_channel_flush_ex(mChannel, StreamID)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		  
 		End Sub
 	#tag EndMethod
@@ -232,7 +236,7 @@ Implements SSHStream
 		    mLastError = LIBSSH2_POLLFD_POLLEXT
 		  End If
 		  mLastError = PollEvents(Timeout, mLastError)
-		  
+		  If mLastError = 0 Then Return False
 		  Select Case True
 		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN, BitAnd(mLastError, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
 		    mLastError = 0
@@ -313,7 +317,7 @@ Implements SSHStream
 		  Do
 		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError < 0 Then Raise New SSHException(mLastError)
+		  If mLastError < 0 Then Raise New SSHException(Me)
 		  If mLastError <> buffer.Size Then buffer.Size = mLastError
 		  Return DefineEncoding(buffer, encoding)
 		End Function
@@ -361,7 +365,7 @@ Implements SSHStream
 		      mLastError = libssh2_channel_request_pty_ex(mChannel, Terminal, Terminal.Len, Nil, 0, cw, ch, pw, ph)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -373,7 +377,7 @@ Implements SSHStream
 		  Do
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -386,7 +390,7 @@ Implements SSHStream
 		  Do
 		    mLastError = libssh2_channel_wait_closed(mChannel)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -436,7 +440,7 @@ Implements SSHStream
 		      Exit Do
 		    End Select
 		  Loop
-		  If mLastError < 0 Then Raise New SSHException(mLastError)
+		  If mLastError < 0 Then Raise New SSHException(Me)
 		  mLastError = 0
 		End Sub
 	#tag EndMethod
@@ -501,7 +505,7 @@ Implements SSHStream
 			    mLastError = libssh2_channel_handle_extended_data2(mChannel, CType(value, Integer))
 			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 			  
-			  If mLastError < 0 Then Raise New SSHException(mLastError)
+			  If mLastError < 0 Then Raise New SSHException(Me)
 			End Set
 		#tag EndSetter
 		DataMode As SSH.Channel.ExtendedDataMode
@@ -546,8 +550,8 @@ Implements SSHStream
 		Private mInit As SSHInit
 	#tag EndProperty
 
-	#tag Property, Flags = &h21
-		Private mLastError As Int32
+	#tag Property, Flags = &h1
+		Protected mLastError As Int32
 	#tag EndProperty
 
 	#tag Property, Flags = &h21

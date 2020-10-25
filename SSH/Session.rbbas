@@ -147,7 +147,7 @@ Implements ChannelParent
 		  If mSession <> Nil Then
 		    mLastError = libssh2_session_free(mSession)
 		    mSession = Nil
-		    If mLastError <> 0 Then Raise New SSHException(mLastError)
+		    If mLastError <> 0 Then Raise New SSHException(Me)
 		  End If
 		  mChannels = Nil
 		  mSocket = Nil
@@ -287,7 +287,7 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		  
 		End Sub
 	#tag EndMethod
@@ -534,15 +534,15 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub SetFlag(Flag As Integer, Value As Integer)
-		  Dim err As Integer = libssh2_session_flag(mSession, Flag, Value)
-		  If err <> 0 Then Raise New SSHException(err)
+		  mLastError = libssh2_session_flag(mSession, Flag, Value)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub SetLocalBanner(BannerText As String)
-		  Dim err As Integer = libssh2_session_banner_set(mSession, BannerText)
-		  If err <> 0 Then Raise New SSHException(err)
+		  mLastError = libssh2_session_banner_set(mSession, BannerText)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 

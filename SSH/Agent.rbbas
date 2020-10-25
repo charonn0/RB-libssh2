@@ -31,7 +31,10 @@ Protected Class Agent
 		Sub Constructor(Session As SSH.Session)
 		  mInit = SSHInit.GetInstance()
 		  mAgent = libssh2_agent_init(Session.Handle)
-		  If mAgent = Nil Then Raise New SSHException(ERR_INIT_FAILED)
+		  If mAgent = Nil Then
+		    mLastError = ERR_INIT_FAILED
+		    Raise New SSHException(Me)
+		  End If
 		  mSession = Session
 		End Sub
 	#tag EndMethod
@@ -43,7 +46,7 @@ Protected Class Agent
 		  Do
 		    Dim id As Ptr
 		    mLastError = libssh2_agent_get_identity(mAgent, id, prev)
-		    If mLastError < 0 Then Raise New SSHException(mLastError)
+		    If mLastError < 0 Then Raise New SSHException(Me)
 		    If mLastError = 1 Then Return c
 		    c = c + 1
 		    prev = id
@@ -66,7 +69,7 @@ Protected Class Agent
 		  Do
 		    mLastError = libssh2_agent_disconnect(mAgent)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		  mConnected = False
 		End Sub
 	#tag EndMethod
@@ -84,7 +87,7 @@ Protected Class Agent
 		    prev = this
 		  Loop Until mLastError <> 0
 		  If mLastError = 1 Then mLastError = ERR_INVALID_INDEX
-		  Raise New SSHException(mLastError)
+		  Raise New SSHException(Me)
 		End Function
 	#tag EndMethod
 

@@ -9,9 +9,17 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
-		  If Not Session.Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  If Not Session.Session.IsAuthenticated Then
+		    mLastError = ERR_NOT_AUTHENTICATED
+		    Raise New SSHException(Me)
+		  End If
+		  
 		  mInit = SSHInit.GetInstance()
 		  mStream = New SFTPStreamPtr(Session, RemoteName, 0, 0, True)
+		  If mStream = Nil Then
+		    mLastError = Session.LastStatusCode
+		    Raise New SSHException(Me)
+		  End If
 		  mIndex = -1
 		  If Not ReadNextEntry() Then Raise New SSHException(Session.GetLastError)
 		  mName = RemoteName
@@ -88,7 +96,7 @@ Protected Class SFTPDirectory
 		  ElseIf mLastError = 0 Then
 		    Return False
 		  Else
-		    Raise New SSHException(mLastError)
+		    Raise New SSHException(Me)
 		  End If
 		  
 		  If mCurrentName.Trim <> "" Then
@@ -299,6 +307,7 @@ Protected Class SFTPDirectory
 			Name="CurrentName"
 			Group="Behavior"
 			Type="String"
+			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Index"

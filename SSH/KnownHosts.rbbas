@@ -27,7 +27,7 @@ Protected Class KnownHosts
 		  Else
 		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Comment, Comment.Size, Type, store)
 		  End If
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -35,7 +35,10 @@ Protected Class KnownHosts
 		Sub Constructor(Session As SSH.Session)
 		  mInit = SSHInit.GetInstance()
 		  mKnownHosts = libssh2_knownhost_init(Session.Handle)
-		  If mKnownHosts = Nil Then Raise New SSHException(Session.GetLastError)
+		  If mKnownHosts = Nil Then
+		    mLastError = Session.GetLastError()
+		    Raise New SSHException(Me)
+		  End If
 		  mSession = Session
 		End Sub
 	#tag EndMethod
@@ -44,7 +47,10 @@ Protected Class KnownHosts
 		Sub Constructor(Session As SSH.Session, KnownHostsFile As FolderItem)
 		  Me.Constructor(Session)
 		  Dim c As Integer = Me.Load(KnownHostsFile)
-		  If c < 0 Then Raise New SSHException(c)
+		  If c < 0 Then
+		    mLastError = c
+		    Raise New SSHException(Me)
+		  End If
 		End Sub
 	#tag EndMethod
 
@@ -78,7 +84,7 @@ Protected Class KnownHosts
 		  ' Delete the Host from the list
 		  
 		  mLastError = libssh2_knownhost_del(mKnownHosts, Host)
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -130,7 +136,7 @@ Protected Class KnownHosts
 		    prev = this
 		  Loop Until mLastError <> 0
 		  If mLastError = 1 Then Raise New OutOfBoundsException
-		  Raise New SSHException(mLastError)
+		  Raise New SSHException(Me)
 		End Function
 	#tag EndMethod
 
@@ -216,7 +222,7 @@ Protected Class KnownHosts
 		  Case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND ' host not found
 		    mLastError = ERR_HOSTKEY_NOTFOUND
 		  Else
-		    Raise New SSHException(mLastError)
+		    Raise New SSHException(Me)
 		  End Select
 		End Function
 	#tag EndMethod

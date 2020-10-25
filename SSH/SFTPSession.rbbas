@@ -2,10 +2,14 @@
 Protected Class SFTPSession
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
-		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  If Not Session.IsAuthenticated Then 
+		    mLastError = ERR_NOT_AUTHENTICATED
+		    Raise New SSHException(Me)
+		  End If
+		  
 		  mInit = SSHInit.GetInstance()
 		  mSFTP = libssh2_sftp_init(Session.Handle)
-		  If mSFTP = Nil Then Raise New SSHException(Session.GetLastError)
+		  If mSFTP = Nil Then Raise New SSHException(Session)
 		  mSession = Session
 		End Sub
 	#tag EndMethod
@@ -52,12 +56,6 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetLastError() As Int32
-		  Return mSession.GetLastError()
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function Handle() As Ptr
 		  Return mSFTP
 		End Function
@@ -71,6 +69,9 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function LastStatusCode() As Integer
+		  ' Returns the last SFTP status code, which will be one of the LIBSSH2_FX_* constants.
+		  ' Check this value if SFTPStream.LastError or SFTPDirectory.LastError = LIBSSH2_ERROR_SFTP_PROTOCOL(-31)
+		  
 		  If mSFTP = Nil Then Return 0
 		  Return libssh2_sftp_last_error(mSFTP)
 		End Function
@@ -88,7 +89,7 @@ Protected Class SFTPSession
 		  Do
 		    mLastError = libssh2_sftp_mkdir_ex(mSFTP, dn, dn.Size, Mode)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -121,7 +122,7 @@ Protected Class SFTPSession
 		  Do
 		    mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -131,7 +132,7 @@ Protected Class SFTPSession
 		  Do
 		    mLastError = libssh2_sftp_unlink_ex(mSFTP, fn, fn.Size)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
@@ -144,7 +145,7 @@ Protected Class SFTPSession
 		  Do
 		    mLastError = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, flag)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 

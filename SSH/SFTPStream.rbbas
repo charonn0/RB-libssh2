@@ -15,7 +15,11 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
-		  If Not Session.Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  If Not Session.Session.IsAuthenticated Then
+		    mLastError = ERR_NOT_AUTHENTICATED
+		     Raise New SSHException(Me)
+		  End If
+		  
 		  mInit = SSHInit.GetInstance()
 		  Dim fn As MemoryBlock = RemoteName
 		  If Not Directory Then
@@ -23,11 +27,7 @@ Implements SSHStream
 		  Else
 		    mStream = libssh2_sftp_open_ex(Session.Handle, fn, fn.Size, Flags, Mode, LIBSSH2_SFTP_OPENDIR)
 		  End If
-		  If mStream = Nil Then
-		    Dim err As New SSHException(Session)
-		    err.Message = err.Message + EndOfLine + SSH.SFTPErrorName(Session.LastStatusCode)
-		    Raise err
-		  End If
+		  If mStream = Nil Then Raise New SSHException(Session)
 		  
 		  mSession = Session
 		  mDirectory = Directory
@@ -63,7 +63,7 @@ Implements SSHStream
 		  Do
 		    mLastError = libssh2_sftp_fsync(mStream)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 And mLastError <> LIBSSH2_ERROR_SFTP_PROTOCOL Then Raise New SSHException(mLastError)
+		  If mLastError <> 0 And mLastError <> LIBSSH2_ERROR_SFTP_PROTOCOL Then Raise New SSHException(Me)
 		  
 		  
 		  
@@ -78,6 +78,11 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function LastError() As Int32
+		  ' This is an error code returned from the libssh2 API. If the last error was
+		  ' LIBSSH2_ERROR_SFTP_PROTOCOL(-31) then refer to the LastStatusCode property
+		  ' of the SFTPSession that owns this stream for the SFTP status code (which will
+		  ' be one of the LIBSSH2_FX_* constants.)
+		  
 		  Return mLastError
 		End Function
 	#tag EndMethod
@@ -134,7 +139,7 @@ Implements SSHStream
 		  ElseIf mLastError = 0 Then
 		    mEOF = True
 		  Else
-		    Raise New SSHException(mLastError)
+		    Raise New SSHException(Me)
 		  End If
 		End Function
 	#tag EndMethod
@@ -155,7 +160,7 @@ Implements SSHStream
 		  ElseIf mLastError = 0 Then
 		    mEOF = True
 		  Else
-		    Raise New SSHException(mLastError)
+		    Raise New SSHException(Me)
 		  End If
 		End Function
 	#tag EndMethod
@@ -195,7 +200,7 @@ Implements SSHStream
 		      Exit Do
 		    End Select
 		  Loop
-		  If mLastError < 0 Then Raise New SSHException(mLastError)
+		  If mLastError < 0 Then Raise New SSHException(Me)
 		  mLastError = 0
 		End Sub
 	#tag EndMethod
@@ -401,72 +406,6 @@ Implements SSHStream
 		Session As SSH.SFTPSession
 	#tag EndComputedProperty
 
-
-	#tag Constant, Name = LIBSSH2_FX_BAD_MESSAGE, Type = Double, Dynamic = False, Default = \"5", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_CONNECTION_LOST, Type = Double, Dynamic = False, Default = \"7", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_DIR_NOT_EMPTY, Type = Double, Dynamic = False, Default = \"18", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_EOF, Type = Double, Dynamic = False, Default = \"1", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_FAILURE, Type = Double, Dynamic = False, Default = \"4", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_FILE_ALREADY_EXISTS, Type = Double, Dynamic = False, Default = \"11", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_INVALID_FILENAME, Type = Double, Dynamic = False, Default = \"20", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_INVALID_HANDLE, Type = Double, Dynamic = False, Default = \"9", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_LINK_LOOP, Type = Double, Dynamic = False, Default = \"21", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_LOCK_CONFLICT, Type = Double, Dynamic = False, Default = \"17", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_NOT_A_DIRECTORY, Type = Double, Dynamic = False, Default = \"19", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_NO_CONNECTION, Type = Double, Dynamic = False, Default = \"6", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_NO_MEDIA, Type = Double, Dynamic = False, Default = \"13", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM, Type = Double, Dynamic = False, Default = \"14", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_NO_SUCH_FILE, Type = Double, Dynamic = False, Default = \"2", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_NO_SUCH_PATH, Type = Double, Dynamic = False, Default = \"10", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_OK, Type = Double, Dynamic = False, Default = \"0", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_OP_UNSUPPORTED, Type = Double, Dynamic = False, Default = \"8", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_PERMISSION_DENIED, Type = Double, Dynamic = False, Default = \"3", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_QUOTA_EXCEEDED, Type = Double, Dynamic = False, Default = \"15", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_UNKNOWN_PRINCIPAL, Type = Double, Dynamic = False, Default = \"16", Scope = Public
-	#tag EndConstant
-
-	#tag Constant, Name = LIBSSH2_FX_WRITE_PROTECT, Type = Double, Dynamic = False, Default = \"12", Scope = Public
-	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_SFTP_OPENDIR, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
