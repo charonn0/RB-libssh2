@@ -98,7 +98,7 @@ Protected Class SFTPSession
 		  Dim fn As MemoryBlock = Path
 		  Dim p As Ptr
 		  Dim flag As Integer
-		  Dim Right(Path, 1) = "/" Then flag = LIBSSH2_SFTP_OPENDIR Else flag = LIBSSH2_SFTP_OPENFILE
+		  If Right(Path, 1) = "/" Then flag = LIBSSH2_SFTP_OPENDIR Else flag = LIBSSH2_SFTP_OPENFILE
 		  Try
 		    p = libssh2_sftp_open_ex(Me.Handle, fn, fn.Size, 0, 0, flag)
 		  Catch

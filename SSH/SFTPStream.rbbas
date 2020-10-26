@@ -180,6 +180,7 @@ Implements SSHStream
 		  ' Waits for the sent data to be ack'd before sending the rest
 		  
 		  If mDirectory Then Raise New IOException
+		  If text.LenB = 0 Then Return
 		  Dim buffer As MemoryBlock = text
 		  Dim size As Integer = buffer.Size
 		  Do
