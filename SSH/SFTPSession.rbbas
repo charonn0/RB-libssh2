@@ -8,7 +8,6 @@ Protected Class SFTPSession
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  mInit = SSHInit.GetInstance()
 		  mSFTP = libssh2_sftp_init(mSession.Handle)
 		  If mSFTP = Nil Then Raise New SSHException(mSession)
 		End Sub

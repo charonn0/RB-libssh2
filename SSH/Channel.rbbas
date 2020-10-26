@@ -27,7 +27,6 @@ Implements SSHStream
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
 		  mOpen = True
 		  ChannelParent(Session).RegisterChannel(Me)

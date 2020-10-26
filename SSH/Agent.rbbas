@@ -40,7 +40,6 @@ Protected Class Agent
 		  ' the specified Session.
 		  
 		  mSession = Session
-		  mInit = SSHInit.GetInstance()
 		  mAgent = libssh2_agent_init(Session.Handle)
 		  If mAgent = Nil Then
 		    mLastError = ERR_INIT_FAILED

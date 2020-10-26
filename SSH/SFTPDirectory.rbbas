@@ -15,7 +15,6 @@ Protected Class SFTPDirectory
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  mInit = SSHInit.GetInstance()
 		  mStream = New SFTPStreamPtr(mSession, RemoteName, 0, 0, True)
 		  If mStream = Nil Then
 		    mLastError = mSession.LastStatusCode

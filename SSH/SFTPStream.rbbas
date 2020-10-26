@@ -23,7 +23,6 @@ Implements SSHStream
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  mInit = SSHInit.GetInstance()
 		  Dim fn As MemoryBlock = RemoteName
 		  If Not Directory Then
 		    mStream = libssh2_sftp_open_ex(mSession.Handle, fn, fn.Size, Flags, Mode, LIBSSH2_SFTP_OPENFILE)
