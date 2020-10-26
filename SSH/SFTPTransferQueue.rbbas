@@ -86,7 +86,6 @@ Protected Class SFTPTransferQueue
 		    Dim reader As Readable = GetUpStream(stream)
 		    Dim writer As Writeable = GetDownStream(stream)
 		    Try
-		      writer.Write(reader.Read(1024 * 32))
 		      Dim total, now As UInt64
 		      If IsDownload(stream) Then
 		        total = stream.Length
@@ -95,7 +94,13 @@ Protected Class SFTPTransferQueue
 		        total = total + BinaryStream(reader).Length
 		        now = now + BinaryStream(reader).Position
 		      End If
-		      If reader.EOF Or RaiseEvent Progress(Stream, total, now) Then done.Append(stream)
+		      If reader.EOF Or RaiseEvent Progress(Stream, total, now) Then
+		        done.Append(stream)
+		        Continue
+		      End If
+		      
+		      writer.Write(reader.Read(1024 * 32))
+		      
 		    Catch
 		      done.Append(stream)
 		    End Try
