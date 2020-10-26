@@ -4,7 +4,7 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Close()
 		  // Part of the SSHStream interface.
-		  ' Sends the SSH close message to the server. 
+		  ' Sends the SSH2 channel close message to the server.
 		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  
@@ -18,6 +18,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.Session, ChannelPtr As Ptr)
+		  ' Take ownership of an already initialized libssh2 channel reference.
+		  ' ChannelPtr must refer to a valid channel opened over the specified Session.
+		  
 		  mSession = Session
 		  If Not mSession.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
@@ -26,7 +29,6 @@ Implements SSHStream
 		  
 		  mInit = SSHInit.GetInstance()
 		  mChannel = ChannelPtr
-		  mSession = Session
 		  mOpen = True
 		  ChannelParent(Session).RegisterChannel(Me)
 		End Sub
@@ -112,6 +114,7 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub EOF(Assigns b As Boolean)
 		  ' Informs the server that no further data will be sent over the channel.
+		  ' You may only assign True; assigning False does nothing.
 		  
 		  If Not b Then Return
 		  Do
@@ -123,7 +126,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function Execute(Command As String) As Boolean
-		  ' Execute a program on the server and attach its stdin, stdout, and stderr streams to this channel.
+		  ' Execute a command on the server and attach its stdin, stdout, and stderr streams to this channel.
 		  
 		  Return ProcessStart("exec", Command)
 		End Function
@@ -138,6 +141,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub Flush(StreamID As Integer)
+		  ' Flush pending output to the stream specified by StreamID.
+		  ' StreamID may be an actual stream ID number or the one of LIBSSH2_CHANNEL_FLUSH_* constants.
+		  
 		  Do
 		    mLastError = libssh2_channel_flush_ex(mChannel, StreamID)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -154,6 +160,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function LastError() As Int32
+		  ' Returns the most recent libssh2 error code for this instance of Channel
+		  
 		  Return mLastError
 		End Function
 	#tag EndMethod
@@ -208,9 +216,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function Poll(Timeout As Integer = 1000) As Boolean
-		  ' ' Returns True if data is available in the channel's read buffer.
-		  ' 
-		  ' If mChannel <> Nil Then Return (libssh2_poll_channel_read(mChannel, 0) <> 0)
+		  ' Polls all streams and returns True if any of them signal readiness. A bitmask of 
+		  ' LIBSSH2_POLLFD_* constants is stored in Channel.LastError indicating which stream(s)
+		  ' are ready.
 		  
 		  Return PollReadable(Timeout) Or PollReadable(Timeout, True) Or PollWriteable()
 		End Function
@@ -230,6 +238,10 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function PollReadable(Timeout As Integer = 1000, PollStdErr As Boolean = False) As Boolean
+		  ' Polls the Channel for readability. Returns True if you may Read() from the
+		  ' Channel without blocking. Check Channel.BytesAvailable to learn how much
+		  ' may be read.
+		  
 		  If Not mOpen Then Return False
 		  If Not PollStdErr Then
 		    mLastError = LIBSSH2_POLLFD_POLLIN
@@ -265,7 +277,10 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Function PollWriteable(Timeout As Integer = 1000) As Boolean
-		  System.DebugLog(CurrentMethodName + "(" + Str(Timeout) + ")")
+		  ' Polls the Channel for writeability. Returns True if you may Write() to the
+		  ' Channel without blocking. Check Channel.BytesLeft to learn how much
+		  ' may be written.
+		  
 		  If Not mOpen Then Return False
 		  mLastError = LIBSSH2_POLLFD_POLLOUT
 		  mLastError = PollEvents(Timeout, mLastError)

@@ -140,6 +140,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function ErrorName(ErrorNumber As Integer) As String
+		  ' Returns the name for the code returned from libssh2
+		  
 		  Select Case ErrorNumber
 		  Case LIBSSH2_ERROR_NONE
 		    Return "LIBSSH2_ERROR_NONE"
@@ -329,6 +331,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
+		  ' Returns True if libssh2 is available at runtime.
+		  
 		  Static avail As Boolean
 		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_session_init_ex", libssh2)
 		  Return avail
@@ -721,12 +725,17 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", WindowSize As UInt32 = LIBSSH2_CHANNEL_WINDOW_DEFAULT, PacketSize As UInt32 = LIBSSH2_CHANNEL_PACKET_DEFAULT, Message As String = "") As SSH.Channel
+		  ' Opens a new SSH.Channel over the specified SSH.Session. 
+		  
 		  Return Channel.Open(Session, Type, WindowSize, PacketSize, Message)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
 		Protected Function OpenChannel(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Channel
+		  ' Opens a new SSH.Channel to the server specified by the URL parameter.
+		  ' e.g. "ssh://user:pass@ssh.example.com:2222/"
+		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
 		  host = d.Lookup("host", "")
@@ -919,6 +928,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function Version() As String
+		  ' Returns a string containing the version number, for example "1.9.0".
+		  
 		  If System.IsFunctionAvailable("libssh2_version", libssh2) Then Return libssh2_version(0)
 		End Function
 	#tag EndMethod
