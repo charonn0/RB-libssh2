@@ -510,6 +510,18 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the number of bytes which can be written to the channel without blocking.
+			  
+			  Dim initial As UInt32
+			  If mChannel <> Nil Then Return libssh2_channel_window_write_ex(mChannel,  initial)
+			End Get
+		#tag EndGetter
+		BytesWriteable As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  Return mDataMode
 			End Get
 		#tag EndGetter
@@ -606,7 +618,7 @@ Implements SSHStream
 			  ' Returns the window size as defined when the channel was created.
 			  
 			  Dim initial As UInt32
-			  If mChannel <> Nil Then Return libssh2_channel_window_write_ex(mChannel,  initial)
+			  If mChannel <> Nil Then Call libssh2_channel_window_write_ex(mChannel,  initial)
 			  Return initial
 			End Get
 		#tag EndGetter
