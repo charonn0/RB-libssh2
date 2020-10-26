@@ -2,6 +2,8 @@
 Protected Class SFTPSession
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
+		  ' Create a new SFTP session over the specified SSH session.
+		  
 		  mSession = Session
 		  If Not mSession.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
@@ -15,6 +17,10 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function CreateStream(FileName As String, Flags As Integer, Mode As Integer, Directory As Boolean) As SSH.SFTPStream
+		  ' This method opens a SFTPStream according to the parameters. It is a more generic
+		  ' version of the Get(), Put(), and ListDirectory() methods, allowing custom functionality.
+		  ' See https://www.libssh2.org/libssh2_sftp_open_ex.html for a description of the parameters.
+		  
 		  Return New SFTPStreamPtr(Me, FileName, Flags, Mode, Directory)
 		  
 		Exception err As SSHException
@@ -44,6 +50,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function Get(FileName As String, WriteTo As Writeable) As Boolean
+		  ' Downloads the FileName to WriteTo.
+		  
 		  Dim stream As SSHStream = Me.Get(FileName)
 		  Do Until stream.EOF
 		    WriteTo.Write(stream.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
@@ -64,6 +72,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function LastError() As Int32
+		  ' Returns the most recent error code returned from libssh2.
+		  
 		  Return mLastError
 		End Function
 	#tag EndMethod
@@ -80,6 +90,9 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function ListDirectory(DirectoryName As String) As SSH.SFTPDirectory
+		  ' Returns an instance of SFTPDirectory with which you can iterate over
+		  ' all the items in the remote directory.
+		  
 		  Return New SFTPDirectory(Me, DirectoryName)
 		  
 		Exception err As SSHException
@@ -90,6 +103,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Sub MakeDirectory(DirectoryName As String, Mode As Integer = &o744)
+		  ' Creates the specified directory on the server. 
+		  
 		  Dim dn As MemoryBlock = DirectoryName
 		  Do
 		    mLastError = libssh2_sftp_mkdir_ex(mSFTP, dn, dn.Size, Mode)
@@ -100,6 +115,9 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function PathExists(Path As String) As Boolean
+		  ' Returns True if the specified Path exists on the server. Paths ending in "/" are interpreted
+		  ' as directories; some servers will fail the query if it's omitted.
+		  
 		  If Not mSession.IsAuthenticated Then Return False
 		  Dim fn As MemoryBlock = Path
 		  Dim p As Ptr
@@ -125,6 +143,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
+		  ' Returns an SFTPStream to which the file data can be written.
+		  
 		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
 		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
 		  Return CreateStream(FileName, flags, Mode, False)
@@ -133,6 +153,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744) As Boolean
+		  ' Writes the Upload stream to FileName.
+		  
 		  Dim sftp As SSHStream = Me.Put(FileName, Overwrite, Mode)
 		  
 		  Do Until Upload.EOF
@@ -148,6 +170,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Sub RemoveDirectory(DirectoryName As String)
+		  ' Deletes the specified directory on the server. The directory must already be empty.
+		  
 		  Dim dn As MemoryBlock = DirectoryName
 		  Do
 		    mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
@@ -158,6 +182,8 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Sub RemoveFile(FileName As String)
+		  ' Deletes the specified file on the server.
+		  
 		  Dim fn As MemoryBlock = FileName
 		  Do
 		    mLastError = libssh2_sftp_unlink_ex(mSFTP, fn, fn.Size)
@@ -168,6 +194,9 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Sub Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False)
+		  ' Renames the SourceName file. If DestinationName already exists
+		  ' and Overwrite=False then the operation will fail.
+		  
 		  Dim sn As MemoryBlock = SourceName
 		  Dim dn As MemoryBlock = DestinationName
 		  Dim flag As Integer
@@ -183,6 +212,9 @@ Protected Class SFTPSession
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the Channel over which the SFTPStream is opened.
+			  ' It's generally not useful to interact with this object.
+			  
 			  If mChannel = Nil And mSFTP <> Nil Then
 			    Dim ch As Ptr = libssh2_sftp_get_channel(mSFTP)
 			    If ch <> Nil Then mChannel = New ChannelPtr(Session, ch)
