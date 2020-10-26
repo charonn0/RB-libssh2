@@ -115,15 +115,7 @@ Implements ChannelParent
 		  Me.SetCallback(CB_Ignore, AddressOf IgnoreHandler)
 		  Me.SetCallback(CB_MACError, AddressOf MACErrorHandler)
 		  Me.SetCallback(CB_X11Open, AddressOf X11OpenHandler)
-		  
-		  #If TargetWin32
-		    Const zlib1 = "zlib1.dll"
-		  #ElseIf TargetMacOS
-		    Const zlib1 = "/usr/lib/libz.dylib"
-		  #Else
-		    Const zlib1 = "libz.so.1"
-		  #endif
-		  If System.IsFunctionAvailable("zlibVersion", zlib1) Then Me.UseCompression = True
+		  If IsCompressionAvailable Then Me.UseCompression = True
 		End Sub
 	#tag EndMethod
 

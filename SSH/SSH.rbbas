@@ -339,6 +339,23 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Function IsCompressionAvailable() As Boolean
+		  ' Returns True if zlib is available at runtime.
+		  
+		  #If TargetWin32
+		    Const zlib1 = "zlib1.dll"
+		  #ElseIf TargetMacOS
+		    Const zlib1 = "/usr/lib/libz.dylib"
+		  #Else
+		    Const zlib1 = "libz.so.1"
+		  #endif
+		  
+		  Static avail As Boolean = System.IsFunctionAvailable("zlibVersion", libssh2) Or System.IsFunctionAvailable("zlibVersion", zlib1)
+		  Return avail
+		End Function
+	#tag EndMethod
+
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_agent_connect Lib libssh2 (Agent As Ptr) As Integer
 	#tag EndExternalMethod
