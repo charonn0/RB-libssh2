@@ -1,14 +1,14 @@
 #tag Class
-Protected Class TransferQueue
+Protected Class SFTPTransferQueue
 	#tag Method, Flags = &h0
-		Sub AddDownload(Source As SSH.SSHStream, Destination As Writeable)
+		Sub AddDownload(Source As SSH.SFTPStream, Destination As Writeable)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
 		  mStreams.Value(Source) = DIRECTION_DOWN:Destination
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub AddUpload(Destination As SSH.SSHStream, Source As Readable)
+		Sub AddUpload(Destination As SSH.SFTPStream, Source As Readable)
 		  If mStreams.HasKey(Destination) Then Raise New RuntimeException
 		  mStreams.Value(Destination) = DIRECTION_UP:Source
 		End Sub
@@ -27,7 +27,7 @@ Protected Class TransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetDownStream(Stream As SSH.SSHStream) As Writeable
+		Function GetDownStream(Stream As SSH.SFTPStream) As Writeable
 		  Dim vl As Pair = mStreams.Value(Stream)
 		  If vl.Left = DIRECTION_UP Then ' writer is the ssh channel
 		    Return Stream
@@ -39,7 +39,7 @@ Protected Class TransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetUpStream(Stream As SSH.SSHStream) As Readable
+		Function GetUpStream(Stream As SSH.SFTPStream) As Readable
 		  Dim vl As Pair = mStreams.Value(Stream)
 		  If vl.Left = DIRECTION_UP Then ' reader is a local stream
 		    Return vl.Right
@@ -50,19 +50,19 @@ Protected Class TransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function HasTransfer(Stream As SSH.SSHStream) As Boolean
+		Function HasTransfer(Stream As SSH.SFTPStream) As Boolean
 		  Return mStreams <> Nil And mStreams.HasKey(Stream)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function IsDownload(Stream As SSH.SSHStream) As Boolean
+		Function IsDownload(Stream As SSH.SFTPStream) As Boolean
 		  Return (GetUpStream(Stream) Is Stream)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function IsUpload(Stream As SSH.SSHStream) As Boolean
+		Function IsUpload(Stream As SSH.SFTPStream) As Boolean
 		  Return (GetDownStream(Stream) Is Stream)
 		End Function
 	#tag EndMethod
@@ -80,28 +80,31 @@ Protected Class TransferQueue
 
 	#tag Method, Flags = &h0
 		Function PerformOnce() As Boolean
-		  Dim done() As SSHStream
+		  Dim done() As SFTPStream
 		  For Each chan As Object In mStreams.Keys
-		    Dim sh As SSHStream = SSHStream(chan)
-		    Dim reader As Readable = GetUpStream(sh)
-		    Dim writer As Writeable = GetDownStream(sh)
-		    If Not (sh IsA SFTPStream) Then ' poll the channel
-		      Dim ch As SSH.Channel = SSH.Channel(sh)
-		      If  (writer Is ch And ch.PollWriteable) Or _
-		        (reader Is ch And ch.PollReadable) Then ' data is availble
-		        writer.Write(reader.Read(1024 * 32))
-		      End If
-		    Else
+		    Dim stream As SFTPStream = SFTPStream(chan)
+		    Dim reader As Readable = GetUpStream(stream)
+		    Dim writer As Writeable = GetDownStream(stream)
+		    Try
 		      writer.Write(reader.Read(1024 * 32))
-		    End If
-		    If reader.EOF Then done.Append(sh)
+		      Dim total, now As UInt64
+		      If IsDownload(stream) Then
+		        total = stream.Length
+		        now = stream.Position
+		      ElseIf reader IsA BinaryStream Then
+		        total = total + BinaryStream(reader).Length
+		        now = now + BinaryStream(reader).Position
+		      End If
+		      If reader.EOF Or RaiseEvent Progress(Stream, total, now) Then done.Append(stream)
+		    Catch
+		      done.Append(stream)
+		    End Try
 		  Next
 		  
-		  If UBound(done) > -1 Then System.DebugLog(CurrentMethodName + "(disposed of " + Str(UBound(done) + 1) + ")")
 		  For i As Integer = 0 To UBound(done)
-		    Dim sh As SSHStream = done(i)
-		    RaiseEvent TransferComplete(sh)
-		    RemoveTransfer(sh)
+		    Dim stream As SFTPStream = done(i)
+		    RaiseEvent TransferComplete(stream)
+		    RemoveTransfer(stream)
 		  Next
 		  
 		  Return mStreams.Count > 0
@@ -115,14 +118,18 @@ Protected Class TransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub RemoveTransfer(Source As SSH.SSHStream)
+		Sub RemoveTransfer(Source As SSH.SFTPStream)
 		  If mStreams.HasKey(Source) Then mStreams.Remove(Source)
 		End Sub
 	#tag EndMethod
 
 
 	#tag Hook, Flags = &h0
-		Event TransferComplete(Stream As SSH.SSHStream)
+		Event Progress(Transfer As SSH.SFTPStream, Total As UInt64, Now As UInt64) As Boolean
+	#tag EndHook
+
+	#tag Hook, Flags = &h0
+		Event TransferComplete(Stream As SSH.SFTPStream)
 	#tag EndHook
 
 
