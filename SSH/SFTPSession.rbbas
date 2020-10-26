@@ -93,6 +93,31 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function PathExists(Path As String) As Boolean
+		  If Not mSession.IsAuthenticated Then Return False
+		  Dim fn As MemoryBlock = Path
+		  Dim p As Ptr
+		  Dim flag As Integer
+		  Dim Right(Path, 1) = "/" Then flag = LIBSSH2_SFTP_OPENDIR Else flag = LIBSSH2_SFTP_OPENFILE
+		  Try
+		    p = libssh2_sftp_open_ex(Me.Handle, fn, fn.Size, 0, 0, flag)
+		  Catch
+		    p = Nil
+		  Finally
+		    If p <> Nil Then
+		      Do
+		        mLastError = libssh2_sftp_close_handle(p)
+		      Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		    End If
+		  End Try
+		  
+		  Return p <> Nil
+		  
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
 		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
 		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
