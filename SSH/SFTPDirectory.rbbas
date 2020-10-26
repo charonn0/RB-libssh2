@@ -41,11 +41,16 @@ Protected Class SFTPDirectory
 	#tag Method, Flags = &h0
 		Function OpenFile(Optional FileName As String) As SSH.SFTPStream
 		  If FileName = "" Then ' get the current file
-		    If CurrentName <> "" And CurrentType = EntryType.File Then 
+		    Select Case True
+		    Case CurrentName <> "" And CurrentType = EntryType.File
 		      FileName = CurrentName
-		    Else
+		    Case CurrentName = ""
+		      mLastError = LIBSSH2_FX_INVALID_FILENAME
 		      Return Nil
-		    End If
+		    Else
+		      mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
+		      Return Nil
+		    End Select
 		  End If
 		  
 		  FileName = mName + "/" + FileName
@@ -57,11 +62,16 @@ Protected Class SFTPDirectory
 	#tag Method, Flags = &h0
 		Function OpenSubdirectory(Optional DirectoryName As String) As SSH.SFTPDirectory
 		  If DirectoryName = "" Then ' get the current directory
-		    If CurrentName <> "" And CurrentType = EntryType.Directory Then
+		    Select Case True
+		    Case CurrentName <> "" And CurrentType = EntryType.Directory
 		      DirectoryName = CurrentName
-		    Else
+		    Case CurrentName = ""
+		      mLastError = LIBSSH2_FX_INVALID_FILENAME
 		      Return Nil
-		    End If
+		    Else
+		      mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
+		      Return Nil
+		    End Select
 		  End If
 		  
 		  DirectoryName = mName + "/" + DirectoryName
@@ -72,7 +82,10 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function Parent() As SSH.SFTPDirectory
-		  If mName = "/" Or mName = "" Then Return Nil
+		  If mName = "/" Or mName = "" Then
+		    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
+		    Return Nil
+		  End If
 		  Dim nm As String = Left(mName, mName.Len - Name.Len)
 		  If Right(nm, 1) = "/" And nm <> "/" Then nm = Left(nm, nm.Len - 1)
 		  Return New SFTPDirectory(Me.Session, nm)
@@ -91,10 +104,8 @@ Protected Class SFTPDirectory
 		  If mLastError > 0 Then ' error is the size
 		    name.Size = mLastError
 		    mCurrentName = name
-		  ElseIf mLastError = 0 Then
-		    Return False
 		  Else
-		    Raise New SSHException(Me)
+		    Return False
 		  End If
 		  
 		  If mCurrentName.Trim <> "" Then
