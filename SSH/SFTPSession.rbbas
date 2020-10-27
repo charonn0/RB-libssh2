@@ -53,14 +53,12 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Get(FileName As String, NoDereference As Boolean = False) As SSH.SFTPStream
+		Function Get(FileName As String) As SSH.SFTPStream
 		  ' Returns an SFTPStream from which the file data can be read.
 		  
-		  If NoDereference Then
-		    Dim data As String = ReadSymbolicLink(FileName)
-		    If data <> "" Then Return Nil
-		  End If
-		  
+		  Do Until InStr(FileName, "//") = 0
+		    FileName = ReplaceAll(FileName, "//", "/")
+		  Loop
 		  Return CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
 		End Function
 	#tag EndMethod
