@@ -1470,6 +1470,17 @@ Protected Module SSH
 		ECDSA_521=5
 	#tag EndEnum
 
+	#tag Enum, Name = SFTPEntryType, Type = Integer, Flags = &h1
+		File
+		  Directory
+		  Symlink
+		  Socket
+		  BlockSpecial
+		  CharacterSpecial
+		  Pipe
+		Unknown
+	#tag EndEnum
+
 
 	#tag ViewBehavior
 		#tag ViewProperty

@@ -42,7 +42,7 @@ Protected Class SFTPDirectory
 		Function OpenFile(Optional FileName As String, TruePath As Boolean = False) As SSH.SFTPStream
 		  If FileName = "" Then ' get the current file
 		    Select Case True
-		    Case CurrentName <> "" And CurrentType <> EntryType.Directory
+		    Case CurrentName <> "" And CurrentType <> SFTPEntryType.Directory
 		      FileName = CurrentName
 		    Case CurrentName = ""
 		      mLastError = LIBSSH2_FX_INVALID_FILENAME
@@ -58,7 +58,7 @@ Protected Class SFTPDirectory
 		    FileName = ReplaceAll(FileName, "//", "/")
 		  Loop
 		  
-		  If TruePath And CurrentType = EntryType.Symlink Then
+		  If TruePath And CurrentType = SFTPEntryType.Symlink Then
 		    FileName = mSession.ReadSymbolicLink(FileName, True)
 		  End If
 		  
@@ -70,7 +70,7 @@ Protected Class SFTPDirectory
 		Function OpenSubdirectory(Optional DirectoryName As String, TruePath As Boolean = False) As SSH.SFTPDirectory
 		  If DirectoryName = "" Then ' get the current directory
 		    Select Case True
-		    Case CurrentName <> "" And CurrentType = EntryType.Directory
+		    Case CurrentName <> "" And CurrentType = SFTPEntryType.Directory
 		      DirectoryName = CurrentName
 		    Case CurrentName = ""
 		      mLastError = LIBSSH2_FX_INVALID_FILENAME
@@ -86,7 +86,7 @@ Protected Class SFTPDirectory
 		    DirectoryName = ReplaceAll(DirectoryName, "//", "/")
 		  Loop
 		  
-		  If TruePath And CurrentType = EntryType.Symlink Then
+		  If TruePath And CurrentType = SFTPEntryType.Symlink Then
 		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
 		  End If
 		  
@@ -192,6 +192,8 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
+			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
 			  If metadata <> Nil Then
 			    metadata.AccessTime = value
@@ -223,6 +225,8 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
+			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
 			  If metadata <> Nil Then
 			    metadata.Length = value
@@ -246,6 +250,8 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
+			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, 0, 0, False)
 			  If metadata <> Nil Then
 			    metadata.Mode = value
@@ -269,6 +275,8 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  If mStream = Nil Then Return
+			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
 			  If metadata <> Nil Then
 			    metadata.ModifyTime = value
@@ -293,31 +301,31 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  If mStream = Nil Then Return EntryType.Unknown
-			  If mIndex = -1 And Not ReadNextEntry() Then Return EntryType.Unknown
+			  If mStream = Nil Then Return SFTPEntryType.Unknown
+			  If mIndex = -1 And Not ReadNextEntry() Then Return SFTPEntryType.Unknown
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
 			    Select Case BitAnd(mCurrentAttribs.Perms, LIBSSH2_SFTP_S_IFMT)
 			    Case LIBSSH2_SFTP_S_IFDIR
-			      Return EntryType.Directory
+			      Return SFTPEntryType.Directory
 			    Case LIBSSH2_SFTP_S_IFREG
-			      Return EntryType.File
+			      Return SFTPEntryType.File
 			    Case LIBSSH2_SFTP_S_IFBLK
-			      Return EntryType.BlockSpecial
+			      Return SFTPEntryType.BlockSpecial
 			    Case LIBSSH2_SFTP_S_IFCHR
-			      Return EntryType.CharacterSpecial
+			      Return SFTPEntryType.CharacterSpecial
 			    Case LIBSSH2_SFTP_S_IFIFO
-			      Return EntryType.Pipe
+			      Return SFTPEntryType.Pipe
 			    Case LIBSSH2_SFTP_S_IFLNK
-			      Return EntryType.Symlink
+			      Return SFTPEntryType.Symlink
 			    Case LIBSSH2_SFTP_S_IFSOCK
-			      Return EntryType.Socket
+			      Return SFTPEntryType.Socket
 			    Else
-			      Return EntryType.File
+			      Return SFTPEntryType.File
 			    End Select
 			  End If
 			End Get
 		#tag EndGetter
-		CurrentType As SSH.SFTPDirectory.EntryType
+		CurrentType As SSH.SFTPEntryType
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -484,18 +492,6 @@ Protected Class SFTPDirectory
 
 	#tag Constant, Name = LIBSSH2_SFTP_S_IFSOCK, Type = Double, Dynamic = False, Default = \"&o140000", Scope = Protected
 	#tag EndConstant
-
-
-	#tag Enum, Name = EntryType, Type = Integer, Flags = &h0
-		File
-		  Directory
-		  Symlink
-		  Socket
-		  BlockSpecial
-		  CharacterSpecial
-		  Pipe
-		Unknown
-	#tag EndEnum
 
 
 	#tag ViewBehavior
