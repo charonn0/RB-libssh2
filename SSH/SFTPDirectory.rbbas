@@ -190,6 +190,16 @@ Protected Class SFTPDirectory
 			  End If
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
+			  If metadata <> Nil Then
+			    metadata.AccessTime = value
+			    metadata.Close()
+			  End If
+			  
+			End Set
+		#tag EndSetter
 		CurrentAccessTime As Date
 	#tag EndComputedProperty
 
@@ -211,6 +221,16 @@ Protected Class SFTPDirectory
 			  End If
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
+			  If metadata <> Nil Then
+			    metadata.Length = value
+			    metadata.Close()
+			  End If
+			  
+			End Set
+		#tag EndSetter
 		CurrentLength As UInt64
 	#tag EndComputedProperty
 
@@ -224,6 +244,16 @@ Protected Class SFTPDirectory
 			  End If
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, 0, 0, False)
+			  If metadata <> Nil Then
+			    metadata.Mode = value
+			    metadata.Close()
+			  End If
+			  
+			End Set
+		#tag EndSetter
 		CurrentMode As Permissions
 	#tag EndComputedProperty
 
@@ -237,6 +267,16 @@ Protected Class SFTPDirectory
 			  End If
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
+			  If metadata <> Nil Then
+			    metadata.ModifyTime = value
+			    metadata.Close()
+			  End If
+			  
+			End Set
+		#tag EndSetter
 		CurrentModifyTime As Date
 	#tag EndComputedProperty
 
