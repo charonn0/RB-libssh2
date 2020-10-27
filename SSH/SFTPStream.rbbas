@@ -17,6 +17,7 @@ Implements SSHStream
 		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
 		  mSession = Session
 		  mDirectory = Directory
+		  mFilename = RemoteName
 		  
 		  If Not mSession.Session.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
@@ -258,6 +259,24 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  return mDirectory
+			End Get
+		#tag EndGetter
+		Directory As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mFilename
+			End Get
+		#tag EndGetter
+		Filename As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  If mStream = Nil Then Return 0
 			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
 			  Do
@@ -294,6 +313,10 @@ Implements SSHStream
 
 	#tag Property, Flags = &h21
 		Private mEOF As Boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mFilename As String
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
