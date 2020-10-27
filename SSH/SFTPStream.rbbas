@@ -90,6 +90,21 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Parent() As SSH.SFTPDirectory
+		  Dim nm() As String = Split(mFilename.Trim, "/")
+		  For i As Integer = UBound(nm) DownTo 0
+		    If nm(i).Trim = "" Then nm.Remove(i)
+		  Next
+		  If UBound(nm) = -1 Then
+		    mLastError = LIBSSH2_FX_INVALID_FILENAME
+		    Return Nil
+		  End If
+		  nm.Remove(nm.Ubound)
+		  Return New SFTPDirectory(mSession, "/" + Join(nm, "/") + "/")
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
 		  If mDirectory Then ' read directory listing
@@ -236,7 +251,16 @@ Implements SSHStream
 			  Return mFilename
 			End Get
 		#tag EndGetter
-		Filename As String
+		#tag Setter
+			Set
+			  mSession.Rename(Me.FullPath, value)
+			  If mSession.LastStatusCode = 0 Then
+			    mFilename = value
+			  End If
+			  
+			End Set
+		#tag EndSetter
+		FullPath As String
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -365,6 +389,29 @@ Implements SSHStream
 	#tag Property, Flags = &h21
 		Private mStream As Ptr
 	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If Right(FullPath, 1) = "/" Then
+			    return NthField(FullPath, "/", CountFields(FullPath, "/") - 1)
+			  Else
+			    return NthField(FullPath, "/", CountFields(FullPath, "/"))
+			  End If
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim p As SFTPDirectory = Me.Parent()
+			  mSession.Rename(Me.FullPath, p.FullPath + value)
+			  If mSession.LastStatusCode = 0 Then
+			    mFilename = p.FullPath + value
+			  End If
+			  
+			End Set
+		#tag EndSetter
+		Name As String
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
