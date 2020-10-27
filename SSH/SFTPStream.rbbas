@@ -89,38 +89,6 @@ Implements SSHStream
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h21
-		Private Shared Function PermissionsToMode(p As Permissions) As UInt32
-		  Const TGEXEC = &o00010
-		  Const TGREAD = &o00040
-		  Const TGWRITE = &o00020
-		  Const TOEXEC = &o00001
-		  Const TOREAD = &o00004
-		  Const TOWRITE = &o00002
-		  Const TSGID = &o02000
-		  Const TSUID = &o04000
-		  Const TSVTX = &o01000
-		  Const TUEXEC = &o00100
-		  Const TUREAD = &o00400
-		  Const TUWRITE = &o00200
-		  
-		  Dim mask As UInt32
-		  If p.GroupExecute Then mask = mask Or TGEXEC
-		  If p.GroupRead Then mask = mask Or TGREAD
-		  If p.GroupWrite Then mask = mask Or TGWRITE
-		  
-		  If p.OwnerExecute Then mask = mask Or TUEXEC
-		  If p.OwnerRead Then mask = mask Or TUREAD
-		  If p.OwnerWrite Then mask = mask Or TUWRITE
-		  
-		  If p.OthersExecute Then mask = mask Or TOEXEC
-		  If p.OthersRead Then mask = mask Or TOREAD
-		  If p.OthersWrite Then mask = mask Or TOWRITE
-		  
-		  Return mask
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
@@ -225,10 +193,8 @@ Implements SSHStream
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
 			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then 
-			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-			    d.TotalSeconds = d.TotalSeconds + attribs.ATime
-			    Return d
+			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
+			    Return time_t(attribs.ATime)
 			  End If
 			End Get
 		#tag EndGetter
@@ -243,8 +209,7 @@ Implements SSHStream
 			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) <> LIBSSH2_SFTP_ATTR_SIZE Then Return ' atime not settable
 			  
 			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-			    attribs.ATime = value.TotalSeconds - d.TotalSeconds
+			    attribs.ATime = time_t(value)
 			  End If
 			  
 			  
@@ -369,10 +334,8 @@ Implements SSHStream
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
 			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then 
-			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-			    d.TotalSeconds = d.TotalSeconds + attribs.MTime
-			    Return d
+			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
+			    Return time_t(attribs.MTime)
 			  End If
 			End Get
 		#tag EndGetter
@@ -387,8 +350,7 @@ Implements SSHStream
 			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) <> LIBSSH2_SFTP_ATTR_SIZE Then Return ' atime not settable
 			  
 			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-			    attribs.MTime = value.TotalSeconds - d.TotalSeconds
+			    attribs.MTime = time_t(value)
 			  End If
 			  
 			  

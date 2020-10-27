@@ -846,6 +846,38 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Function PermissionsToMode(p As Permissions) As UInt32
+		  Const TGEXEC = &o00010
+		  Const TGREAD = &o00040
+		  Const TGWRITE = &o00020
+		  Const TOEXEC = &o00001
+		  Const TOREAD = &o00004
+		  Const TOWRITE = &o00002
+		  Const TSGID = &o02000
+		  Const TSUID = &o04000
+		  Const TSVTX = &o01000
+		  Const TUEXEC = &o00100
+		  Const TUREAD = &o00400
+		  Const TUWRITE = &o00200
+		  
+		  Dim mask As UInt32
+		  If p.GroupExecute Then mask = mask Or TGEXEC
+		  If p.GroupRead Then mask = mask Or TGREAD
+		  If p.GroupWrite Then mask = mask Or TGWRITE
+		  
+		  If p.OwnerExecute Then mask = mask Or TUEXEC
+		  If p.OwnerRead Then mask = mask Or TUREAD
+		  If p.OwnerWrite Then mask = mask Or TUWRITE
+		  
+		  If p.OthersExecute Then mask = mask Or TOEXEC
+		  If p.OthersRead Then mask = mask Or TOREAD
+		  If p.OthersWrite Then mask = mask Or TOWRITE
+		  
+		  Return mask
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h1
 		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32 = 0, Overwrite As Boolean = False) As SSH.SSHStream
 		  ' Prepares a file upload over SCP or SFTP. Returns a SSHStream that you
@@ -926,6 +958,21 @@ Protected Module SSH
 		  Else
 		    Return "Unknown SFTP error code: " + Str(SFTPStatusCode)
 		  End Select
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function time_t(d As Date) As Integer
+		  Dim epoch As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
+		  Return d.TotalSeconds - epoch.TotalSeconds
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function time_t(Count As Integer) As Date
+		  Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
+		  d.TotalSeconds = d.TotalSeconds + Count
+		  Return d
 		End Function
 	#tag EndMethod
 
