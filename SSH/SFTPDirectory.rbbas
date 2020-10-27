@@ -39,10 +39,10 @@ Protected Class SFTPDirectory
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function OpenFile(Optional FileName As String) As SSH.SFTPStream
+		Function OpenFile(Optional FileName As String, TruePath As Boolean = False) As SSH.SFTPStream
 		  If FileName = "" Then ' get the current file
 		    Select Case True
-		    Case CurrentName <> "" And CurrentType = EntryType.File
+		    Case CurrentName <> "" And CurrentType <> EntryType.Directory
 		      FileName = CurrentName
 		    Case CurrentName = ""
 		      mLastError = LIBSSH2_FX_INVALID_FILENAME
@@ -54,13 +54,20 @@ Protected Class SFTPDirectory
 		  End If
 		  
 		  FileName = mName + "/" + FileName
+		  Do Until InStr(FileName, "//") = 0
+		    FileName = ReplaceAll(FileName, "//", "/")
+		  Loop
+		  
+		  If TruePath And CurrentType = EntryType.Symlink Then
+		    FileName = mSession.ReadSymbolicLink(FileName, True)
+		  End If
 		  
 		  Return New SFTPStreamPtr(Me.Session, FileName, LIBSSH2_FXF_READ, 0, False)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function OpenSubdirectory(Optional DirectoryName As String) As SSH.SFTPDirectory
+		Function OpenSubdirectory(Optional DirectoryName As String, TruePath As Boolean = False) As SSH.SFTPDirectory
 		  If DirectoryName = "" Then ' get the current directory
 		    Select Case True
 		    Case CurrentName <> "" And CurrentType = EntryType.Directory
@@ -75,6 +82,13 @@ Protected Class SFTPDirectory
 		  End If
 		  
 		  DirectoryName = mName + "/" + DirectoryName
+		  Do Until InStr(DirectoryName, "//") = 0
+		    DirectoryName = ReplaceAll(DirectoryName, "//", "/")
+		  Loop
+		  
+		  If TruePath And CurrentType = EntryType.Symlink Then
+		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
+		  End If
 		  
 		  Return New SFTPDirectory(Me.Session, DirectoryName)
 		End Function
