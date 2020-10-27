@@ -29,6 +29,18 @@ Protected Class SFTPSession
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function CreateSymbolicLink(Path As String, Link As String) As Boolean
+		  ' This method creates a new symlink on the server from the Path to the Link.
+		  ' If the Path is a directory then it must end with "/", however the Link must not.
+		  
+		  Dim src As MemoryBlock = Path
+		  Dim dst As MemoryBlock = Link
+		  mLastError = libssh2_sftp_symlink_ex(mSFTP, src, src.Size, dst, dst.Size, LIBSSH2_SFTP_SYMLINK)
+		  Return mLastError = 0
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mSFTP <> Nil Then
@@ -41,8 +53,13 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Get(FileName As String) As SSH.SFTPStream
+		Function Get(FileName As String, NoDereference As Boolean = False) As SSH.SFTPStream
 		  ' Returns an SFTPStream from which the file data can be read.
+		  
+		  If NoDereference Then
+		    Dim data As String = ReadSymbolicLink(FileName)
+		    If data <> "" Then Return Nil
+		  End If
 		  
 		  Return CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
 		End Function
@@ -67,6 +84,15 @@ Protected Class SFTPSession
 	#tag Method, Flags = &h0
 		Function Handle() As Ptr
 		  Return mSFTP
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function IsSymbolicLink(LinkPath As String) As Boolean
+		  ' This method returns True if the LinkPath is actually a symlink.
+		  ' Use ReadSymbolicLink to get the target path.
+		  
+		  Return ReadSymbolicLink(LinkPath) <> ""
 		End Function
 	#tag EndMethod
 
@@ -169,6 +195,25 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function ReadSymbolicLink(LinkPath As String, FollowAll As Boolean = False) As String
+		  ' This method reads the symbolic link specified by LinkPath and returns the path of the linked
+		  ' file/directory. If the linked file/directory is itself a symlink and FollowAll=True then
+		  ' that (and all subsequent) symlinks are followed until we reach the final target.
+		  ' If the LinkPath is not actually a symlink then this method returns the empty string.
+		  
+		  Dim src As MemoryBlock = LinkPath
+		  Dim dst As New MemoryBlock(1024 * 64)
+		  Dim mode As Integer = LIBSSH2_SFTP_READLINK ' read one level of symlinks
+		  If FollowAll Then mode = LIBSSH2_SFTP_REALPATH ' follow all subsequent links until we reach the real file.
+		  mLastError = libssh2_sftp_symlink_ex(mSFTP, src, src.Size, dst, dst.Size, mode)
+		  If mLastError > 0 Then
+		    dst.Size = mLastError
+		    Return dst
+		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub RemoveDirectory(DirectoryName As String)
 		  ' Deletes the specified directory on the server. The directory must already be empty.
 		  
@@ -255,6 +300,12 @@ Protected Class SFTPSession
 	#tag EndComputedProperty
 
 
+	#tag Constant, Name = LIBSSH2_SFTP_READLINK, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_REALPATH, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_SFTP_RENAME_ATOMIC, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Public
 	#tag EndConstant
 
@@ -262,6 +313,9 @@ Protected Class SFTPSession
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_SFTP_RENAME_OVERWRITE, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Public
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_SYMLINK, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
 	#tag EndConstant
 
 
