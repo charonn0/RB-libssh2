@@ -693,6 +693,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_sftp_stat_ex Lib libssh2 (Session As Ptr, Path As Ptr, PathLength As Int32, StatType As Int32, ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_sftp_symlink_ex Lib libssh2 (SFTP As Ptr, Path As Ptr, PathLength As UInt32, Target As Ptr, TargetLength As UInt32, LinkType As Integer) As Int32
 	#tag EndExternalMethod
 
