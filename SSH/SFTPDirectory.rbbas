@@ -100,9 +100,28 @@ Protected Class SFTPDirectory
 		    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
 		    Return Nil
 		  End If
-		  Dim nm As String = Left(mName, mName.Len - Name.Len)
-		  If Right(nm, 1) = "/" And nm <> "/" Then nm = Left(nm, nm.Len - 1)
-		  Return New SFTPDirectory(Me.Session, nm)
+		  Dim nm() As String = Split(mName, "/")
+		  For i As Integer = UBound(nm) DownTo 0
+		    If nm(i).Trim = "" Then nm.Remove(i)
+		  Next
+		  If UBound(nm) = -1 Then
+		    mLastError = SSH.LIBSSH2_FX_INVALID_FILENAME
+		    Return Nil
+		  End If
+		  nm.Remove(nm.Ubound)
+		  Return New SFTPDirectory(Me.Session, "/" + Join(nm, "/") + "/")
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function ReadDirectoryAttributes(Path As String, ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES, NoDereference As Boolean = False) As Boolean
+		  Dim name As MemoryBlock = Path
+		  Dim type As Integer = LIBSSH2_SFTP_STAT
+		  If NoDereference Then type = LIBSSH2_SFTP_LSTAT
+		  Do
+		    mLastError = libssh2_sftp_stat_ex(mSession.Handle, name, name.Size, type, Attribs)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError >= 0
 		End Function
 	#tag EndMethod
 
@@ -129,6 +148,39 @@ Protected Class SFTPDirectory
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function WriteDirectoryAttributes(Path As String, Attribs As LIBSSH2_SFTP_ATTRIBUTES) As Boolean
+		  Dim name As MemoryBlock = Path
+		  Do
+		    mLastError = libssh2_sftp_stat_ex(mSession.Handle, name, name.Size, LIBSSH2_SFTP_SETSTAT, Attribs)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  Return mLastError >= 0
+		End Function
+	#tag EndMethod
+
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			The last access time of this directory
+		#tag EndNote
+		#tag Getter
+			Get
+			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
+			  If ReadDirectoryAttributes(Me.FullPath, attrib) Then Return time_t(attrib.ATime)
+			  Dim i As Integer = mSession.LastError
+			  Break
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
+			  If Not ReadDirectoryAttributes(Me.FullPath, attrib) Then Return
+			  attrib.ATime = time_t(value)
+			  Call WriteDirectoryAttributes(Me.FullPath, attrib)
+			End Set
+		#tag EndSetter
+		AccessTime As Date
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
@@ -136,9 +188,7 @@ Protected Class SFTPDirectory
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-			    d.TotalSeconds = d.TotalSeconds + mCurrentAttribs.ATime
-			    Return d
+			    Return time_t(mCurrentAttribs.ATime)
 			  End If
 			End Get
 		#tag EndGetter
@@ -185,9 +235,7 @@ Protected Class SFTPDirectory
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    Dim d As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-			    d.TotalSeconds = d.TotalSeconds + mCurrentAttribs.MTime
-			    Return d
+			    Return time_t(mCurrentAttribs.MTime)
 			  End If
 			End Get
 		#tag EndGetter
@@ -234,6 +282,22 @@ Protected Class SFTPDirectory
 		CurrentType As SSH.SFTPDirectory.EntryType
 	#tag EndComputedProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			The full remote path of this directory.
+		#tag EndNote
+		#tag Getter
+			Get
+			  Dim nm As String = mName
+			  Do Until InStr(nm, "//") = 0
+			    nm = ReplaceAll(nm, "//", "/")
+			  Loop
+			  Return nm
+			End Get
+		#tag EndGetter
+		FullPath As String
+	#tag EndComputedProperty
+
 	#tag Property, Flags = &h21
 		Private mCurrentAttribs As LIBSSH2_SFTP_ATTRIBUTES
 	#tag EndProperty
@@ -262,6 +326,48 @@ Protected Class SFTPDirectory
 		Private mName As String
 	#tag EndProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			The Unix style permissions of this directory
+		#tag EndNote
+		#tag Getter
+			Get
+			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
+			  If ReadDirectoryAttributes(Me.FullPath, attrib) Then Return New Permissions(attrib.Perms)
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
+			  If Not ReadDirectoryAttributes(Me.FullPath, attrib) Then Return
+			  attrib.Perms = PermissionsToMode(value)
+			  Call WriteDirectoryAttributes(Me.FullPath, attrib)
+			End Set
+		#tag EndSetter
+		Mode As Permissions
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Note
+			The last modified time of this directory
+		#tag EndNote
+		#tag Getter
+			Get
+			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
+			  If ReadDirectoryAttributes(Me.FullPath, attrib) Then Return time_t(attrib.MTime)
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
+			  If Not ReadDirectoryAttributes(Me.FullPath, attrib) Then Return
+			  attrib.MTime = time_t(value)
+			  Call WriteDirectoryAttributes(Me.FullPath, attrib)
+			End Set
+		#tag EndSetter
+		ModifyTime As Date
+	#tag EndComputedProperty
+
 	#tag Property, Flags = &h21
 		Private mSession As SSH.SFTPSession
 	#tag EndProperty
@@ -273,9 +379,23 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  return NthField(mName, "/", CountFields(mName, "/"))
+			  If Right(mName, 1) = "/" Then
+			    return NthField(mName, "/", CountFields(mName, "/") - 1)
+			  Else
+			    return NthField(mName, "/", CountFields(mName, "/"))
+			  End If
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim p As SFTPDirectory = Me.Parent()
+			  mSession.Rename(Me.FullPath, p.FullPath + value)
+			  If mSession.LastStatusCode = 0 Then
+			    mName = p.FullPath + value
+			  End If
+			  
+			End Set
+		#tag EndSetter
 		Name As String
 	#tag EndComputedProperty
 
@@ -288,6 +408,15 @@ Protected Class SFTPDirectory
 		Session As SSH.SFTPSession
 	#tag EndComputedProperty
 
+
+	#tag Constant, Name = LIBSSH2_SFTP_LSTAT, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_SETSTAT, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_SFTP_STAT, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
+	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_SFTP_S_IFBLK, Type = Double, Dynamic = False, Default = \"&o060000", Scope = Protected
 	#tag EndConstant
