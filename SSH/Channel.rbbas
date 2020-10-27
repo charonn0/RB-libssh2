@@ -552,10 +552,6 @@ Implements SSHStream
 		Protected mFreeable As Boolean = True
 	#tag EndProperty
 
-	#tag Property, Flags = &h21
-		Private mInit As SSHInit
-	#tag EndProperty
-
 	#tag Property, Flags = &h1
 		Protected mLastError As Int32
 	#tag EndProperty

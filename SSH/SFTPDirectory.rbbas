@@ -62,7 +62,7 @@ Protected Class SFTPDirectory
 		    FileName = mSession.ReadSymbolicLink(FileName, True)
 		  End If
 		  
-		  Return New SFTPStreamPtr(Me.Session, FileName, LIBSSH2_FXF_READ, 0, False)
+		  Return New SFTPStreamPtr(mSession, FileName, LIBSSH2_FXF_READ, 0, False)
 		End Function
 	#tag EndMethod
 
@@ -90,7 +90,7 @@ Protected Class SFTPDirectory
 		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
 		  End If
 		  
-		  Return New SFTPDirectory(Me.Session, DirectoryName)
+		  Return New SFTPDirectory(mSession, DirectoryName)
 		End Function
 	#tag EndMethod
 
@@ -109,13 +109,13 @@ Protected Class SFTPDirectory
 		    Return Nil
 		  End If
 		  nm.Remove(nm.Ubound)
-		  Return New SFTPDirectory(Me.Session, "/" + Join(nm, "/") + "/")
+		  Return New SFTPDirectory(mSession, "/" + Join(nm, "/") + "/")
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ReadDirectoryAttributes(Path As String, ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES, NoDereference As Boolean = False) As Boolean
-		  Dim name As MemoryBlock = Path
+		Protected Function ReadDirectoryAttributes(ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES, NoDereference As Boolean = False) As Boolean
+		  Dim name As MemoryBlock = FullPath
 		  Dim type As Integer = LIBSSH2_SFTP_STAT
 		  If NoDereference Then type = LIBSSH2_SFTP_LSTAT
 		  Do
@@ -149,8 +149,8 @@ Protected Class SFTPDirectory
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function WriteDirectoryAttributes(Path As String, Attribs As LIBSSH2_SFTP_ATTRIBUTES) As Boolean
-		  Dim name As MemoryBlock = Path
+		Protected Function WriteDirectoryAttributes(Attribs As LIBSSH2_SFTP_ATTRIBUTES) As Boolean
+		  Dim name As MemoryBlock = FullPath
 		  Do
 		    mLastError = libssh2_sftp_stat_ex(mSession.Handle, name, name.Size, LIBSSH2_SFTP_SETSTAT, Attribs)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -166,17 +166,15 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
-			  If ReadDirectoryAttributes(Me.FullPath, attrib) Then Return time_t(attrib.ATime)
-			  Dim i As Integer = mSession.LastError
-			  Break
+			  If ReadDirectoryAttributes(attrib) Then Return time_t(attrib.ATime)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
-			  If Not ReadDirectoryAttributes(Me.FullPath, attrib) Then Return
+			  If Not ReadDirectoryAttributes(attrib) Then Return
 			  attrib.ATime = time_t(value)
-			  Call WriteDirectoryAttributes(Me.FullPath, attrib)
+			  Call WriteDirectoryAttributes(attrib)
 			End Set
 		#tag EndSetter
 		AccessTime As Date
@@ -315,10 +313,6 @@ Protected Class SFTPDirectory
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mInit As SSHInit
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mLastError As Int32
 	#tag EndProperty
 
@@ -333,15 +327,15 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
-			  If ReadDirectoryAttributes(Me.FullPath, attrib) Then Return New Permissions(attrib.Perms)
+			  If ReadDirectoryAttributes(attrib) Then Return New Permissions(attrib.Perms)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
-			  If Not ReadDirectoryAttributes(Me.FullPath, attrib) Then Return
+			  If Not ReadDirectoryAttributes(attrib) Then Return
 			  attrib.Perms = PermissionsToMode(value)
-			  Call WriteDirectoryAttributes(Me.FullPath, attrib)
+			  Call WriteDirectoryAttributes(attrib)
 			End Set
 		#tag EndSetter
 		Mode As Permissions
@@ -354,15 +348,15 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
-			  If ReadDirectoryAttributes(Me.FullPath, attrib) Then Return time_t(attrib.MTime)
+			  If ReadDirectoryAttributes(attrib) Then Return time_t(attrib.MTime)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
-			  If Not ReadDirectoryAttributes(Me.FullPath, attrib) Then Return
+			  If Not ReadDirectoryAttributes(attrib) Then Return
 			  attrib.MTime = time_t(value)
-			  Call WriteDirectoryAttributes(Me.FullPath, attrib)
+			  Call WriteDirectoryAttributes(attrib)
 			End Set
 		#tag EndSetter
 		ModifyTime As Date

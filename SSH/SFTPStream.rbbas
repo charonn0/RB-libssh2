@@ -285,10 +285,6 @@ Implements SSHStream
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mInit As SSHInit
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mLastError As Int32
 	#tag EndProperty
 

@@ -264,10 +264,6 @@ Protected Class KnownHosts
 
 
 	#tag Property, Flags = &h21
-		Private mInit As SSHInit
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mKnownHosts As Ptr
 	#tag EndProperty
 
