@@ -295,6 +295,16 @@ Protected Class SFTPDirectory
 			  return mCurrentName
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  Dim p As SFTPDirectory = Me.Parent()
+			  mSession.Rename(Me.FullPath + CurrentName, p.FullPath + value)
+			  If mSession.LastStatusCode = 0 Then
+			    mCurrentName = value
+			  End If
+			  
+			End Set
+		#tag EndSetter
 		CurrentName As String
 	#tag EndComputedProperty
 
