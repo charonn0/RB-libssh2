@@ -30,7 +30,10 @@ Implements SSHStream
 		  Else
 		    mStream = libssh2_sftp_open_ex(mSession.Handle, fn, fn.Size, Flags, Mode, LIBSSH2_SFTP_OPENDIR)
 		  End If
-		  If mStream = Nil Then Raise New SSHException(mSession)
+		  If mStream = Nil Then 
+		    mLastError = mSession.Session.LastError ' -31
+		    Raise New SSHException(Me)
+		  End If
 		  
 		  
 		End Sub
