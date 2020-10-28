@@ -165,6 +165,14 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function GetActualAlgorithm(Type As SSH.AlgorithmType) As String
+		  Dim item As CString = libssh2_session_methods(mSession, Int32(Type))
+		  Return item
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function GetAuthenticationMethods(Username As String) As String()
 		  Dim mb As MemoryBlock = Username
 		  Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
@@ -176,7 +184,7 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetKEXAlgorithms(Type As SSH.KEXMethod) As String()
+		Function GetAvailableAlgorithms(Type As SSH.AlgorithmType) As String()
 		  Dim ret() As String
 		  Dim lst As Ptr
 		  mLastError = libssh2_session_supported_algs(mSession, Int32(Type), lst)
@@ -258,14 +266,6 @@ Implements ChannelParent
 		  Dim nxt As Integer
 		  mLastError = libssh2_keepalive_send(mSession, nxt)
 		  If mLastError = 0 Then Return nxt
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function KEXAlgorithm(Type As SSH.KEXMethod) As String
-		  Dim item As CString = libssh2_session_methods(mSession, Int32(Type))
-		  Return item
-		  
 		End Function
 	#tag EndMethod
 
@@ -559,22 +559,18 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub SetKEXAlgorithms(Type As SSH.KEXMethod, Preferred() As String)
-		  Dim p As New MemoryBlock(0)
-		  Dim bs As New BinaryStream(p)
-		  For i As Integer = 0 To UBound(Preferred) - 1
-		    bs.Write(Preferred(i) + ",")
-		  Next
-		  bs.Write(Preferred(UBound(Preferred)) + Chr(0))
-		  bs.Close
-		  mLastError = libssh2_session_method_pref(mSession, Int32(Type), p)
+		Sub SetLocalBanner(BannerText As String)
+		  mLastError = libssh2_session_banner_set(mSession, BannerText)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub SetLocalBanner(BannerText As String)
-		  mLastError = libssh2_session_banner_set(mSession, BannerText)
-		  If mLastError <> 0 Then Raise New SSHException(Me)
+		Sub SetPreferredAlgorithms(Type As SSH.AlgorithmType, Preferred() As String)
+		  ' Cannot be called after Session.Connect succeeds.
+		  
+		  Dim lst As MemoryBlock = Join(Preferred, ",") + Chr(0)
+		  mLastError = libssh2_session_method_pref(mSession, Int32(Type), lst)
 		End Sub
 	#tag EndMethod
 

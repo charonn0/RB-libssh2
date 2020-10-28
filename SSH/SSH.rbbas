@@ -1459,6 +1459,19 @@ Protected Module SSH
 	#tag EndStructure
 
 
+	#tag Enum, Name = AlgorithmType, Flags = &h1
+		KeyExchange=0
+		  PublicKey=1
+		  ClientSideCipher=2
+		  ServerSideCipher=3
+		  ClientSideMAC=4
+		  ServerSideMAC=5
+		  ClientSideCompression=6
+		  ServerSideCompression=7
+		  ClientLanguage=8
+		ServerLanguage=9
+	#tag EndEnum
+
 	#tag Enum, Name = DisconnectReason, Type = Integer, Flags = &h1
 		HostNotAllowed=1
 		  ProtocolError=2
@@ -1489,19 +1502,6 @@ Protected Module SSH
 		  ECDSA_256=3
 		  ECDSA_384=4
 		ECDSA_521=5
-	#tag EndEnum
-
-	#tag Enum, Name = KEXMethod, Type = Integer, Flags = &h1
-		KEX=0
-		  HostKey=1
-		  Crypt_CS=2
-		  Crypt_SC=3
-		  MAC_CS=4
-		  MAC_SC=5
-		  COMP_CS=6
-		  COMP_SC=7
-		  LANG_CS=8
-		LANG_SC=9
 	#tag EndEnum
 
 	#tag Enum, Name = SFTPEntryType, Type = Integer, Flags = &h1
