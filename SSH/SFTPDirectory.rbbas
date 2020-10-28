@@ -221,6 +221,7 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mIndex = -1 And Not ReadNextEntry() Then Return 0
+			  If CurrentType = SFTPEntryType.Directory Then Return 0
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) = LIBSSH2_SFTP_ATTR_SIZE Then
 			    Return mCurrentAttribs.FileSize
 			  End If
