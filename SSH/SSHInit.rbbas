@@ -4,6 +4,8 @@ Private Class SSHInit
 		Protected Sub Constructor(NoCrypto As Boolean = False)
 		  If Not SSH.IsAvailable Then Raise New PlatformNotSupportedException
 		  Const LIBSSH2_INIT_NO_CRYPTO = &h0001
+		  ' Do not initialize the crypto library (ie. OPENSSL_add_cipher_algoritms() for OpenSSL)
+		  ' This is not generally useful.
 		  Dim err As Integer
 		  If NoCrypto Then
 		    err = libssh2_init(LIBSSH2_INIT_NO_CRYPTO)
