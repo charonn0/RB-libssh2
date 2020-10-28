@@ -33,12 +33,6 @@ Protected Class SFTPDirectory
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  Return mLastError
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function OpenFile(Optional FileName As String, TruePath As Boolean = False) As SSH.SFTPStream
 		  If FileName = "" Then ' get the current file
 		    Select Case True
@@ -364,6 +358,17 @@ Protected Class SFTPDirectory
 			End Set
 		#tag EndSetter
 		FullPath As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the most recent libssh2 error code for this instance of SFTPDirectory
+			  
+			  Return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Int32
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21

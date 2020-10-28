@@ -177,7 +177,7 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetLastError() As Int32
-		  ' Returns the most recent error code known to libshh2
+		  ' Queries the most recent error code known to libshh2.
 		  
 		  If mSession = Nil Then Return 0
 		  Return libssh2_session_last_errno(mSession)
@@ -247,29 +247,6 @@ Implements ChannelParent
 		  If w = Nil Or w.Value = Nil Then Return
 		  SSH.Session(w.Value).Sess_KeyboardAuth(Name, NameLength, Instruction, InstructionLength, PromptCount, Prompts, Responses)
 		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  ' Returns the most recent error code returned from a libssh2 function call. If the last
-		  ' recorded error is zero then calls GetLastError()
-		  
-		  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function LastErrorMsg() As String
-		  ' Returns a human readable error message for the most recent error.
-		  
-		  If mSession = Nil Then Return ""
-		  Dim mb As New MemoryBlock(1024)
-		  Dim sz As Integer
-		  Call libssh2_session_last_error(mSession, mb, sz, mb.Size)
-		  If mb.Ptr(0) <> Nil Then mb = mb.Ptr(0)
-		  Return mb.StringValue(0, sz)
-		  
-		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -695,6 +672,35 @@ Implements ChannelParent
 			End Set
 		#tag EndSetter
 		KeepAlivePeriod As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the most recent error code returned from a libssh2 function call. If the last
+			  ' recorded error is zero then calls GetLastError()
+			  
+			  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
+			End Get
+		#tag EndGetter
+		LastError As Int32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns a human readable error message for the most recent error.
+			  
+			  If mSession = Nil Then Return ""
+			  Dim mb As New MemoryBlock(1024)
+			  Dim sz As Integer
+			  Call libssh2_session_last_error(mSession, mb, sz, mb.Size)
+			  If mb.Ptr(0) <> Nil Then mb = mb.Ptr(0)
+			  Return mb.StringValue(0, sz)
+			  
+			End Get
+		#tag EndGetter
+		LastErrorMsg As String
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21

@@ -95,24 +95,6 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  ' Returns the most recent error code returned from libssh2.
-		  
-		  Return mLastError
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function LastStatusCode() As Integer
-		  ' Returns the last SFTP status code, which will be one of the LIBSSH2_FX_* constants.
-		  ' Check this value if SFTPStream.LastError or SFTPDirectory.LastError = LIBSSH2_ERROR_SFTP_PROTOCOL(-31)
-		  
-		  If mSFTP = Nil Then Return 0
-		  Return libssh2_sftp_last_error(mSFTP)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function ListDirectory(DirectoryName As String) As SSH.SFTPDirectory
 		  ' Returns an instance of SFTPDirectory with which you can iterate over
 		  ' all the items in the remote directory.
@@ -266,6 +248,30 @@ Protected Class SFTPSession
 			End Get
 		#tag EndGetter
 		Channel As SSH.Channel
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the most recent error code returned from libssh2.
+			  
+			  Return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Int32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the last SFTP status code, which will be one of the LIBSSH2_FX_* constants.
+			  ' Check this value if SFTPStream.LastError or SFTPDirectory.LastError = LIBSSH2_ERROR_SFTP_PROTOCOL(-31)
+			  
+			  If mSFTP = Nil Then Return 0
+			  Return libssh2_sftp_last_error(mSFTP)
+			End Get
+		#tag EndGetter
+		LastStatusCode As Int32
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21

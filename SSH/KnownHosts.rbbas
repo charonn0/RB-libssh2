@@ -157,12 +157,6 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  Return mLastError
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function Load(KnownHostsFile As FolderItem) As Integer
 		  ' Load a list of known hosts from a file.
 		  
@@ -262,6 +256,17 @@ Protected Class KnownHosts
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the most recent libssh2 error code for this instance of KnownHosts
+			  
+			  Return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Int32
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mKnownHosts As Ptr

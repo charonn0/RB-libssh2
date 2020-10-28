@@ -79,17 +79,6 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  ' This is an error code returned from the libssh2 API. If the last error was
-		  ' LIBSSH2_ERROR_SFTP_PROTOCOL(-31) then refer to the LastStatusCode property
-		  ' of the SFTPSession that owns this stream for the SFTP status code (which will
-		  ' be one of the LIBSSH2_FX_* constants.)
-		  
-		  Return mLastError
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function Parent() As SSH.SFTPDirectory
 		  Dim nm() As String = Split(mFilename.Trim, "/")
 		  For i As Integer = UBound(nm) DownTo 0
@@ -261,6 +250,20 @@ Implements SSHStream
 			End Set
 		#tag EndSetter
 		FullPath As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' This is an error code returned from the libssh2 API. If the last error was
+			  ' LIBSSH2_ERROR_SFTP_PROTOCOL(-31) then refer to the LastStatusCode property
+			  ' of the SFTPSession that owns this stream for the SFTP status code (which will
+			  ' be one of the LIBSSH2_FX_* constants.)
+			  
+			  Return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Int32
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

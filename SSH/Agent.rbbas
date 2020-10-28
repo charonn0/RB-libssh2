@@ -115,14 +115,6 @@ Protected Class Agent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  ' Returns the most recent libssh2 error code for this instance of Agent
-		  
-		  Return mLastError
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function PublicKey(Index As Integer) As MemoryBlock
 		  ' Returns a copy of the PublicKey at Index in the Agent's list of keys.
 		  
@@ -151,6 +143,17 @@ Protected Class Agent
 			End Get
 		#tag EndGetter
 		IsConnected As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the most recent libssh2 error code for this instance
+			  
+			  Return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Int32
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21

@@ -158,14 +158,6 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function LastError() As Int32
-		  ' Returns the most recent libssh2 error code for this instance of Channel
-		  
-		  Return mLastError
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Attributes( deprecated = "SSH.OpenChannel" )  Shared Function Open(Session As SSH.Session) As SSH.Channel
 		  ' Creates a new channel over the Session of type "session". This is the most commonly used channel type.
 		  
@@ -538,6 +530,17 @@ Implements SSHStream
 			End Get
 		#tag EndGetter
 		IsOpen As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the most recent libssh2 error code for this instance of Channel
+			  
+			  Return mLastError
+			End Get
+		#tag EndGetter
+		LastError As Int32
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
