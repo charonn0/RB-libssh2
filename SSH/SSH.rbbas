@@ -1491,6 +1491,19 @@ Protected Module SSH
 		ECDSA_521=5
 	#tag EndEnum
 
+	#tag Enum, Name = KEXMethod, Type = Integer, Flags = &h1
+		KEX=0
+		  HostKey=1
+		  Crypt_CS=2
+		  Crypt_SC=3
+		  MAC_CS=4
+		  MAC_SC=5
+		  COMP_CS=6
+		  COMP_SC=7
+		  LANG_CS=8
+		LANG_SC=9
+	#tag EndEnum
+
 	#tag Enum, Name = SFTPEntryType, Type = Integer, Flags = &h1
 		File
 		  Directory

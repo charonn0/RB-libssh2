@@ -176,6 +176,31 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function GetKEXAlgorithms(Type As SSH.KEXMethod) As String()
+		  Dim ret() As String
+		  Dim lst As Ptr
+		  mLastError = libssh2_session_supported_algs(mSession, Int32(Type), lst)
+		  If mLastError >= 0 Then ' err is the number of algs
+		    Try
+		      Dim item As MemoryBlock = lst.Ptr(0)
+		      For i As Integer = 0 To mLastError
+		        ret.Append(item.CString(0))
+		        #If Target32Bit Then
+		          item = lst.Ptr(i * 4)
+		        #Else
+		          item = lst.Ptr(i * 8)
+		        #EndIf
+		      Next
+		    Finally
+		      libssh2_free(mSession, lst)
+		    End Try
+		  End If
+		  
+		  Return ret
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function GetLastError() As Int32
 		  ' Queries the most recent error code known to libshh2.
 		  
@@ -233,6 +258,14 @@ Implements ChannelParent
 		  Dim nxt As Integer
 		  mLastError = libssh2_keepalive_send(mSession, nxt)
 		  If mLastError = 0 Then Return nxt
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function KEXAlgorithm(Type As SSH.KEXMethod) As String
+		  Dim item As CString = libssh2_session_methods(mSession, Int32(Type))
+		  Return item
+		  
 		End Function
 	#tag EndMethod
 
@@ -522,6 +555,19 @@ Implements ChannelParent
 		Sub SetFlag(Flag As Integer, Value As Integer)
 		  mLastError = libssh2_session_flag(mSession, Flag, Value)
 		  If mLastError <> 0 Then Raise New SSHException(Me)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub SetKEXAlgorithms(Type As SSH.KEXMethod, Preferred() As String)
+		  Dim p As New MemoryBlock(0)
+		  Dim bs As New BinaryStream(p)
+		  For i As Integer = 0 To UBound(Preferred) - 1
+		    bs.Write(Preferred(i) + ",")
+		  Next
+		  bs.Write(Preferred(UBound(Preferred)) + Chr(0))
+		  bs.Close
+		  mLastError = libssh2_session_method_pref(mSession, Int32(Type), p)
 		End Sub
 	#tag EndMethod
 
