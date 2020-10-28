@@ -10,6 +10,10 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function channel_receive_window_adjust2 Lib libssh2 (Channel As Ptr, Adjustment As UInt32, Force As UInt8, ByRef Window As UInt32) As Int32
+	#tag EndExternalMethod
+
 	#tag Method, Flags = &h1
 		Protected Function Connect(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Session
 		  ' Attempts a new SSH connection to the server specified by the URL. Authenticates to the server
@@ -273,6 +277,8 @@ Protected Module SSH
 		    Return "ERR_TIMEOUT_ELAPSED"
 		  Case ERR_NOT_AUTHENTICATED
 		    Return "ERR_NOT_AUTHENTICATED"
+		  Case ERR_TOO_MANY_TRANSFERS
+		    Return "ERR_TOO_MANY_TRANSFERS"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -373,11 +379,19 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_agent_get_identity_path Lib libssh2 (Agent As Ptr) As CString
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_agent_init Lib libssh2 (Session As Ptr) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_agent_list_identities Lib libssh2 (Agent As Ptr) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Sub libssh2_agent_set_identity_path Lib libssh2 (Agent As Ptr, Path As CString)
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -430,6 +444,10 @@ Protected Module SSH
 
 	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_read_ex Lib libssh2 (Channel As Ptr, StreamID As Integer, Buffer As Ptr, BufferLength As Integer) As Integer
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_request_auth_agent Lib libssh2 (Channel As Ptr) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -613,11 +631,11 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_session_methods Lib libssh2 (Session As Ptr, MethodType As Integer) As Ptr
+		Private Soft Declare Function libssh2_session_methods Lib libssh2 (Session As Ptr, Type As Int32) As CString
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_session_method_pref Lib libssh2 (Session As Ptr, MethodType As Integer, Prefs As Ptr) As Integer
+		Private Soft Declare Function libssh2_session_method_pref Lib libssh2 (Session As Ptr, MethodType As Int32, Prefs As Ptr) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -633,7 +651,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_session_supported_algs Lib libssh2 (Session As Ptr, MethodType As Integer, ByRef Algs As Ptr) As Integer
+		Private Soft Declare Function libssh2_session_supported_algs Lib libssh2 (Session As Ptr, MethodType As Int32, ByRef Algs As Ptr) As Integer
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -750,7 +768,7 @@ Protected Module SSH
 
 	#tag Method, Flags = &h1
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", WindowSize As UInt32 = LIBSSH2_CHANNEL_WINDOW_DEFAULT, PacketSize As UInt32 = LIBSSH2_CHANNEL_PACKET_DEFAULT, Message As String = "") As SSH.Channel
-		  ' Opens a new SSH.Channel over the specified SSH.Session. 
+		  ' Opens a new SSH.Channel over the specified SSH.Session.
 		  
 		  Return Channel.Open(Session, Type, WindowSize, PacketSize, Message)
 		End Function
@@ -1053,6 +1071,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_TIMEOUT_ELAPSED, Type = Double, Dynamic = False, Default = \"-509", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_TOO_MANY_TRANSFERS, Type = Double, Dynamic = False, Default = \"-511", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_USERNAME_REQUIRED, Type = Double, Dynamic = False, Default = \"-508", Scope = Protected
