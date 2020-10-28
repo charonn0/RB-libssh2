@@ -17,7 +17,7 @@ Protected Class SFTPDirectory
 		  
 		  mStream = New SFTPStreamPtr(mSession, RemoteName, 0, 0, True)
 		  If mStream = Nil Then
-		    mLastError = mSession.LastStatusCode
+		    mLastError = ERR_INIT_FAILED
 		    Raise New SSHException(Me)
 		  End If
 		  mIndex = -1
@@ -84,7 +84,13 @@ Protected Class SFTPDirectory
 		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
 		  End If
 		  
-		  Return New SFTPDirectory(mSession, DirectoryName)
+		  Dim subdir As New SFTPDirectory(mSession, DirectoryName)
+		  subdir.SuppressVirtualEntries = SuppressVirtualEntries
+		  Return subdir
+		  
+		Exception err As SSHException
+		  mLastError = err.ErrorNumber
+		  If mLastError = 0 Then mLastError = mSession.LastStatusCode()
 		End Function
 	#tag EndMethod
 
