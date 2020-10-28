@@ -2,6 +2,7 @@
 Protected Class SFTPTransferQueue
 	#tag Method, Flags = &h0
 		Sub AddDownload(Source As SSH.SFTPStream, Destination As Writeable)
+		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
 		  mStreams.Value(Source) = DIRECTION_DOWN:Destination
 		End Sub
@@ -9,13 +10,21 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Sub AddUpload(Destination As SSH.SFTPStream, Source As Readable)
-		  If mStreams.HasKey(Destination) Then Raise New RuntimeException
-		  mStreams.Value(Destination) = DIRECTION_UP:Source
+		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
+		  Do Until mLock.TrySignal()
+		    App.YieldToNextThread
+		  Loop
+		  Try
+		    mStreams.Value(Destination) = DIRECTION_UP:Source
+		  Finally
+		    mLock.Release()
+		  End Try
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub Constructor()
+		  mLock = New Semaphore
 		  mStreams = New Dictionary
 		End Sub
 	#tag EndMethod
@@ -81,36 +90,43 @@ Protected Class SFTPTransferQueue
 	#tag Method, Flags = &h0
 		Function PerformOnce() As Boolean
 		  Dim done() As SFTPStream
-		  For Each chan As Object In mStreams.Keys
-		    Dim stream As SFTPStream = SFTPStream(chan)
-		    Dim reader As Readable = GetUpStream(stream)
-		    Dim writer As Writeable = GetDownStream(stream)
-		    Try
-		      Dim total, now As UInt64
-		      If IsDownload(stream) Then
-		        total = stream.Length
-		        now = stream.Position
-		      ElseIf reader IsA BinaryStream Then
-		        total = total + BinaryStream(reader).Length
-		        now = now + BinaryStream(reader).Position
-		      End If
-		      If reader.EOF Or RaiseEvent Progress(Stream, total, now) Then
+		  Do Until mLock.TrySignal()
+		    App.YieldToNextThread
+		  Loop
+		  Try
+		    For Each chan As Object In mStreams.Keys
+		      Dim stream As SFTPStream = SFTPStream(chan)
+		      Dim reader As Readable = GetUpStream(stream)
+		      Dim writer As Writeable = GetDownStream(stream)
+		      Try
+		        Dim total, now As UInt64
+		        If IsDownload(stream) Then
+		          total = stream.Length
+		          now = stream.Position
+		        ElseIf reader IsA BinaryStream Then
+		          total = total + BinaryStream(reader).Length
+		          now = now + BinaryStream(reader).Position
+		        End If
+		        If reader.EOF Or RaiseEvent Progress(Stream, total, now) Then
+		          done.Append(stream)
+		          Continue
+		        End If
+		        
+		        writer.Write(reader.Read(1024 * 32))
+		        
+		      Catch
 		        done.Append(stream)
-		        Continue
-		      End If
-		      
-		      writer.Write(reader.Read(1024 * 32))
-		      
-		    Catch
-		      done.Append(stream)
-		    End Try
-		  Next
-		  
-		  For i As Integer = 0 To UBound(done)
-		    Dim stream As SFTPStream = done(i)
-		    RaiseEvent TransferComplete(stream)
-		    RemoveTransfer(stream)
-		  Next
+		      End Try
+		    Next
+		    
+		    For i As Integer = 0 To UBound(done)
+		      Dim stream As SFTPStream = done(i)
+		      RaiseEvent TransferComplete(stream)
+		      RemoveTransfer(stream)
+		    Next
+		  Finally
+		    mLock.Release()
+		  End Try
 		  
 		  Return mStreams.Count > 0
 		End Function
@@ -124,7 +140,14 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Sub RemoveTransfer(Source As SSH.SFTPStream)
-		  If mStreams.HasKey(Source) Then mStreams.Remove(Source)
+		  Do Until mLock.TrySignal()
+		    App.YieldToNextThread
+		  Loop
+		  Try
+		    If mStreams.HasKey(Source) Then mStreams.Remove(Source)
+		  Finally
+		    mLock.Release()
+		  End Try
 		End Sub
 	#tag EndMethod
 
@@ -137,6 +160,17 @@ Protected Class SFTPTransferQueue
 		Event TransferComplete(Stream As SSH.SFTPStream)
 	#tag EndHook
 
+
+	#tag Property, Flags = &h0
+		#tag Note
+			AddUpload and AddDownload will raise an exception if this limit would be exceeded.
+		#tag EndNote
+		MaxCount As Integer = 256
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mLock As Semaphore
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mPerformTimer As Timer
