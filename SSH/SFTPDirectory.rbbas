@@ -142,6 +142,9 @@ Protected Class SFTPDirectory
 		  End If
 		  
 		  If mCurrentName.Trim <> "" Then
+		    If SuppressVirtualEntries And (mCurrentName = "." Or mCurrentName = "..") Then
+		      Return ReadNextEntry()
+		    End If
 		    mIndex = mIndex + 1
 		    Return True
 		  End If
@@ -468,6 +471,13 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		Session As SSH.SFTPSession
 	#tag EndComputedProperty
+
+	#tag Property, Flags = &h0
+		#tag Note
+			When True, the self(.) and parent(..) virtual directory references are skipped.
+		#tag EndNote
+		SuppressVirtualEntries As Boolean = True
+	#tag EndProperty
 
 
 	#tag Constant, Name = LIBSSH2_SFTP_LSTAT, Type = Double, Dynamic = False, Default = \"1", Scope = Protected
