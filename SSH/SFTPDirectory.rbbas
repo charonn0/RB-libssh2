@@ -7,8 +7,8 @@ Protected Class SFTPDirectory
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
+	#tag Method, Flags = &h1
+		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
 		  mSession = Session
 		  If Not mSession.Session.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
@@ -56,7 +56,7 @@ Protected Class SFTPDirectory
 		    FileName = mSession.ReadSymbolicLink(FileName, True)
 		  End If
 		  
-		  Return New SFTPStreamPtr(mSession, FileName, LIBSSH2_FXF_READ, 0, False)
+		  Return mSession.Get(FileName)
 		End Function
 	#tag EndMethod
 
@@ -84,7 +84,7 @@ Protected Class SFTPDirectory
 		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
 		  End If
 		  
-		  Dim subdir As New SFTPDirectory(mSession, DirectoryName)
+		  Dim subdir As SFTPDirectory = mSession.ListDirectory(DirectoryName)
 		  subdir.SuppressVirtualEntries = SuppressVirtualEntries
 		  Return subdir
 		  
@@ -109,7 +109,7 @@ Protected Class SFTPDirectory
 		    Return Nil
 		  End If
 		  nm.Remove(nm.Ubound)
-		  Return New SFTPDirectory(mSession, "/" + Join(nm, "/") + "/")
+		  Return mSession.ListDirectory("/" + Join(nm, "/") + "/")
 		End Function
 	#tag EndMethod
 

@@ -92,7 +92,7 @@ Implements SSHStream
 		    Return Nil
 		  End If
 		  nm.Remove(nm.Ubound)
-		  Return New SFTPDirectory(mSession, "/" + Join(nm, "/") + "/")
+		  Return mSession.ListDirectory("/" + Join(nm, "/") + "/")
 		End Function
 	#tag EndMethod
 
