@@ -33,7 +33,7 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h1000
-		Sub Constructor(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer)
+		Sub Constructor(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt64, ModTime As Integer, AccessTime As Integer)
 		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to
 		  ' this object. Make sure to call Channel.Close() when finished.
 		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
@@ -44,7 +44,7 @@ Inherits SSH.Channel
 		  mSession = Session
 		  Dim c As Ptr
 		  Do
-		    c = libssh2_scp_send_ex(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    c = libssh2_scp_send64(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
 		      mLastError = mSession.GetLastError
 		      If mLastError = LIBSSH2_ERROR_EAGAIN Then Continue

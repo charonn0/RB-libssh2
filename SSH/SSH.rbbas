@@ -569,7 +569,7 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
-		Private Soft Declare Function libssh2_scp_send_ex Lib libssh2 (Session As Ptr, Path As CString, Mode As Integer, StreamLength As UInt32, mTime As Integer, aTime As Integer) As Ptr
+		Private Soft Declare Function libssh2_scp_send64 Lib libssh2 (Session As Ptr, Path As CString, Mode As Integer, StreamLength As UInt64, mTime As Integer, aTime As Integer) As Ptr
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
