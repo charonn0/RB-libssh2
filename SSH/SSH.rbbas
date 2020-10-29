@@ -1486,9 +1486,7 @@ Protected Module SSH
 		  ClientSideMAC=4
 		  ServerSideMAC=5
 		  ClientSideCompression=6
-		  ServerSideCompression=7
-		  ClientLanguage=8
-		ServerLanguage=9
+		ServerSideCompression=7
 	#tag EndEnum
 
 	#tag Enum, Name = DisconnectReason, Type = Integer, Flags = &h1
