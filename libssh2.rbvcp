@@ -19,6 +19,7 @@ Class=ChannelPtr;SSH/ChannelPtr.rbbas;&h55DABFFF;&h514D3FFF;false
 Class=SCPStream;SSH/SCPStream.rbbas;&h155467FF;&h514D3FFF;false
 Class=SFTPDirectory;SSH/SFTPDirectory.rbbas;&h4D93C7FF;&h514D3FFF;false
 Class=SFTPTransferQueue;SSH/SFTPTransferQueue.rbbas;&h77BC7FFF;&h514D3FFF;false
+Class=SFTPDirectoryPtr;SSH/SFTPDirectoryPtr.rbbas;&h2FACB7FF;&h514D3FFF;false
 MajorVersion=1
 MinorVersion=0
 SubVersion=0
