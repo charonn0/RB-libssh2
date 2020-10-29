@@ -285,6 +285,17 @@ Protected Class SFTPSession
 		LastStatusCode As Int32
 	#tag EndComputedProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the name of last SFTP status code
+			  
+			  Return SFTPErrorName(LastStatusCode)
+			End Get
+		#tag EndGetter
+		LastStatusName As String
+	#tag EndComputedProperty
+
 	#tag Property, Flags = &h21
 		Private mChannel As SSH.Channel
 	#tag EndProperty
