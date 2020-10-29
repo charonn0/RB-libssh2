@@ -34,7 +34,7 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
+		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt64, ModTime As Integer, AccessTime As Integer) As SSH.Channel
 		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to the returned
 		  ' Channel object. Make sure to call Channel.Close() when finished.
 		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
@@ -44,7 +44,7 @@ Implements SSHStream
 		  
 		  Dim c As Ptr
 		  Do
-		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    c = libssh2_scp_send64(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
 		      Dim e As Integer = Session.GetLastError
 		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
