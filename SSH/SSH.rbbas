@@ -300,8 +300,10 @@ Protected Module SSH
 		    Dim user As String = d.Lookup("username", "")
 		    Dim pass As String = d.Lookup("password", "")
 		    Session = Connect(host, port, user, pass)
+		    If Not Session.IsAuthenticated Then Raise New SSHException(Session)
 		    Command = Replace(d.Value("path"), "/", "")
 		  End If
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Dim sh As Channel = OpenChannel(Session)
 		  If Command <> "" Then
 		    If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
@@ -324,7 +326,13 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  If Session = Nil Then Session = Connect(host, port, user, pass)
+		  If Session = Nil Then
+		    Session = Connect(host, port, user, pass)
+		    If Not Session.IsAuthenticated Then Raise New SSHException(Session)
+		  ElseIf Not Session.IsAuthenticated Then
+		    Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  End If
+		  
 		  Select Case scheme
 		  Case "scp"
 		    Return New SCPStream(Session, path)
@@ -792,7 +800,7 @@ Protected Module SSH
 		  
 		  If scheme <> "ssh" Then Raise New SSHException(ERR_INVALID_SCHEME)
 		  Dim Session As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
-		  If Not Session.IsConnected Or Not Session.IsAuthenticated Then Raise New SSHException(Session.LastError)
+		  If Not Session.IsAuthenticated Then Raise New SSHException(Session)
 		  Return OpenChannel(Session)
 		End Function
 	#tag EndMethod
@@ -916,7 +924,13 @@ Protected Module SSH
 		  path = d.Lookup("path", "")
 		  Dim port As Integer = d.Lookup("port", 22)
 		  
-		  If Session = Nil Then Session = Connect(host, port, user, pass)
+		  If Session = Nil Then
+		    Session = Connect(host, port, user, pass)
+		    If Not Session.IsAuthenticated Then Raise New SSHException(Session)
+		  ElseIf Not Session.IsAuthenticated Then
+		    Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  End If
+		  
 		  Select Case scheme
 		  Case "scp"
 		    If Length <= 0 Then Raise New SSHException(ERR_LENGTH_REQUIRED)
