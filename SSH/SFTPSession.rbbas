@@ -312,6 +312,10 @@ Protected Class SFTPSession
 		Private mSFTP As Ptr
 	#tag EndProperty
 
+	#tag Property, Flags = &h21
+		Private mWorkingDirectory As String = "/"
+	#tag EndProperty
+
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
@@ -319,6 +323,36 @@ Protected Class SFTPSession
 			End Get
 		#tag EndGetter
 		Session As SSH.Session
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mWorkingDirectory
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If value.Trim = "." Or value = mWorkingDirectory Then Return
+			  Dim p() AS String = Split(mWorkingDirectory, "/")
+			  If value.Trim = ".." Then
+			    If mWorkingDirectory = "/" Then Return ' meh
+			    If p(UBound(p)) = "" Then Call p.Pop()
+			    Call p.Pop
+			    mWorkingDirectory = NormalizePath(Join(p, "/"), True, False)
+			    Return
+			  End If
+			  
+			  Dim d As SFTPDirectory
+			  If Left(value, 1) = "/" Then 'absolute
+			    d = ListDirectory(NormalizePath(value, True, False))
+			  Else ' relative
+			    d = ListDirectory(NormalizePath(mWorkingDirectory + "/" + value, True, False))
+			  End If
+			  If d <> Nil Then mWorkingDirectory = d.FullPath
+			End Set
+		#tag EndSetter
+		WorkingDirectory As String
 	#tag EndComputedProperty
 
 
