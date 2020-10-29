@@ -166,7 +166,10 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetActualAlgorithm(Type As SSH.AlgorithmType) As String
-		  Dim item As CString = libssh2_session_methods(mSession, Int32(Type))
+		  ' Once connected to a server, this method returns the negotiated algorithm
+		  ' for the specified AlgorithmType.
+		  
+		  Dim item As CString = libssh2_session_methods(mSession, Type)
 		  Return item
 		  
 		End Function
@@ -185,9 +188,13 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetAvailableAlgorithms(Type As SSH.AlgorithmType) As String()
+		  ' Returns an array of available algorithms for the specified AlgorithmType.
+		  
 		  Dim ret() As String
+		  If mSession = Nil Then Return ret
+		  
 		  Dim lst As Ptr
-		  mLastError = libssh2_session_supported_algs(mSession, Int32(Type), lst)
+		  mLastError = libssh2_session_supported_algs(mSession, Type, lst)
 		  If mLastError >= 0 Then ' err is the number of algs
 		    Try
 		      Dim item As MemoryBlock = lst.Ptr(0)
@@ -567,10 +574,15 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub SetPreferredAlgorithms(Type As SSH.AlgorithmType, Preferred() As String)
-		  ' Cannot be called after Session.Connect succeeds.
+		  ' Prior to calling Session.Connect(), you may use this method to specify a list of
+		  ' acceptable algorithms for the specified AlgorithmType.
 		  
+		  If IsConnected Then
+		    mLastError = ERR_TOO_LATE
+		    Return
+		  End If
 		  Dim lst As MemoryBlock = Join(Preferred, ",") + Chr(0)
-		  mLastError = libssh2_session_method_pref(mSession, Int32(Type), lst)
+		  mLastError = libssh2_session_method_pref(mSession, Type, lst)
 		End Sub
 	#tag EndMethod
 

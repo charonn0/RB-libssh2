@@ -279,6 +279,8 @@ Protected Module SSH
 		    Return "ERR_NOT_AUTHENTICATED"
 		  Case ERR_TOO_MANY_TRANSFERS
 		    Return "ERR_TOO_MANY_TRANSFERS"
+		  Case ERR_TOO_LATE
+		    Return "ERR_TOO_LATE"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1071,6 +1073,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_TIMEOUT_ELAPSED, Type = Double, Dynamic = False, Default = \"-509", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_TOO_LATE, Type = Double, Dynamic = False, Default = \"-512", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_TOO_MANY_TRANSFERS, Type = Double, Dynamic = False, Default = \"-511", Scope = Protected
