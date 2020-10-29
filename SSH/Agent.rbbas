@@ -175,6 +175,20 @@ Protected Class Agent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mAgent <> Nil Then Return libssh2_agent_get_identity_path(mAgent)
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  If mAgent <> Nil And value <> "" Then libssh2_agent_set_identity_path(mAgent, value)
+			End Set
+		#tag EndSetter
+		Path As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  return mSession
 			End Get
 		#tag EndGetter
