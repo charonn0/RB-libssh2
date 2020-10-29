@@ -1,6 +1,29 @@
 #tag Class
 Protected Class SFTPSession
 	#tag Method, Flags = &h0
+		Function Append(FileName As String, CreateIfMissing As Boolean = False, Mode As Integer = 0) As SSH.SFTPStream
+		  ' Returns an SFTPStream to which the file data can be appended.
+		  
+		  If Mode = 0 Then
+		    Dim meta As SFTPStream
+		    If PathExists(FileName) Then meta = CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
+		    If meta <> Nil Then
+		      Mode = PermissionsToMode(meta.Mode)
+		      meta.Close
+		    ElseIf CreateIfMissing Then
+		      Mode = &o644
+		    End If
+		  End If
+		  
+		  Dim flags As Integer = LIBSSH2_FXF_WRITE Or LIBSSH2_FXF_APPEND
+		  If CreateIfMissing Then flags = flags Or LIBSSH2_FXF_CREAT
+		  Dim stream As SFTPStream = CreateStream(FileName, flags, Mode, False)
+		  If stream <> Nil Then stream.Position = stream.Length
+		  Return stream
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
 		  ' Create a new SFTP session over the specified SSH session.
 		  
