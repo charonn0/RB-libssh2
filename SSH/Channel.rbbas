@@ -445,6 +445,24 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  Return BytesReadable
+			End Get
+		#tag EndGetter
+		Attributes( deprecated = "SSH.Channel.BytesReadable" ) BytesAvailable As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return BytesWriteable
+			End Get
+		#tag EndGetter
+		Attributes( deprecated = "SSH.Channel.BytesWriteable" ) BytesLeft As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  ' Returns the number of bytes actually available to be read.
 			  
 			  Dim avail, initial As UInt32
@@ -452,19 +470,7 @@ Implements SSHStream
 			  Return avail
 			End Get
 		#tag EndGetter
-		BytesAvailable As UInt32
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  ' Returns the number of bytes which the remote end may send without overflowing the window.
-			  
-			  Dim avail, initial As UInt32
-			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
-			End Get
-		#tag EndGetter
-		BytesLeft As UInt32
+		BytesReadable As UInt32
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -577,6 +583,18 @@ Implements SSHStream
 			End Get
 		#tag EndGetter
 		ReadWindow As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the number of bytes which the remote end may send without overflowing the window.
+			  
+			  Dim avail, initial As UInt32
+			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
+			End Get
+		#tag EndGetter
+		RemoteBytesWriteable As UInt32
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
