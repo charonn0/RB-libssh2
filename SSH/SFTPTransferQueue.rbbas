@@ -1,7 +1,7 @@
 #tag Class
 Protected Class SFTPTransferQueue
 	#tag Method, Flags = &h0
-		Sub AddDownload(Source As SSH.SFTPStream, Destination As Writeable)
+		Sub AddDownload(Source As SSH.SFTPStream, Destination As BinaryStream)
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
 		  mStreams.Value(Source) = DIRECTION_DOWN:Destination
@@ -9,7 +9,7 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub AddUpload(Destination As SSH.SFTPStream, Source As Readable)
+		Sub AddUpload(Destination As SSH.SFTPStream, Source As BinaryStream)
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
@@ -35,8 +35,8 @@ Protected Class SFTPTransferQueue
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Function GetDownStream(Stream As SSH.SFTPStream) As Writeable
+	#tag Method, Flags = &h1
+		Protected Function GetDownStream(Stream As SSH.SFTPStream) As Writeable
 		  Dim vl As Pair = mStreams.Value(Stream)
 		  If vl.Left = DIRECTION_UP Then ' writer is the ssh channel
 		    Return Stream
@@ -47,8 +47,8 @@ Protected Class SFTPTransferQueue
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Function GetUpStream(Stream As SSH.SFTPStream) As Readable
+	#tag Method, Flags = &h1
+		Protected Function GetUpStream(Stream As SSH.SFTPStream) As Readable
 		  Dim vl As Pair = mStreams.Value(Stream)
 		  If vl.Left = DIRECTION_UP Then ' reader is a local stream
 		    Return vl.Right
@@ -94,25 +94,23 @@ Protected Class SFTPTransferQueue
 		    App.YieldToNextThread
 		  Loop
 		  Try
-		    For Each chan As Object In mStreams.Keys
-		      Dim stream As SFTPStream = SFTPStream(chan)
+		    For Each stream As SFTPStream In mStreams.Keys
 		      Dim reader As Readable = GetUpStream(stream)
 		      Dim writer As Writeable = GetDownStream(stream)
+		      Dim filestream As BinaryStream
 		      Try
-		        Dim total, now As UInt64
 		        If IsDownload(stream) Then
-		          total = stream.Length
-		          now = stream.Position
-		        ElseIf reader IsA BinaryStream Then
-		          total = total + BinaryStream(reader).Length
-		          now = now + BinaryStream(reader).Position
+		          filestream = BinaryStream(writer)
+		        Else
+		          filestream = BinaryStream(reader)
 		        End If
-		        If reader.EOF Or RaiseEvent Progress(Stream, total, now) Then
+		        If reader.EOF Or RaiseEvent Progress(stream, filestream) Then
 		          done.Append(stream)
 		          Continue
 		        End If
 		        
-		        writer.Write(reader.Read(1024 * 32))
+		        writer.Write(reader.Read(ChunkSize))
+		        If reader.EOF Then done.Append(stream)
 		        
 		      Catch
 		        done.Append(stream)
@@ -121,8 +119,18 @@ Protected Class SFTPTransferQueue
 		    
 		    For i As Integer = 0 To UBound(done)
 		      Dim stream As SFTPStream = done(i)
-		      RaiseEvent TransferComplete(stream)
-		      RemoveTransfer(stream)
+		      Dim filestream As BinaryStream
+		      If IsDownload(stream) Then
+		        filestream = BinaryStream(GetDownStream(stream))
+		      Else
+		        filestream = BinaryStream(GetUpStream(stream))
+		      End If
+		      RaiseEvent TransferComplete(stream, filestream)
+		      mStreams.Remove(stream)
+		      If AutoClose Then
+		        filestream.Close
+		        stream.Close
+		      End If
 		    Next
 		  Finally
 		    mLock.Release()
@@ -153,13 +161,21 @@ Protected Class SFTPTransferQueue
 
 
 	#tag Hook, Flags = &h0
-		Event Progress(Transfer As SSH.SFTPStream, Total As UInt64, Now As UInt64) As Boolean
+		Event Progress(NetworkStream As SSH.SFTPStream, FileStream As BinaryStream) As Boolean
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
-		Event TransferComplete(Stream As SSH.SFTPStream)
+		Event TransferComplete(NetworkStream As SSH.SFTPStream, FileStream As BinaryStream)
 	#tag EndHook
 
+
+	#tag Property, Flags = &h0
+		AutoClose As Boolean = True
+	#tag EndProperty
+
+	#tag Property, Flags = &h0
+		ChunkSize As UInt32 = 32768
+	#tag EndProperty
 
 	#tag Property, Flags = &h0
 		#tag Note
