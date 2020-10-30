@@ -374,7 +374,10 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -391,7 +394,10 @@ Implements ChannelParent
 		      mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, Nil, PrivateKey.AbsolutePath_, PrivateKeyPassword)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -408,7 +414,10 @@ Implements ChannelParent
 		      mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, Nil, 0, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -434,6 +443,8 @@ Implements ChannelParent
 		  Finally
 		    If cleanup Then Agent.Disconnect()
 		  End Try
+		  
+		  If ok Then mUsername = Username
 		  Return ok
 		End Function
 	#tag EndMethod
@@ -445,7 +456,10 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -797,6 +811,10 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mUsername As String
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mVerbose As Boolean
 	#tag EndProperty
 
@@ -855,6 +873,15 @@ Implements ChannelParent
 			End Set
 		#tag EndSetter
 		UseCompression As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mUsername
+			End Get
+		#tag EndGetter
+		Username As String
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
