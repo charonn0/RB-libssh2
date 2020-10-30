@@ -780,7 +780,8 @@ Protected Module SSH
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", Message As String = "") As SSH.Channel
 		  ' Opens a new SSH.Channel over the specified SSH.Session.
 		  
-		  Return Channel.Open(Session, Type, WindowSize, PacketSize, Message)
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  Return Channel.Open(Session, Type, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, Message)
 		End Function
 	#tag EndMethod
 
