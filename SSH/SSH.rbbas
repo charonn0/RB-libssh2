@@ -291,6 +291,8 @@ Protected Module SSH
 		    Return "ERR_TOO_MANY_TRANSFERS"
 		  Case ERR_TOO_LATE
 		    Return "ERR_TOO_LATE"
+		  Case ERR_APPEND_ONLY
+		    Return "ERR_APPEND_ONLY"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1058,7 +1060,7 @@ Protected Module SSH
 	#tag EndMethod
 
 
-	#tag Constant, Name = CHUNK_SIZE, Type = Double, Dynamic = False, Default = \"LIBSSH2_CHANNEL_PACKET_DEFAULT", Scope = Protected
+	#tag Constant, Name = ERR_APPEND_ONLY, Type = Double, Dynamic = False, Default = \"-513", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_CONNECTION_REFUSED, Type = Double, Dynamic = False, Default = \"-102", Scope = Protected

@@ -36,6 +36,7 @@ Implements SSHStream
 		  End If
 		  
 		  
+		  mAppendOnly = (BitAnd(Flags, LIBSSH2_FXF_APPEND) = LIBSSH2_FXF_APPEND)
 		End Sub
 	#tag EndMethod
 
@@ -303,6 +304,10 @@ Implements SSHStream
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
+		Private mAppendOnly As Boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mDirectory As Boolean
 	#tag EndProperty
 
@@ -427,7 +432,13 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If mStream <> Nil Then libssh2_sftp_seek64(mStream, value)
+			  If mStream <> Nil Then
+			    If mAppendOnly Then 
+			      mLastError = ERR_APPEND_ONLY
+			      Return
+			    End If
+			    libssh2_sftp_seek64(mStream, value)
+			  End If
 			End Set
 		#tag EndSetter
 		Position As UInt64
