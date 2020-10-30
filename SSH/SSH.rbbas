@@ -21,6 +21,8 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' whether you're actually connected.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host As String = d.Value("host")
@@ -38,6 +40,8 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
+		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -70,6 +74,8 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -95,6 +101,8 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -119,6 +127,8 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
+		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
 		  
@@ -292,6 +302,7 @@ Protected Module SSH
 		Protected Function Execute(Optional Session As SSH.Session, Command As String) As SSH.SSHStream
 		  ' Executes a shell command on the remote machine. Returns a SSHStream from which you
 		  ' Read() the standard output stream of the executing command.
+		  ' Raises an exception on error.
 		  
 		  If Session = Nil Then
 		    Dim d As Dictionary = ParseURL(Command)
@@ -316,6 +327,7 @@ Protected Module SSH
 		Protected Function Get(Optional Session As SSH.Session, URL As String) As SSH.SSHStream
 		  ' Prepares a file download over SCP or SFTP. Returns a SSHStream that you
 		  ' Read() the download from.
+		  ' Raises an exception on error.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
@@ -779,6 +791,7 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", Message As String = "") As SSH.Channel
 		  ' Opens a new SSH.Channel over the specified SSH.Session.
+		  ' Returns Nil on error; check Session.LastError for details.
 		  
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Return Channel.Open(Session, Type, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, Message)
@@ -789,6 +802,7 @@ Protected Module SSH
 		Protected Function OpenChannel(URL As String, KnownHostList As FolderItem = Nil, AddHost As Boolean = False) As SSH.Channel
 		  ' Opens a new SSH.Channel to the server specified by the URL parameter.
 		  ' e.g. "ssh://user:pass@ssh.example.com:2222/"
+		  ' Raises an exception on error.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
@@ -802,7 +816,8 @@ Protected Module SSH
 		  If scheme <> "ssh" Then Raise New SSHException(ERR_INVALID_SCHEME)
 		  Dim Session As SSH.Session = Connect(host, port, user, pass, KnownHostList, AddHost)
 		  If Not Session.IsAuthenticated Then Raise New SSHException(Session)
-		  Return OpenChannel(Session)
+		  Dim ch As SSH.Channel = OpenChannel(Session)
+		  If ch = Nil Then Raise New SSHException(Session)
 		End Function
 	#tag EndMethod
 
@@ -915,6 +930,7 @@ Protected Module SSH
 		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32 = 0, Overwrite As Boolean = False) As SSH.SSHStream
 		  ' Prepares a file upload over SCP or SFTP. Returns a SSHStream that you
 		  ' Write() the upload to.
+		  ' Raises an exception on error.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
