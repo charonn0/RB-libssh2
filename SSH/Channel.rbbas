@@ -22,13 +22,8 @@ Implements SSHStream
 		  ' ChannelPtr must refer to a valid channel opened over the specified Session.
 		  
 		  mSession = Session
-		  If Not mSession.IsAuthenticated Then
-		    mLastError = ERR_NOT_AUTHENTICATED
-		    Raise New SSHException(Me)
-		  End If
-		  
 		  mChannel = ChannelPtr
-		  mOpen = True
+		  mOpen = (ChannelPtr <> Nil)
 		  ChannelParent(Session).RegisterChannel(Me)
 		End Sub
 	#tag EndMethod
@@ -174,6 +169,7 @@ Implements SSHStream
 		  ' PacketSize is the maximum number of bytes remote host is allowed to send in a single packet.
 		  ' Message contains additional data as required by the selected channel Type.
 		  
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Dim typ As MemoryBlock = Type + Chr(0)
 		  Dim msg As MemoryBlock = Message + Chr(0)
 		  Do
