@@ -77,12 +77,6 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mStream
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function Parent() As SSH.SFTPDirectory
 		  Dim nm() As String = Split(mFilename.Trim, "/")
 		  For i As Integer = UBound(nm) DownTo 0
@@ -254,6 +248,15 @@ Implements SSHStream
 			End Set
 		#tag EndSetter
 		FullPath As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mStream
+			End Get
+		#tag EndGetter
+		Handle As Ptr
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

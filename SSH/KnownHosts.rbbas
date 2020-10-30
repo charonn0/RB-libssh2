@@ -140,12 +140,6 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mKnownHosts
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function Key(Index As Integer) As MemoryBlock
 		  ' Returns the key of the fingerprint at Index
 		  
@@ -256,6 +250,15 @@ Protected Class KnownHosts
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mKnownHosts
+			End Get
+		#tag EndGetter
+		Handle As Ptr
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter

@@ -100,12 +100,6 @@ Protected Class SFTPSession
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mSFTP
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function IsSymbolicLink(LinkPath As String) As Boolean
 		  ' This method returns True if the LinkPath is actually a symlink.
 		  ' Use ReadSymbolicLink to get the target path.
@@ -164,7 +158,7 @@ Protected Class SFTPSession
 		  Dim flag As Integer
 		  If Right(Path, 1) = "/" Then flag = LIBSSH2_SFTP_OPENDIR Else flag = LIBSSH2_SFTP_OPENFILE
 		  Try
-		    p = libssh2_sftp_open_ex(Me.Handle, fn, fn.Size, 0, 0, flag)
+		    p = libssh2_sftp_open_ex(mSFTP, fn, fn.Size, 0, 0, flag)
 		  Catch
 		    p = Nil
 		  Finally
@@ -282,6 +276,15 @@ Protected Class SFTPSession
 			End Get
 		#tag EndGetter
 		Channel As SSH.Channel
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mSFTP
+			End Get
+		#tag EndGetter
+		Handle As Ptr
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

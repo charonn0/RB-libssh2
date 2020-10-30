@@ -116,12 +116,6 @@ Protected Class Agent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mAgent
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Attributes( deprecated = "SSH.Agent.GetIdentity" )  Function PublicKey(Index As Integer) As MemoryBlock
 		  ' Returns a copy of the PublicKey at Index in the Agent's list of keys.
 		  
@@ -140,6 +134,15 @@ Protected Class Agent
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mAgent
+			End Get
+		#tag EndGetter
+		Handle As Ptr
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter

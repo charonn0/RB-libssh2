@@ -232,12 +232,6 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mSession
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function HostKeyHash(Type As SSH.HashType) As MemoryBlock
 		  If mSession = Nil Then Return Nil
 		  Dim sz As Integer
@@ -665,6 +659,15 @@ Implements ChannelParent
 			End Get
 		#tag EndGetter
 		Descriptor As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mSession
+			End Get
+		#tag EndGetter
+		Handle As Ptr
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
