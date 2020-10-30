@@ -94,25 +94,6 @@ Protected Class SFTPDirectory
 		End Function
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Function Parent() As SSH.SFTPDirectory
-		  If mName = "/" Or mName = "" Then
-		    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
-		    Return Nil
-		  End If
-		  Dim nm() As String = Split(mName, "/")
-		  For i As Integer = UBound(nm) DownTo 0
-		    If nm(i).Trim = "" Then nm.Remove(i)
-		  Next
-		  If UBound(nm) = -1 Then
-		    mLastError = SSH.LIBSSH2_FX_INVALID_FILENAME
-		    Return Nil
-		  End If
-		  nm.Remove(nm.Ubound)
-		  Return mSession.ListDirectory("/" + Join(nm, "/") + "/")
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h1
 		Protected Function ReadDirectoryAttributes(ByRef Attribs As LIBSSH2_SFTP_ATTRIBUTES, NoDereference As Boolean = False) As Boolean
 		  Dim name As MemoryBlock = FullPath
@@ -473,6 +454,33 @@ Protected Class SFTPDirectory
 			End Set
 		#tag EndSetter
 		Name As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mName = "/" Or mName = "" Then
+			    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
+			    Return Nil
+			  End If
+			  Dim nm() As String = Split(mName, "/")
+			  For i As Integer = UBound(nm) DownTo 0
+			    If nm(i).Trim = "" Then nm.Remove(i)
+			  Next
+			  If UBound(nm) = -1 Then
+			    mLastError = LIBSSH2_FX_INVALID_FILENAME
+			    Return Nil
+			  End If
+			  nm.Remove(nm.Ubound)
+			  Return mSession.ListDirectory("/" + Join(nm, "/") + "/")
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Me.FullPath = value.FullPath + Me.Name
+			End Set
+		#tag EndSetter
+		Parent As SSH.SFTPDirectory
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
