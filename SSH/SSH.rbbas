@@ -1526,6 +1526,12 @@ Protected Module SSH
 		IllegalUsername=15
 	#tag EndEnum
 
+	#tag Enum, Name = ExtendedDataMode, Flags = &h1
+		Normal
+		  Ignore
+		Merge
+	#tag EndEnum
+
 	#tag Enum, Name = HashType, Type = Integer, Flags = &h1
 		MD5=1
 		  SHA1=2

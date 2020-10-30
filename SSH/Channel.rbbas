@@ -496,7 +496,7 @@ Implements SSHStream
 			  If mLastError < 0 Then Raise New SSHException(Me)
 			End Set
 		#tag EndSetter
-		DataMode As SSH.Channel.ExtendedDataMode
+		DataMode As SSH.ExtendedDataMode
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -547,7 +547,7 @@ Implements SSHStream
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mDataMode As ExtendedDataMode
+		Private mDataMode As SSH.ExtendedDataMode
 	#tag EndProperty
 
 	#tag Property, Flags = &h1
@@ -600,13 +600,6 @@ Implements SSHStream
 		#tag EndGetter
 		WriteWindow As UInt32
 	#tag EndComputedProperty
-
-
-	#tag Enum, Name = ExtendedDataMode, Type = Integer, Flags = &h0
-		Normal
-		  Ignore
-		Merge
-	#tag EndEnum
 
 
 	#tag ViewBehavior
