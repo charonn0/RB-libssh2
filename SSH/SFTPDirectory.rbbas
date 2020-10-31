@@ -192,6 +192,8 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mStream = Nil Then Return -1
+			  If mIndex = -1 Then Call ReadNextEntry()
 			  return mIndex
 			End Get
 		#tag EndGetter
