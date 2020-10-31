@@ -791,6 +791,33 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag Method, Flags = &h1
+		Protected Function ListDirectory(Optional Session As SSH.Session, URL As String) As SSH.SFTPDirectory
+		  ' SFTP only, prepares a directory listing. Returns a SFTPDirectory that you
+		  ' can use to iterate over the directory. Raises an exception on error.
+		  
+		  Dim d As Dictionary = ParseURL(URL)
+		  Dim host, user, pass, scheme, path As String
+		  host = d.Lookup("host", "")
+		  user = d.Lookup("username", "")
+		  pass = d.Lookup("password", "")
+		  scheme = d.Lookup("scheme", "")
+		  path = d.Lookup("path", "")
+		  Dim port As Integer = d.Lookup("port", 22)
+		  
+		  If Session = Nil Then
+		    Session = Connect(host, port, user, pass)
+		    If Not Session.IsAuthenticated Then Raise New SSHException(Session)
+		  ElseIf Not Session.IsAuthenticated Then
+		    Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  End If
+		  If scheme <> "" And scheme <> "sftp" Then Raise New SSHException(ERR_INVALID_SCHEME)
+		  Dim sftp As New SFTPSession(Session)
+		  Return sftp.ListDirectory(path)
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", Message As String = "") As SSH.Channel
 		  ' Opens a new SSH.Channel over the specified SSH.Session.
 		  ' Returns Nil on error; check Session.LastError for details.
