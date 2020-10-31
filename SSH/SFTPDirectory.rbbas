@@ -299,7 +299,7 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return SFTPEntryType.Unknown
-			  If mIndex = -1 And Not ReadNextEntry() Then Return SFTPEntryType.Unknown
+			  If mIndex = -1 Then Call ReadNextEntry()
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
 			    Select Case BitAnd(mCurrentAttribs.Perms, LIBSSH2_SFTP_S_IFMT)
 			    Case LIBSSH2_SFTP_S_IFDIR
@@ -317,7 +317,11 @@ Protected Class SFTPDirectory
 			    Case LIBSSH2_SFTP_S_IFSOCK
 			      Return SFTPEntryType.Socket
 			    Else
-			      Return SFTPEntryType.File
+			      If Right(FullPath, 1) = "/" Then ' probably a directory
+			        Return SFTPEntryType.Directory
+			      Else
+			        Return SFTPEntryType.File ' some kind of filesystem object
+			      End If
 			    End Select
 			  End If
 			End Get
