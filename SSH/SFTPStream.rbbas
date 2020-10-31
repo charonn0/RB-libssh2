@@ -35,8 +35,11 @@ Implements SSHStream
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  
 		  mAppendOnly = (BitAnd(Flags, LIBSSH2_FXF_APPEND) = LIBSSH2_FXF_APPEND)
+		  mIsWriteable = (BitAnd(Flags, LIBSSH2_FXF_WRITE) = LIBSSH2_FXF_WRITE)
+		  If mAppendOnly Then mIsWriteable = True
+		  mIsReadable = (BitAnd(Flags, LIBSSH2_FXF_READ) = LIBSSH2_FXF_READ)
+		  Call ReadAttributes()
 		End Sub
 	#tag EndMethod
 
@@ -76,6 +79,12 @@ Implements SSHStream
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Function HasAttribute(AttributeID As Int32) As Boolean
+		  Return BitAnd(mAttribs.Flags, AttributeID) = AttributeID
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
@@ -99,6 +108,15 @@ Implements SSHStream
 		    Raise New SSHException(Me)
 		  End If
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub ReadAttributes()
+		  If mStream = Nil Then Return
+		  Do
+		    mLastError = libssh2_sftp_fstat_ex(mStream, mAttribs, 0)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
@@ -163,6 +181,22 @@ Implements SSHStream
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Sub WriteAttributes()
+		  If mStream = Nil Then Return
+		  If Not IsWriteable Then
+		    ReadAttributes() ' reset values
+		    mLastError = LIBSSH2_FX_PERMISSION_DENIED
+		    Return
+		  End If
+		  
+		  Do
+		    mLastError = libssh2_sftp_fstat_ex(mStream, mAttribs, 1)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function WriteError() As Boolean
 		  // Part of the Writeable interface.
@@ -175,34 +209,16 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return Nil
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    Return time_t(attribs.ATime)
-			  End If
+			  If HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return time_t(mAttribs.ATime)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
 			  If mStream = Nil Then Return
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) <> LIBSSH2_SFTP_ATTR_SIZE Then Return ' atime not settable
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    attribs.ATime = time_t(value)
-			  End If
-			  
-			  
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 1)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  Call ReadAttributes() ' refresh
+			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' atime not settable
+			  mAttribs.ATime = time_t(value)
+			  Call WriteAttributes()
 			End Set
 		#tag EndSetter
 		AccessTime As Date
@@ -247,6 +263,24 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  return mIsReadable
+			End Get
+		#tag EndGetter
+		IsReadable As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mIsWriteable
+			End Get
+		#tag EndGetter
+		IsWriteable As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  ' This is an error code returned from the libssh2 API. If the last error was
 			  ' LIBSSH2_ERROR_SFTP_PROTOCOL(-31) then refer to the LastStatusCode property
 			  ' of the SFTPSession that owns this stream for the SFTP status code (which will
@@ -262,30 +296,16 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return 0
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) = LIBSSH2_SFTP_ATTR_SIZE Then 
-			    Return attribs.FileSize
-			  End If
+			  If HasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then Return mAttribs.FileSize
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
 			  If mStream = Nil Then Return
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) <> LIBSSH2_SFTP_ATTR_SIZE Then Return ' size not settable
-			  attribs.FileSize = value
-			  
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 1)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  Call ReadAttributes() ' refresh
+			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then Return ' size not settable
+			  mAttribs.FileSize = value
+			  Call WriteAttributes()
 			End Set
 		#tag EndSetter
 		Length As UInt64
@@ -293,6 +313,10 @@ Implements SSHStream
 
 	#tag Property, Flags = &h21
 		Private mAppendOnly As Boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mAttribs As LIBSSH2_SFTP_ATTRIBUTES
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
@@ -308,6 +332,14 @@ Implements SSHStream
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mIsReadable As Boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mIsWriteable As Boolean
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mLastError As Int32
 	#tag EndProperty
 
@@ -315,30 +347,17 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return Nil
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  If HasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then Return New Permissions(mAttribs.Perms)
 			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then 
-			    Return New Permissions(attribs.Perms)
-			  End If
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
 			  If mStream = Nil Then Return
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) <> LIBSSH2_SFTP_ATTR_PERMISSIONS Then Return ' perms not settable
-			  attribs.Perms = PermissionsToMode(value)
-			  
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 1)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  Call ReadAttributes() ' refresh
+			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then Return ' perms not settable
+			  mAttribs.Perms = PermissionsToMode(value)
+			  Call WriteAttributes()
 			End Set
 		#tag EndSetter
 		Mode As Permissions
@@ -348,14 +367,8 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return Nil
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  If HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return time_t(mAttribs.MTime)
 			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    Return time_t(attribs.MTime)
-			  End If
 			End Get
 		#tag EndGetter
 		#tag Setter
@@ -444,7 +457,8 @@ Implements SSHStream
 		#tag Setter
 			Set
 			  If mStream <> Nil Then
-			    If mAppendOnly Then 
+			    If value = Me.Position Then ReadAttributes() ' refresh
+			    If mAppendOnly Then
 			      mLastError = ERR_APPEND_ONLY
 			      Return
 			    End If
