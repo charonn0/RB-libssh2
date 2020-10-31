@@ -48,6 +48,16 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function GetFileStream(Stream As SSH.SFTPStream) As BinaryStream
+		  If IsDownload(Stream) Then
+		    Return BinaryStream(GetDownStream(Stream))
+		  Else
+		    Return BinaryStream(GetUpStream(Stream))
+		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function GetUpStream(Stream As SSH.SFTPStream) As Readable
 		  Dim vl As Pair = mStreams.Value(Stream)
 		  If vl.Left = DIRECTION_UP Then ' reader is a local stream
@@ -55,6 +65,15 @@ Protected Class SFTPTransferQueue
 		  Else ' writer is the ssh channel
 		    Return Stream
 		  End If
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function HasTransfer(FileStream As BinaryStream) As Boolean
+		  If mStreams = Nil Then Return False
+		  For Each netstream As SFTPStream In mStreams.Keys
+		    If GetUpStream(netstream) Is FileStream Or GetDownStream(netstream) Is FileStream Then Return True
+		  Next
 		End Function
 	#tag EndMethod
 
@@ -89,47 +108,38 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function PerformOnce() As Boolean
-		  Dim done() As SFTPStream
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
 		  Loop
+		  
+		  Dim done() As SFTPStream
+		  
 		  Try
-		    For Each stream As SFTPStream In mStreams.Keys
-		      Dim reader As Readable = GetUpStream(stream)
-		      Dim writer As Writeable = GetDownStream(stream)
-		      Dim filestream As BinaryStream
+		    For Each netstream As SFTPStream In mStreams.Keys
+		      Dim reader As Readable = GetUpStream(netstream)
+		      Dim writer As Writeable = GetDownStream(netstream)
 		      Try
-		        If IsDownload(stream) Then
-		          filestream = BinaryStream(writer)
-		        Else
-		          filestream = BinaryStream(reader)
-		        End If
-		        If reader.EOF Or RaiseEvent Progress(stream, filestream) Then
-		          done.Append(stream)
+		        If reader.EOF Or RaiseEvent Progress(netstream, GetFileStream(netstream)) Then
+		          done.Append(netstream)
 		          Continue
 		        End If
 		        
-		        writer.Write(reader.Read(ChunkSize))
-		        If reader.EOF Then done.Append(stream)
+		        writer.Write(reader.Read(PacketCount * SFTP_MAX_PACKET_SIZE))
+		        If reader.EOF Then done.Append(netstream)
 		        
 		      Catch
-		        done.Append(stream)
+		        done.Append(netstream)
 		      End Try
 		    Next
 		    
 		    For i As Integer = 0 To UBound(done)
-		      Dim stream As SFTPStream = done(i)
-		      Dim filestream As BinaryStream
-		      If IsDownload(stream) Then
-		        filestream = BinaryStream(GetDownStream(stream))
-		      Else
-		        filestream = BinaryStream(GetUpStream(stream))
-		      End If
-		      RaiseEvent TransferComplete(stream, filestream)
-		      mStreams.Remove(stream)
+		      Dim netstream As SFTPStream = done(i)
+		      Dim filestream As BinaryStream = GetFileStream(netstream)
+		      RaiseEvent TransferComplete(netstream, filestream)
+		      mStreams.Remove(netstream)
 		      If AutoClose Then
 		        filestream.Close
-		        stream.Close
+		        netstream.Close
 		      End If
 		    Next
 		  Finally
@@ -147,12 +157,12 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub RemoveTransfer(Source As SSH.SFTPStream)
+		Sub RemoveTransfer(Stream As SSH.SFTPStream)
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
 		  Loop
 		  Try
-		    If mStreams.HasKey(Source) Then mStreams.Remove(Source)
+		    If mStreams.HasKey(Stream) Then mStreams.Remove(Stream)
 		  Finally
 		    mLock.Release()
 		  End Try
@@ -169,12 +179,9 @@ Protected Class SFTPTransferQueue
 	#tag EndHook
 
 
-	#tag Property, Flags = &h0
-		AutoClose As Boolean = True
-	#tag EndProperty
 
 	#tag Property, Flags = &h0
-		ChunkSize As UInt32 = 32768
+		AutoClose As Boolean = True
 	#tag EndProperty
 
 	#tag Property, Flags = &h0
@@ -196,11 +203,22 @@ Protected Class SFTPTransferQueue
 		Private mStreams As Dictionary
 	#tag EndProperty
 
+	#tag Property, Flags = &h0
+		#tag Note
+			The number of SFTP packets to exchange per transfer in a call to PerformOnce()
+			Packets are SFTP_MAX_PACKET_SIZE(32KB) bytes long.
+		#tag EndNote
+		PacketCount As Integer = 1
+	#tag EndProperty
+
 
 	#tag Constant, Name = DIRECTION_DOWN, Type = Double, Dynamic = False, Default = \"1", Scope = Private
 	#tag EndConstant
 
 	#tag Constant, Name = DIRECTION_UP, Type = Double, Dynamic = False, Default = \"0", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = SFTP_MAX_PACKET_SIZE, Type = Double, Dynamic = False, Default = \"32768", Scope = Private
 	#tag EndConstant
 
 
