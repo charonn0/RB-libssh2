@@ -151,26 +151,31 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Write(text As String)
 		  // Part of the Writeable interface.
-		  ' Waits for the sent data to be ack'd before sending the rest
+		  ' This method writes the text to the stream as part of an upload operation. 
+		  ' The text may be any size that can fit into memory. It is sent as a series
+		  ' of sftp packets, each of which may be up to 32KB long. Since each sftp packet
+		  ' must be individually acknowledged by the server the ideal size of the text
+		  ' parameter is a multiple of the maximum packet size. This minimizes the number
+		  ' of packets, and hence maximizes the throughput of the stream.
 		  
 		  If mDirectory Then Raise New IOException
 		  If text.LenB = 0 Then Return
 		  Dim buffer As MemoryBlock = text
 		  Dim size As Integer = buffer.Size
 		  Do
+		    ' write the next packet, or continue writing a previous
+		    ' packet that hasn't finished
 		    mLastError = libssh2_sftp_write(mStream, buffer, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
+		      ' call libssh2_sftp_write() with the same params.
 		      Continue
 		      
 		    Case Is > 0 ' the amount ack'd
-		      If mLastError = size Then
-		        Exit Do ' done
-		      Else
-		        ' update the size and call libssh2_sftp_write() again
-		        size = size - mLastError
-		        Continue
-		      End If
+		      If mLastError = size Then Exit Do ' done
+		      ' update the size and call libssh2_sftp_write() again
+		      size = size - mLastError
+		      Continue
 		      
 		    Case Is < 0 ' error
 		      Exit Do

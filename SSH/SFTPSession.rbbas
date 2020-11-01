@@ -267,8 +267,9 @@ Protected Class SFTPSession
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns a reference to the Channel over which the SFTPStream is opened.
-			  ' It's generally not useful to interact with this object.
+			  ' Returns a reference to the Channel, which was created internally by libssh2, over
+			  ' which the SFTPSession is opened. This property exists for the sake of completeness,
+			  ' but is not generally needed by users of the binding. 
 			  
 			  If mChannel = Nil And mSFTP <> Nil Then
 			    Dim ch As Ptr = libssh2_sftp_get_channel(mSFTP)
