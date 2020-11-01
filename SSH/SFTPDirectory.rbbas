@@ -25,11 +25,35 @@ Protected Class SFTPDirectory
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function Count() As Integer
+		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  Dim c As Integer
+		  Do
+		    c = c + 1
+		  Loop Until Not thisdir.ReadNextEntry()
+		  Return c
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mStream <> Nil Then Me.Close()
+		  Me.Close()
 		  mStream = Nil
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function OpenFile(Index As Integer) As SSH.SFTPStream
+		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  Do Until thisdir.CurrentIndex = Index
+		    If Not thisdir.ReadNextEntry() Then
+		      mLastError = ERR_INVALID_INDEX
+		      Return Nil
+		    End If
+		  Loop
+		  Return thisdir.OpenFile("")
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -57,6 +81,19 @@ Protected Class SFTPDirectory
 		  End If
 		  
 		  Return mSession.Get(FileName)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function OpenSubdirectory(Index As Integer) As SSH.SFTPDirectory
+		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  Do Until thisdir.CurrentIndex = Index
+		    If Not thisdir.ReadNextEntry() Then
+		      mLastError = ERR_INVALID_INDEX
+		      Return Nil
+		    End If
+		  Loop
+		  Return thisdir.OpenSubdirectory("")
 		End Function
 	#tag EndMethod
 
