@@ -352,6 +352,7 @@ Protected Module SSH
 		    Return New SCPStream(Session, path)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
+		    sftp.WorkingDirectory = "/"
 		    Return sftp.Get(path)
 		  Else
 		    Raise New SSHException(ERR_INVALID_SCHEME)
@@ -983,6 +984,7 @@ Protected Module SSH
 		    Return New SCPStream(Session, path, &o644, Length, 0, 0)
 		  Case "sftp"
 		    Dim sftp As New SFTPSession(Session)
+		    sftp.WorkingDirectory = "/"
 		    Return sftp.Put(path, Overwrite, &o644)
 		  Else
 		    Raise New SSHException(ERR_INVALID_SCHEME)
