@@ -58,6 +58,16 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function GetNetworkStream(Stream As BinaryStream) As SSH.SFTPStream
+		  If mStreams = Nil Then Return Nil
+		  For Each netstream As SFTPStream In mStreams.Keys
+		    If GetUpStream(netstream) Is Stream Then Return SFTPStream(GetDownStream(netstream))
+		    If GetDownStream(netstream) Is Stream Then Return SFTPStream(GetUpStream(netstream))
+		  Next
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function GetUpStream(Stream As SSH.SFTPStream) As Readable
 		  Dim vl As Pair = mStreams.Value(Stream)
 		  If vl.Left = DIRECTION_UP Then ' reader is a local stream
@@ -84,8 +94,26 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function IsDownload(FileStream As BinaryStream) As Boolean
+		  If mStreams = Nil Then Return False
+		  For Each netstream As SFTPStream In mStreams.Keys
+		    Return GetDownStream(netstream) Is FileStream
+		  Next
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function IsDownload(Stream As SSH.SFTPStream) As Boolean
 		  Return (GetUpStream(Stream) Is Stream)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function IsUpload(FileStream As BinaryStream) As Boolean
+		  If mStreams = Nil Then Return False
+		  For Each netstream As SFTPStream In mStreams.Keys
+		    Return GetUpStream(netstream) Is FileStream
+		  Next
 		End Function
 	#tag EndMethod
 
@@ -153,6 +181,12 @@ Protected Class SFTPTransferQueue
 	#tag Method, Flags = &h21
 		Private Sub PerformTimerHandler(Sender As Timer)
 		  If Not PerformOnce() Then Sender.Mode = Timer.ModeOff
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub RemoveTransfer(FileStream As BinaryStream)
+		  RemoveTransfer(GetNetworkStream(FileStream))
 		End Sub
 	#tag EndMethod
 
