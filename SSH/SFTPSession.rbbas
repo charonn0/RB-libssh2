@@ -33,7 +33,9 @@ Protected Class SFTPSession
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  mSFTP = libssh2_sftp_init(mSession.Handle)
+		  Do
+		    mSFTP = libssh2_sftp_init(mSession.Handle)
+		  Loop Until mSession.LastError <> LIBSSH2_ERROR_EAGAIN
 		  If mSFTP = Nil Then Raise New SSHException(mSession)
 		  If PathExists("/home/" + mSession.Username + "/") Then WorkingDirectory = "/home/" + mSession.Username + "/"
 		  
