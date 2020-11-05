@@ -161,11 +161,12 @@ Implements SSHStream
 		  If mDirectory Then Raise New IOException
 		  If text.LenB = 0 Then Return
 		  Dim buffer As MemoryBlock = text
+		  Dim p As Ptr = buffer
 		  Dim size As Integer = buffer.Size
 		  Do
 		    ' write the next packet, or continue writing a previous
 		    ' packet that hasn't finished
-		    mLastError = libssh2_sftp_write(mStream, buffer, size)
+		    mLastError = libssh2_sftp_write(mStream, p, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
 		      ' call libssh2_sftp_write() with the same params.
@@ -175,6 +176,7 @@ Implements SSHStream
 		      If mLastError = size Then Exit Do ' done
 		      ' update the size and call libssh2_sftp_write() again
 		      size = size - mLastError
+		      p = Ptr(Integer(p) + mLastError)
 		      Continue
 		      
 		    Case Is < 0 ' error
