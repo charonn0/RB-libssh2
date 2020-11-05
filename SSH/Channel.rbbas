@@ -395,10 +395,11 @@ Implements SSHStream
 		  ' Waits for the sent data to be ack'd before sending the rest
 		  
 		  Dim buffer As MemoryBlock = text
+		  Dim p As Ptr = buffer
 		  Dim size As Integer = buffer.Size
 		  If size = 0 Then Return
 		  Do
-		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, buffer, size)
+		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, p, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
 		      Continue
@@ -409,6 +410,7 @@ Implements SSHStream
 		      Else
 		        ' update the size and call libssh2_channel_write_ex() again
 		        size = size - mLastError
+		        p = Ptr(Integer(p) + mLastError)
 		        Continue
 		      End If
 		      
