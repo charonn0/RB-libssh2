@@ -46,7 +46,7 @@ For more complex operations you will need to dig into the libssh2 API a bit more
 
 |Object Class|Comment|
 |-----------|-------|
-|[`Session`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session)|A secure connection to the server over which one or more channels can be multiplexed.| 
+|[`Session`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session)|A secure connection to the server over which one or more data streams can be multiplexed.| 
 |[`Channel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel)|A data stream that is multiplexed over a Session.|
 |[`KnownHosts`](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts)|A list of known hosts and their associated key fingerprints.|
 |[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A local key management agent.|
@@ -67,6 +67,13 @@ The general order of operations is something like this:
 1. Interact with the created data streams through their [Read](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Read), [Write](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Write), etc. methods.
 1. When finished with a data stream call its [Close](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Close) method.
 1. After all data streams are finished and closed, call [Session.Close](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Close) to end the connection.
+
+### A note on threading
+In many cases it will be advantageous to run SSH and SFTP operations on background thread, and it's safe to do so with one caveat.
+
+Each instance of `SSH.Session` and all subsequent objects created with it (Channels, SFTP objects, etc.; collectively "the session") are a single resource for threading purposes; they all use the single TCP connection owned by the `SSH.Session` instance, and _that_ is the resource that threads must contend for.
+
+If the session will be accessed from more than one thread then the entire session should be protected by a single synchronization object, such as a `Semaphore` or `CriticalSection`, so that only one thread can access the session at a time. "Access" is pretty much all-inclusive, since even reading the value of a property will in many cases send and receive data on the connection.
 
 ## How to incorporate libssh2 into your Realbasic/Xojo project
 ### Import the SSH module
