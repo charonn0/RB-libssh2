@@ -337,6 +337,8 @@ Protected Class SFTPDirectory
 			Get
 			  If mStream = Nil Then Return SFTPEntryType.Unknown
 			  If mIndex = -1 Then Call ReadNextEntry()
+			  If mIndex = -1 Then Return SFTPEntryType.Unknown
+			  
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
 			    Select Case BitAnd(mCurrentAttribs.Perms, LIBSSH2_SFTP_S_IFMT)
 			    Case LIBSSH2_SFTP_S_IFDIR
