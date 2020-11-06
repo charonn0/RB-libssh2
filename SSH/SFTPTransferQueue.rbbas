@@ -79,10 +79,10 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function HasTransfer(FileStream As BinaryStream) As Boolean
+		Function HasTransfer(Stream As BinaryStream) As Boolean
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
-		    If GetUpStream(netstream) Is FileStream Or GetDownStream(netstream) Is FileStream Then Return True
+		    If GetUpStream(netstream) Is Stream Or GetDownStream(netstream) Is Stream Then Return True
 		  Next
 		End Function
 	#tag EndMethod
@@ -94,10 +94,10 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function IsDownload(FileStream As BinaryStream) As Boolean
+		Function IsDownload(Stream As BinaryStream) As Boolean
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
-		    Return GetDownStream(netstream) Is FileStream
+		    Return GetDownStream(netstream) Is Stream
 		  Next
 		End Function
 	#tag EndMethod
@@ -109,10 +109,10 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function IsUpload(FileStream As BinaryStream) As Boolean
+		Function IsUpload(Stream As BinaryStream) As Boolean
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
-		    Return GetUpStream(netstream) Is FileStream
+		    Return GetUpStream(netstream) Is Stream
 		  Next
 		End Function
 	#tag EndMethod
