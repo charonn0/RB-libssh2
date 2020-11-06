@@ -158,11 +158,35 @@ Implements SSHStream
 		  ' parameter is a multiple of the maximum packet size. This minimizes the number
 		  ' of packets, and hence maximizes the throughput of the stream.
 		  
+		  WriteBuffer(text) ' copy the string data into a MemoryBlock and call WriteBuffer()
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub WriteAttributes()
+		  If mStream = Nil Then Return
+		  If Not IsWriteable Then
+		    ReadAttributes() ' reset values
+		    mLastError = LIBSSH2_FX_PERMISSION_DENIED
+		    Return
+		  End If
+		  
+		  Do
+		    mLastError = libssh2_sftp_fstat_ex(mStream, mAttribs, 1)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub WriteBuffer(Data As MemoryBlock)
+		  ' This method is the same as Write() except it takes a
+		  ' MemoryBlock instead of a String. This allows use to
+		  ' refer to the Data directly instead of copying it.
+		  
 		  If mDirectory Then Raise New IOException
-		  If text.LenB = 0 Then Return
-		  Dim buffer As MemoryBlock = text
-		  Dim p As Ptr = buffer
-		  Dim size As Integer = buffer.Size
+		  Dim p As Ptr = Data
+		  Dim size As Integer = Data.Size
 		  Do
 		    ' write the next packet, or continue writing a previous
 		    ' packet that hasn't finished
@@ -185,22 +209,6 @@ Implements SSHStream
 		  Loop
 		  If mLastError < 0 Then Raise New SSHException(Me)
 		  mLastError = 0
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub WriteAttributes()
-		  If mStream = Nil Then Return
-		  If Not IsWriteable Then
-		    ReadAttributes() ' reset values
-		    mLastError = LIBSSH2_FX_PERMISSION_DENIED
-		    Return
-		  End If
-		  
-		  Do
-		    mLastError = libssh2_sftp_fstat_ex(mStream, mAttribs, 1)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  
 		End Sub
 	#tag EndMethod
 
