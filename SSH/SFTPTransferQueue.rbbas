@@ -185,8 +185,8 @@ Protected Class SFTPTransferQueue
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub RemoveTransfer(FileStream As BinaryStream)
-		  RemoveTransfer(GetNetworkStream(FileStream))
+		Sub RemoveTransfer(Stream As BinaryStream)
+		  RemoveTransfer(GetNetworkStream(Stream))
 		End Sub
 	#tag EndMethod
 
