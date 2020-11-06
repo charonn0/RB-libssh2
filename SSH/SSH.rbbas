@@ -318,8 +318,11 @@ Protected Module SSH
 		  End If
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Dim sh As Channel = OpenChannel(Session)
-		  If Command <> "" Then
-		    If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		  If sh <> Nil Then
+		    sh.DataMode = ExtendedDataMode.Merge
+		    If Command <> "" Then
+		      If Not sh.Execute(Command) Then Raise New SSHException(sh.LastError)
+		    End If
 		  End If
 		  Return sh
 		End Function
