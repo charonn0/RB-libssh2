@@ -62,7 +62,7 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function EOF() As Boolean
+		Function EOF() As Boolean Implements Readable.EOF
 		  Return Super.EOF() Or Position >= Length
 		End Function
 	#tag EndMethod
@@ -82,6 +82,7 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
+		  If mPosition + text.LenB > mLength Then Raise New SSHException(ERR_SCP_LENGTH_EXCEEDED)
 		  Super.Write(text, StreamID)
 		  mPosition = mPosition + text.LenB
 		End Sub

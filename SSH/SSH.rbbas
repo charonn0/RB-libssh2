@@ -293,6 +293,8 @@ Protected Module SSH
 		    Return "ERR_TOO_LATE"
 		  Case ERR_APPEND_ONLY
 		    Return "ERR_APPEND_ONLY"
+		  Case ERR_SCP_LENGTH_EXCEEDED
+		    Return "ERR_SCP_LENGTH_EXCEEDED"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1140,6 +1142,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_RESOLVE, Type = Double, Dynamic = False, Default = \"-103", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_SCP_LENGTH_EXCEEDED, Type = Double, Dynamic = False, Default = \"-514\r", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_SESSION_MISMATCH, Type = Double, Dynamic = False, Default = \"-506", Scope = Protected
