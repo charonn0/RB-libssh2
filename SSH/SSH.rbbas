@@ -960,9 +960,20 @@ Protected Module SSH
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32 = 0, Overwrite As Boolean = False) As SSH.SSHStream
+		Protected Function Put(Optional Session As SSH.Session, URL As String, Overwrite As Boolean = False) As SSH.SSHStream
+		  ' Prepares a file upload over SFTP. Returns a SSHStream that you Write() the upload to.
+		  ' Raises an exception on error. For SCP uploads the length must be known ahead of time,
+		  ' so call Put(Session, URL, Length) instead of this method.
+		  
+		  Return Put(Session, URL, 0, Overwrite)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function Put(Optional Session As SSH.Session, URL As String, Length As UInt32, Overwrite As Boolean = False) As SSH.SSHStream
 		  ' Prepares a file upload over SCP or SFTP. Returns a SSHStream that you
-		  ' Write() the upload to.
+		  ' Write() the upload to. The Length parameter is mandatory for SCP transfers,
+		  ' and ignored for SFTP transfers.
 		  ' Raises an exception on error.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
