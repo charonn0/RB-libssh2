@@ -70,6 +70,11 @@ Inherits SSH.Channel
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  Dim s As MemoryBlock = Super.Read(Count, StreamID, encoding)
+		  If mPosition + s.Size > mLength Then
+		    ' this is a kludge to detect the extra null byte that we always
+		    ' seem to get over SCP. 
+		    s.Size = mLength - mPosition
+		  End If
 		  mPosition = mPosition + s.Size
 		  Return s
 		End Function
