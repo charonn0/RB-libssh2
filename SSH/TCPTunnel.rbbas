@@ -1,5 +1,5 @@
 #tag Class
-Protected Class TCPTunnelClient
+Protected Class TCPTunnel
 Inherits SSH.Channel
 	#tag Event
 		Sub DataAvailable(ExtendedStream As Boolean)
@@ -32,6 +32,11 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h1000
 		Function Connect() As Boolean
+		  ' Initiates an outbound TCP connection to RemoteAddress:RemotePort via the SSH server.
+		  ' If the connection was successful the Connected() event will be raised and this
+		  ' method returns True. Otherwise, the Error() event will be raised.
+		  ' Once connected you may read and write to the tunnel like any other Channel.
+		  
 		  If IsOpen Then Return True
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  
@@ -51,6 +56,8 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h1000
 		Sub Constructor(Session As SSH.Session)
+		  ' Construct a new unconnected tunnel.
+		  ' The Session need not yet be connected or authenticated.
 		  mSession = Session
 		End Sub
 	#tag EndMethod
@@ -96,7 +103,7 @@ Inherits SSH.Channel
 		
 		For example, this forwards an HTTP request through the SSH server to google.com:
 		
-		  Dim tunnel As New SSH.TCPTunnelClient(Session)
+		  Dim tunnel As New SSH.TCPTunnel(Session)
 		  tunnel.RemoteAddress = "www.google.com"
 		  tunnel.RemotePort = 80
 		  If Not tunnel.Connect() Then
@@ -122,9 +129,10 @@ Inherits SSH.Channel
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Note
-			The local NetworkInterface that is initiating the outbound connection.
-			If this property is not set to a custom value then Session.NetworkInterface 
-			is used.
+			The local NetworkInterface that is initiating the outbound connection. 
+			If this property is not set to a custom value then Session.NetworkInterface
+			is used. The LocalInterface need not refer to the same interface that the 
+			SSH session is using.
 		#tag EndNote
 		#tag Getter
 			Get
@@ -182,7 +190,8 @@ Inherits SSH.Channel
 	#tag ComputedProperty, Flags = &h0
 		#tag Note
 			The hostname or IP address of the third-party server we want the SSH server
-			to open a connection to.
+			to open a connection to. If a hostname is provided the SSH server will 
+			resolve it to an IP according to its own DNS configuration.
 		#tag EndNote
 		#tag Getter
 			Get
@@ -199,7 +208,6 @@ Inherits SSH.Channel
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Note
-			
 			The port number on the third-party server we want the SSH server to open a connection to.
 		#tag EndNote
 		#tag Getter
@@ -256,10 +264,9 @@ Inherits SSH.Channel
 			InheritedFrom="Object"
 		#tag EndViewProperty
 		#tag ViewProperty
-			Name="RemoteInteface"
+			Name="RemoteAddress"
 			Group="Behavior"
 			Type="String"
-			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="RemotePort"
