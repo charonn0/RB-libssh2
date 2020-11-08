@@ -12,15 +12,15 @@ Protected Class TCPListener
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
+		  ' Creates a listener for inbound TCP connections to the SSH server.
+		  
 		  mSession = Session
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub Poll(Timeout As Integer = 1000)
-		  ' Polls all streams and returns True if any of them signal readiness. A bitmask of
-		  ' LIBSSH2_POLLFD_* constants is stored in Channel.LastError indicating which stream(s)
-		  ' are ready.
+		  ' Polls the listener and raises the appropriate events if there is activity.
 		  
 		  If Not IsListening Then Return
 		  Dim pollfd As LIBSSH2_POLLFD
@@ -56,6 +56,12 @@ Protected Class TCPListener
 
 	#tag Method, Flags = &h0
 		Sub StartListening()
+		  ' Instruct the server to begin accepting TCP connections on the network interface(s)
+		  ' indicated by RemoteInterface and the port number indicated by RemotePort.
+		  ' If RemoteInterface="" then the server will listen on all of its local interfaced.
+		  ' If RemotePort<=0 Then the server will select a random ephemeral port to listen on,
+		  ' and the RemotePort will be updated accordingly.
+		  
 		  If mListener <> Nil Then Return
 		  Do Until mListener <> Nil
 		    If RemoteInterface = "" Then
@@ -71,6 +77,10 @@ Protected Class TCPListener
 
 	#tag Method, Flags = &h0
 		Sub StopListening()
+		  ' Instruct the server to stop accepting TCP connections. Existing connections will
+		  ' continue to exist until they are explicitly closed. Pending connections will be
+		  ' dropped.
+		  
 		  If mListener <> Nil Then
 		    Do
 		      mLastError = libssh2_channel_forward_cancel(mListener)
