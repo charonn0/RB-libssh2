@@ -449,6 +449,18 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_forward_accept Lib libssh2 (Listener As Ptr) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_forward_cancel Lib libssh2 (Listener As Ptr) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_channel_forward_listen_ex Lib libssh2 (Session As Ptr, RemoteHost As CString, RemotePort As Integer, ByRef BoundPort As Integer, MaxQueued As Integer) As Ptr
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_channel_free Lib libssh2 (Channel As Ptr) As Int32
 	#tag EndExternalMethod
 
