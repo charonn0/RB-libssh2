@@ -22,7 +22,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
 * Known host key verification
 * Download and upload using SFTP or SCP.
 * Execute commands on the server and read the results.
-* TCP forwarding and tunneling<sup>1</sup>
+* TCP forwarding and tunneling
 * [Stream-oriented](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream), using Xojo's built-in [Readable](http://docs.xojo.com/index.php/Readable) and [Writeable](http://docs.xojo.com/index.php/Writeable) interfaces. 
 * A consistent, high-level API over the full range of libssh2's features.
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
@@ -55,6 +55,8 @@ For more complex operations you will need to dig into the libssh2 API a bit more
 |[`SFTPDirectory`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory)|A SFTP directory listing that is performed over a SFTPSession.|
 |[`SCPStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SCPStream)|A SCP upload or download that is multiplexed over a Session.|
 |[`SSHStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream)|An interface which aggregates the Readable and Writeable interfaces, representing a channel or other stream.|
+|[`TCPListener`](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener)|A listener for accepting forwarded TCP connections from the server.|
+|[`TCPTunnel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel)|A Channel over which a TCP connection is forwarded.|
 
 The general order of operations is something like this:
 
