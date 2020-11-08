@@ -821,6 +821,23 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mSocket <> Nil Then
+			    If mSocket.NetworkInterface <> Nil Then Return mSocket.NetworkInterface
+			    If IsConnected Then
+			      For i As Integer = 0 To System.NetworkInterfaceCount - 1
+			        Dim net As NetworkInterface = System.GetNetworkInterface(i)
+			        If net.IPAddress = mSocket.LocalAddress Then Return net
+			      Next
+			    End If
+			  End If
+			End Get
+		#tag EndGetter
+		NetworkInterface As NetworkInterface
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  If mSocket <> Nil Then Return mSocket.RemoteAddress
 			End Get
 		#tag EndGetter
