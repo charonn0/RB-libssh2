@@ -99,7 +99,7 @@ Inherits SSH.Channel
 
 
 	#tag Note, Name = About this class
-		This class is for intitiating an outbound connection from the client to a third party, using the SSH server as an intermediary.
+		This class is for initiating an outbound connection from the client to a third party, using the SSH server as an intermediary.
 		
 		For example, this forwards an HTTP request through the SSH server to google.com:
 		

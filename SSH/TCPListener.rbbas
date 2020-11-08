@@ -104,7 +104,8 @@ Protected Class TCPListener
 		This class instructs the SSH server to begin listening for inbound TCP connections
 		of the RemoteInterface and RemotePort. If RemoteInterface is the empty string then
 		the server will listen on all local interfaces. If RemotePort is zero then the 
-		server will select a random port which you can determine by
+		server will select a random port which you can determine by reading the RemotePort
+		after StartListening() finishes successfully.
 	#tag EndNote
 
 
