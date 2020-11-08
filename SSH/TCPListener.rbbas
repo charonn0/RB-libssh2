@@ -90,6 +90,15 @@ Protected Class TCPListener
 	#tag EndHook
 
 
+	#tag Note, Name = About this class
+		This class instructs the SSH server to begin listening for inbound TCP connections
+		of the RemoteInterface and RemotePort. If RemoteInterface is the empty string then
+		the server will listen on all local interfaces. If RemotePort is zero then the 
+		server will select a random port which you can determine by 
+		
+	#tag EndNote
+
+
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
