@@ -37,6 +37,12 @@ Protected Class SFTPDirectory
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
+		Private Function CurrentHasAttribute(AttributeID As Int32) As Boolean
+		  Return Mask(mCurrentAttribs.Flags, AttributeID)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  Me.Close()
 		  mStream = Nil
@@ -206,7 +212,7 @@ Protected Class SFTPDirectory
 			Get
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
-			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
+			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then
 			    Return time_t(mCurrentAttribs.ATime)
 			  End If
 			End Get
@@ -242,7 +248,7 @@ Protected Class SFTPDirectory
 			Get
 			  If mIndex = -1 And Not ReadNextEntry() Then Return 0
 			  If CurrentType = SFTPEntryType.Directory Then Return 0
-			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) = LIBSSH2_SFTP_ATTR_SIZE Then
+			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then
 			    Return mCurrentAttribs.FileSize
 			  End If
 			End Get
@@ -267,7 +273,7 @@ Protected Class SFTPDirectory
 			Get
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
-			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
+			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then
 			    Return New Permissions(mCurrentAttribs.Perms)
 			  End If
 			End Get
@@ -292,7 +298,7 @@ Protected Class SFTPDirectory
 			Get
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
-			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
+			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then
 			    Return time_t(mCurrentAttribs.MTime)
 			  End If
 			End Get
@@ -339,7 +345,7 @@ Protected Class SFTPDirectory
 			  If mIndex = -1 Then Call ReadNextEntry()
 			  If mIndex = -1 Then Return SFTPEntryType.Unknown
 			  
-			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
+			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then
 			    Select Case BitAnd(mCurrentAttribs.Perms, LIBSSH2_SFTP_S_IFMT)
 			    Case LIBSSH2_SFTP_S_IFDIR
 			      Return SFTPEntryType.Directory

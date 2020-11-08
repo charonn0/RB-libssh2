@@ -5,7 +5,7 @@ Implements ChannelParent
 		Function BlockInbound() As Boolean
 		  ' Returns True if reading from the the session (via Channel, SFTPStream, etc.) would block
 		  
-		  Return BitAnd(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_INBOUND) = LIBSSH2_SESSION_BLOCK_INBOUND
+		  Return Mask(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_INBOUND)
 		End Function
 	#tag EndMethod
 
@@ -13,7 +13,7 @@ Implements ChannelParent
 		Function BlockOutbound() As Boolean
 		  ' Returns True if writing to the the session (via Channel, SFTPStream, etc.) would block
 		  
-		  Return BitAnd(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_OUTBOUND) = LIBSSH2_SESSION_BLOCK_OUTBOUND
+		  Return Mask(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_OUTBOUND)
 		End Function
 	#tag EndMethod
 
@@ -351,9 +351,9 @@ Implements ChannelParent
 		  End If
 		  mLastError = pollfd.REvents
 		  Select Case True
-		  Case BitAnd(mLastError, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN, _
-		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLOUT) = LIBSSH2_POLLFD_POLLOUT, _
-		    BitAnd(mLastError, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
+		  Case Mask(mLastError, LIBSSH2_POLLFD_POLLIN), _
+		    Mask(mLastError, LIBSSH2_POLLFD_POLLOUT), _
+		    Mask(mLastError, LIBSSH2_POLLFD_POLLEXT)
 		    Return True
 		  End Select
 		End Function

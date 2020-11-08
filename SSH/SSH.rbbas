@@ -823,6 +823,12 @@ Protected Module SSH
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Function Mask(Bits As Integer, Masking As Integer) As Boolean
+		  Return BitAnd(Bits, Masking) = Masking
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h1
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", Message As String = "") As SSH.Channel
 		  ' Opens a new SSH.Channel over the specified SSH.Session.

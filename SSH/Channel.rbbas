@@ -215,14 +215,14 @@ Implements SSHStream
 		  mLastError = pollfd.REvents
 		  
 		  Dim canRead, canWrite, canReadErr, pollErr, hupErr, closedErr, invalErr, exErr As Boolean
-		  canRead = BitAnd(mLastError, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN
-		  canWrite = BitAnd(mLastError, LIBSSH2_POLLFD_POLLOUT) = LIBSSH2_POLLFD_POLLOUT
-		  canReadErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLEXT) = LIBSSH2_POLLFD_POLLEXT
-		  pollErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLERR) = LIBSSH2_POLLFD_POLLERR
-		  hupErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLHUP) = LIBSSH2_POLLFD_POLLHUP
-		  closedErr = BitAnd(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) = LIBSSH2_POLLFD_SESSION_CLOSED Or BitAnd(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED) = LIBSSH2_POLLFD_CHANNEL_CLOSED
-		  invalErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLNVAL) = LIBSSH2_POLLFD_POLLNVAL
-		  exErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLEX) = LIBSSH2_POLLFD_POLLEX
+		  canRead = Mask(mLastError, LIBSSH2_POLLFD_POLLIN)
+		  canWrite = Mask(mLastError, LIBSSH2_POLLFD_POLLOUT)
+		  canReadErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEXT)
+		  pollErr = Mask(mLastError, LIBSSH2_POLLFD_POLLERR)
+		  hupErr = Mask(mLastError, LIBSSH2_POLLFD_POLLHUP)
+		  closedErr = Mask(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) Or Mask(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED)
+		  invalErr = Mask(mLastError, LIBSSH2_POLLFD_POLLNVAL)
+		  exErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEX)
 		  
 		  If canRead Then RaiseEvent DataAvailable(False)
 		  If canReadErr Then RaiseEvent DataAvailable(True)
