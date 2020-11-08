@@ -35,10 +35,10 @@ Implements SSHStream
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  mAppendOnly = (BitAnd(Flags, LIBSSH2_FXF_APPEND) = LIBSSH2_FXF_APPEND)
-		  mIsWriteable = (BitAnd(Flags, LIBSSH2_FXF_WRITE) = LIBSSH2_FXF_WRITE)
+		  mAppendOnly = Mask(Flags, LIBSSH2_FXF_APPEND)
+		  mIsWriteable = Mask(Flags, LIBSSH2_FXF_WRITE)
 		  If mAppendOnly Then mIsWriteable = True
-		  mIsReadable = (BitAnd(Flags, LIBSSH2_FXF_READ) = LIBSSH2_FXF_READ)
+		  mIsReadable = Mask(Flags, LIBSSH2_FXF_READ)
 		  Call ReadAttributes()
 		End Sub
 	#tag EndMethod
@@ -81,7 +81,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h21
 		Private Function HasAttribute(AttributeID As Int32) As Boolean
-		  Return BitAnd(mAttribs.Flags, AttributeID) = AttributeID
+		  Return Mask(mAttribs.Flags, AttributeID)
 		End Function
 	#tag EndMethod
 
@@ -394,12 +394,8 @@ Implements SSHStream
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
 			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_SIZE) <> LIBSSH2_SFTP_ATTR_SIZE Then Return ' atime not settable
-			  
-			  If BitAnd(attribs.Flags, LIBSSH2_SFTP_ATTR_ACMODTIME) = LIBSSH2_SFTP_ATTR_ACMODTIME Then
-			    attribs.MTime = time_t(value)
-			  End If
-			  
+			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' atime not settable
+			  attribs.MTime = time_t(value)
 			  
 			  Do
 			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 1)
