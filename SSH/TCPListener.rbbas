@@ -34,13 +34,13 @@ Protected Class TCPListener
 		  mLastError = pollfd.REvents
 		  
 		  Dim canRead, canWrite, pollErr, hupErr, closedErr, invalErr, exErr As Boolean
-		  canRead = BitAnd(mLastError, LIBSSH2_POLLFD_POLLIN) = LIBSSH2_POLLFD_POLLIN
-		  canWrite = BitAnd(mLastError, LIBSSH2_POLLFD_POLLOUT) = LIBSSH2_POLLFD_POLLOUT
-		  pollErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLERR) = LIBSSH2_POLLFD_POLLERR
-		  hupErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLHUP) = LIBSSH2_POLLFD_POLLHUP
-		  closedErr = BitAnd(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) = LIBSSH2_POLLFD_SESSION_CLOSED Or BitAnd(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED) = LIBSSH2_POLLFD_CHANNEL_CLOSED
-		  invalErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLNVAL) = LIBSSH2_POLLFD_POLLNVAL
-		  exErr = BitAnd(mLastError, LIBSSH2_POLLFD_POLLEX) = LIBSSH2_POLLFD_POLLEX
+		  canRead = Mask(mLastError, LIBSSH2_POLLFD_POLLIN)
+		  canWrite = Mask(mLastError, LIBSSH2_POLLFD_POLLOUT)
+		  pollErr = Mask(mLastError, LIBSSH2_POLLFD_POLLERR)
+		  hupErr = Mask(mLastError, LIBSSH2_POLLFD_POLLHUP)
+		  closedErr = Mask(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) Or Mask(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED)
+		  invalErr = Mask(mLastError, LIBSSH2_POLLFD_POLLNVAL)
+		  exErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEX)
 		  
 		  If canRead Then RaiseEvent ConnectionReceived(AcceptNextConnection)
 		  If pollErr Or hupErr Or invalErr Or exErr Then
@@ -94,8 +94,7 @@ Protected Class TCPListener
 		This class instructs the SSH server to begin listening for inbound TCP connections
 		of the RemoteInterface and RemotePort. If RemoteInterface is the empty string then
 		the server will listen on all local interfaces. If RemotePort is zero then the 
-		server will select a random port which you can determine by 
-		
+		server will select a random port which you can determine by
 	#tag EndNote
 
 
