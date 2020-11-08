@@ -166,7 +166,10 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetActualAlgorithm(Type As SSH.AlgorithmType) As String
-		  Dim item As CString = libssh2_session_methods(mSession, Int32(Type))
+		  ' Once connected to a server, this method returns the negotiated algorithm
+		  ' for the specified AlgorithmType.
+		  
+		  Dim item As CString = libssh2_session_methods(mSession, Type)
 		  Return item
 		  
 		End Function
@@ -185,9 +188,13 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetAvailableAlgorithms(Type As SSH.AlgorithmType) As String()
+		  ' Returns an array of available algorithms for the specified AlgorithmType.
+		  
 		  Dim ret() As String
+		  If mSession = Nil Then Return ret
+		  
 		  Dim lst As Ptr
-		  mLastError = libssh2_session_supported_algs(mSession, Int32(Type), lst)
+		  mLastError = libssh2_session_supported_algs(mSession, Type, lst)
 		  If mLastError >= 0 Then ' err is the number of algs
 		    Try
 		      Dim item As MemoryBlock = lst.Ptr(0)
@@ -221,12 +228,6 @@ Implements ChannelParent
 		Function GetRemoteBanner() As String
 		  Dim mb As MemoryBlock = libssh2_session_banner_get(mSession)
 		  If mb <> Nil Then Return mb.CString(0)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mSession
 		End Function
 	#tag EndMethod
 
@@ -373,7 +374,10 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -390,7 +394,10 @@ Implements ChannelParent
 		      mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, Nil, PrivateKey.AbsolutePath_, PrivateKeyPassword)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -407,7 +414,10 @@ Implements ChannelParent
 		      mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, Nil, 0, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -433,6 +443,8 @@ Implements ChannelParent
 		  Finally
 		    If cleanup Then Agent.Disconnect()
 		  End Try
+		  
+		  If ok Then mUsername = Username
 		  Return ok
 		End Function
 	#tag EndMethod
@@ -444,7 +456,10 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  Return mLastError = 0
+		  If mLastError = 0 Then
+		    mUsername = Username
+		    Return True
+		  End If
 		End Function
 	#tag EndMethod
 
@@ -567,10 +582,15 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub SetPreferredAlgorithms(Type As SSH.AlgorithmType, Preferred() As String)
-		  ' Cannot be called after Session.Connect succeeds.
+		  ' Prior to calling Session.Connect(), you may use this method to specify a list of
+		  ' acceptable algorithms for the specified AlgorithmType.
 		  
+		  If IsConnected Then
+		    mLastError = ERR_TOO_LATE
+		    Return
+		  End If
 		  Dim lst As MemoryBlock = Join(Preferred, ",") + Chr(0)
-		  mLastError = libssh2_session_method_pref(mSession, Int32(Type), lst)
+		  mLastError = libssh2_session_method_pref(mSession, Type, lst)
 		End Sub
 	#tag EndMethod
 
@@ -653,6 +673,15 @@ Implements ChannelParent
 			End Get
 		#tag EndGetter
 		Descriptor As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mSession
+			End Get
+		#tag EndGetter
+		Handle As Ptr
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -782,6 +811,10 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mUsername As String
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mVerbose As Boolean
 	#tag EndProperty
 
@@ -840,6 +873,15 @@ Implements ChannelParent
 			End Set
 		#tag EndSetter
 		UseCompression As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mUsername
+			End Get
+		#tag EndGetter
+		Username As String
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

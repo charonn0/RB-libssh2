@@ -22,19 +22,14 @@ Implements SSHStream
 		  ' ChannelPtr must refer to a valid channel opened over the specified Session.
 		  
 		  mSession = Session
-		  If Not mSession.IsAuthenticated Then
-		    mLastError = ERR_NOT_AUTHENTICATED
-		    Raise New SSHException(Me)
-		  End If
-		  
 		  mChannel = ChannelPtr
-		  mOpen = True
+		  mOpen = (ChannelPtr <> Nil)
 		  ChannelParent(Session).RegisterChannel(Me)
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer) As SSH.Channel
+		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt64, ModTime As Integer, AccessTime As Integer) As SSH.Channel
 		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to the returned
 		  ' Channel object. Make sure to call Channel.Close() when finished.
 		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
@@ -44,7 +39,7 @@ Implements SSHStream
 		  
 		  Dim c As Ptr
 		  Do
-		    c = libssh2_scp_send_ex(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    c = libssh2_scp_send64(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
 		      Dim e As Integer = Session.GetLastError
 		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
@@ -152,12 +147,6 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mChannel
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Attributes( deprecated = "SSH.OpenChannel" )  Shared Function Open(Session As SSH.Session) As SSH.Channel
 		  ' Creates a new channel over the Session of type "session". This is the most commonly used channel type.
 		  
@@ -174,6 +163,7 @@ Implements SSHStream
 		  ' PacketSize is the maximum number of bytes remote host is allowed to send in a single packet.
 		  ' Message contains additional data as required by the selected channel Type.
 		  
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Dim typ As MemoryBlock = Type + Chr(0)
 		  Dim msg As MemoryBlock = Message + Chr(0)
 		  Do
@@ -405,10 +395,11 @@ Implements SSHStream
 		  ' Waits for the sent data to be ack'd before sending the rest
 		  
 		  Dim buffer As MemoryBlock = text
+		  Dim p As Ptr = buffer
 		  Dim size As Integer = buffer.Size
 		  If size = 0 Then Return
 		  Do
-		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, buffer, size)
+		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, p, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
 		      Continue
@@ -419,6 +410,7 @@ Implements SSHStream
 		      Else
 		        ' update the size and call libssh2_channel_write_ex() again
 		        size = size - mLastError
+		        p = Ptr(Integer(p) + mLastError)
 		        Continue
 		      End If
 		      
@@ -455,6 +447,24 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  Return BytesReadable
+			End Get
+		#tag EndGetter
+		Attributes( deprecated = "SSH.Channel.BytesReadable" ) BytesAvailable As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return BytesWriteable
+			End Get
+		#tag EndGetter
+		Attributes( deprecated = "SSH.Channel.BytesWriteable" ) BytesLeft As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  ' Returns the number of bytes actually available to be read.
 			  
 			  Dim avail, initial As UInt32
@@ -462,19 +472,7 @@ Implements SSHStream
 			  Return avail
 			End Get
 		#tag EndGetter
-		BytesAvailable As UInt32
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  ' Returns the number of bytes which the remote end may send without overflowing the window.
-			  
-			  Dim avail, initial As UInt32
-			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
-			End Get
-		#tag EndGetter
-		BytesLeft As UInt32
+		BytesReadable As UInt32
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -506,7 +504,7 @@ Implements SSHStream
 			  If mLastError < 0 Then Raise New SSHException(Me)
 			End Set
 		#tag EndSetter
-		DataMode As SSH.Channel.ExtendedDataMode
+		DataMode As SSH.ExtendedDataMode
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -521,6 +519,15 @@ Implements SSHStream
 			End Get
 		#tag EndGetter
 		ExitStatus As Integer
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mChannel
+			End Get
+		#tag EndGetter
+		Handle As Ptr
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -548,7 +555,7 @@ Implements SSHStream
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mDataMode As ExtendedDataMode
+		Private mDataMode As SSH.ExtendedDataMode
 	#tag EndProperty
 
 	#tag Property, Flags = &h1
@@ -583,6 +590,18 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the number of bytes which the remote end may send without overflowing the window.
+			  
+			  Dim avail, initial As UInt32
+			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
+			End Get
+		#tag EndGetter
+		RemoteBytesWriteable As UInt32
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  return mSession
 			End Get
 		#tag EndGetter
@@ -601,13 +620,6 @@ Implements SSHStream
 		#tag EndGetter
 		WriteWindow As UInt32
 	#tag EndComputedProperty
-
-
-	#tag Enum, Name = ExtendedDataMode, Type = Integer, Flags = &h0
-		Normal
-		  Ignore
-		Merge
-	#tag EndEnum
 
 
 	#tag ViewBehavior

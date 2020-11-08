@@ -7,8 +7,8 @@ Protected Class SFTPDirectory
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
+	#tag Method, Flags = &h1
+		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
 		  mSession = Session
 		  If Not mSession.Session.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
@@ -25,11 +25,35 @@ Protected Class SFTPDirectory
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function Count() As Integer
+		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  Dim c As Integer
+		  Do
+		    c = c + 1
+		  Loop Until Not thisdir.ReadNextEntry()
+		  Return c
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mStream <> Nil Then Me.Close()
+		  Me.Close()
 		  mStream = Nil
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function OpenFile(Index As Integer) As SSH.SFTPStream
+		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  Do Until thisdir.CurrentIndex = Index
+		    If Not thisdir.ReadNextEntry() Then
+		      mLastError = ERR_INVALID_INDEX
+		      Return Nil
+		    End If
+		  Loop
+		  Return thisdir.OpenFile("")
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -56,7 +80,20 @@ Protected Class SFTPDirectory
 		    FileName = mSession.ReadSymbolicLink(FileName, True)
 		  End If
 		  
-		  Return New SFTPStreamPtr(mSession, FileName, LIBSSH2_FXF_READ, 0, False)
+		  Return mSession.Get(FileName)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function OpenSubdirectory(Index As Integer) As SSH.SFTPDirectory
+		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  Do Until thisdir.CurrentIndex = Index
+		    If Not thisdir.ReadNextEntry() Then
+		      mLastError = ERR_INVALID_INDEX
+		      Return Nil
+		    End If
+		  Loop
+		  Return thisdir.OpenSubdirectory("")
 		End Function
 	#tag EndMethod
 
@@ -84,32 +121,13 @@ Protected Class SFTPDirectory
 		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
 		  End If
 		  
-		  Dim subdir As New SFTPDirectory(mSession, DirectoryName)
+		  Dim subdir As SFTPDirectory = mSession.ListDirectory(DirectoryName)
 		  subdir.SuppressVirtualEntries = SuppressVirtualEntries
 		  Return subdir
 		  
 		Exception err As SSHException
 		  mLastError = err.ErrorNumber
 		  If mLastError = 0 Then mLastError = mSession.LastStatusCode()
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function Parent() As SSH.SFTPDirectory
-		  If mName = "/" Or mName = "" Then
-		    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
-		    Return Nil
-		  End If
-		  Dim nm() As String = Split(mName, "/")
-		  For i As Integer = UBound(nm) DownTo 0
-		    If nm(i).Trim = "" Then nm.Remove(i)
-		  Next
-		  If UBound(nm) = -1 Then
-		    mLastError = SSH.LIBSSH2_FX_INVALID_FILENAME
-		    Return Nil
-		  End If
-		  nm.Remove(nm.Ubound)
-		  Return New SFTPDirectory(mSession, "/" + Join(nm, "/") + "/")
 		End Function
 	#tag EndMethod
 
@@ -211,6 +229,8 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  If mStream = Nil Then Return -1
+			  If mIndex = -1 Then Call ReadNextEntry()
 			  return mIndex
 			End Get
 		#tag EndGetter
@@ -316,7 +336,9 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  If mStream = Nil Then Return SFTPEntryType.Unknown
-			  If mIndex = -1 And Not ReadNextEntry() Then Return SFTPEntryType.Unknown
+			  If mIndex = -1 Then Call ReadNextEntry()
+			  If mIndex = -1 Then Return SFTPEntryType.Unknown
+			  
 			  If BitAnd(mCurrentAttribs.Flags, LIBSSH2_SFTP_ATTR_PERMISSIONS) = LIBSSH2_SFTP_ATTR_PERMISSIONS Then
 			    Select Case BitAnd(mCurrentAttribs.Perms, LIBSSH2_SFTP_S_IFMT)
 			    Case LIBSSH2_SFTP_S_IFDIR
@@ -334,7 +356,11 @@ Protected Class SFTPDirectory
 			    Case LIBSSH2_SFTP_S_IFSOCK
 			      Return SFTPEntryType.Socket
 			    Else
-			      Return SFTPEntryType.File
+			      If Right(FullPath, 1) = "/" Then ' probably a directory
+			        Return SFTPEntryType.Directory
+			      Else
+			        Return SFTPEntryType.File ' some kind of filesystem object
+			      End If
 			    End Select
 			  End If
 			End Get
@@ -473,6 +499,33 @@ Protected Class SFTPDirectory
 			End Set
 		#tag EndSetter
 		Name As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mName = "/" Or mName = "" Then
+			    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
+			    Return Nil
+			  End If
+			  Dim nm() As String = Split(mName, "/")
+			  For i As Integer = UBound(nm) DownTo 0
+			    If nm(i).Trim = "" Then nm.Remove(i)
+			  Next
+			  If UBound(nm) = -1 Then
+			    mLastError = LIBSSH2_FX_INVALID_FILENAME
+			    Return Nil
+			  End If
+			  nm.Remove(nm.Ubound)
+			  Return mSession.ListDirectory("/" + Join(nm, "/") + "/")
+			End Get
+		#tag EndGetter
+		#tag Setter
+			Set
+			  Me.FullPath = value.FullPath + Me.Name
+			End Set
+		#tag EndSetter
+		Parent As SSH.SFTPDirectory
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

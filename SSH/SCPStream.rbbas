@@ -33,7 +33,7 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h1000
-		Sub Constructor(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt32, ModTime As Integer, AccessTime As Integer)
+		Sub Constructor(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt64, ModTime As Integer, AccessTime As Integer)
 		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to
 		  ' this object. Make sure to call Channel.Close() when finished.
 		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
@@ -44,7 +44,7 @@ Inherits SSH.Channel
 		  mSession = Session
 		  Dim c As Ptr
 		  Do
-		    c = libssh2_scp_send_ex(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    c = libssh2_scp_send64(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
 		    If c = Nil Then
 		      mLastError = mSession.GetLastError
 		      If mLastError = LIBSSH2_ERROR_EAGAIN Then Continue
@@ -62,7 +62,7 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function EOF() As Boolean
+		Function EOF() As Boolean Implements Readable.EOF
 		  Return Super.EOF() Or Position >= Length
 		End Function
 	#tag EndMethod
@@ -70,6 +70,11 @@ Inherits SSH.Channel
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  Dim s As MemoryBlock = Super.Read(Count, StreamID, encoding)
+		  If mPosition + s.Size > mLength Then
+		    ' this is a kludge to detect the extra null byte that we always
+		    ' seem to get over SCP. 
+		    s.Size = mLength - mPosition
+		  End If
 		  mPosition = mPosition + s.Size
 		  Return s
 		End Function
@@ -77,6 +82,7 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
+		  If mPosition + text.LenB > mLength Then Raise New SSHException(ERR_SCP_LENGTH_EXCEEDED)
 		  Super.Write(text, StreamID)
 		  mPosition = mPosition + text.LenB
 		End Sub

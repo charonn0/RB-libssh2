@@ -5,17 +5,17 @@ Protected Class Agent
 		  ' Authenticate the current Session with the specified Username
 		  ' using the key at KeyIndex in the Agent's list of keys.
 		  
-		  Dim identity As Ptr = GetIdentity(KeyIndex)
+		  Dim identity As Ptr = GetIdentityPtr(KeyIndex)
 		  mLastError = libssh2_agent_userauth(mAgent, Username, identity)
 		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Comment(Index As Integer) As String
+		Attributes( deprecated = "SSH.Agent.GetIdentity" )  Function Comment(Index As Integer) As String
 		  ' Returns the comment (if any) for the key at Index in the Agent's list of keys.
 		  
-		  Dim struct As libssh2_agent_publickey = Me.GetIdentity(Index).libssh2_agent_publickey
+		  Dim struct As libssh2_agent_publickey = Me.GetIdentityPtr(Index).libssh2_agent_publickey
 		  Dim mb As MemoryBlock = struct.Comment
 		  If mb <> Nil Then Return mb.CString(0)
 		End Function
@@ -89,8 +89,15 @@ Protected Class Agent
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function GetIdentity(Index As Integer) As SSH.AgentKey
+		  Dim struct As Ptr = GetIdentityPtr(Index)
+		  If struct <> Nil Then Return New AgentKeyPtr(Me, struct, Index)
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h1
-		Protected Function GetIdentity(Index As Integer) As Ptr
+		Protected Function GetIdentityPtr(Index As Integer) As Ptr
 		  ' Returns a Ptr to the libssh2_agent_publickey structure at Index.
 		  
 		  Dim prev As Ptr
@@ -109,16 +116,10 @@ Protected Class Agent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Handle() As Ptr
-		  Return mAgent
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function PublicKey(Index As Integer) As MemoryBlock
+		Attributes( deprecated = "SSH.Agent.GetIdentity" )  Function PublicKey(Index As Integer) As MemoryBlock
 		  ' Returns a copy of the PublicKey at Index in the Agent's list of keys.
 		  
-		  Dim struct As libssh2_agent_publickey = Me.GetIdentity(Index).libssh2_agent_publickey
+		  Dim struct As libssh2_agent_publickey = Me.GetIdentityPtr(Index).libssh2_agent_publickey
 		  Dim mb As MemoryBlock = struct.Blob
 		  Return mb.StringValue(0, struct.BlobLength)
 		End Function
@@ -133,6 +134,15 @@ Protected Class Agent
 		End Function
 	#tag EndMethod
 
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mAgent
+			End Get
+		#tag EndGetter
+		Handle As Ptr
+	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
