@@ -51,7 +51,7 @@ Implements SSHStream
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		 Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
+		Attributes( deprecated = "SSH.TCPTunnel.Connect" )  Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
 		  ' Creates a new channel over the Session which tunnels a TCP/IP connection via the remote host to a third party.
 		  ' Communication from the client to the SSH server remains encrypted, communication from the
 		  ' server to the 3rd party host travels in cleartext.
