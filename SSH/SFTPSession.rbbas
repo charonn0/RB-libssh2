@@ -380,9 +380,8 @@ Protected Class SFTPSession
 			  If value.Trim = ".." Then
 			    If mWorkingDirectory = "/" Then Return ' meh
 			    If p(UBound(p)) = "" Then Call p.Pop()
-			    Call p.Pop
-			    mWorkingDirectory = NormalizePath(Join(p, "/"), True, False)
-			    Return
+			    Call p.Pop()
+			    value = NormalizePath(Join(p, "/"), True, False)
 			  End If
 			  
 			  Dim d As SFTPDirectory
