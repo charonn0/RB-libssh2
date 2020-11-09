@@ -440,18 +440,13 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Modifies the last access time attribute, if the stream is writeable.
+			  
 			  If mStream = Nil Then Return
-			  Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 0)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-			  
-			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' atime not settable
-			  attribs.MTime = time_t(value)
-			  
-			  Do
-			    mLastError = libssh2_sftp_fstat_ex(mStream, attribs, 1)
-			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+			  Call ReadAttributes() ' refresh
+			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' mtime not settable
+			  mAttribs.MTime = time_t(value)
+			  Call WriteAttributes()
 			End Set
 		#tag EndSetter
 		ModifyTime As Date
