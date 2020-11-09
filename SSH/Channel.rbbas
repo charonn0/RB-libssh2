@@ -288,6 +288,8 @@ Implements SSHStream
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  ' Attempts to read up to the specified number of bytes from the specified StreamID.
 		  
+		  If BytesReadable = 0 Then Return ""
+		  
 		  Dim buffer As New MemoryBlock(Count)
 		  Do
 		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
