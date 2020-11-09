@@ -72,8 +72,8 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
-		  Dim s As MemoryBlock = Super.Read(Count, StreamID, encoding)
+		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
+		  Dim s As MemoryBlock = Super.Read(Count, 0, encoding)
 		  If mPosition + s.Size > mLength Then
 		    ' this is a kludge to detect the extra null byte that we always
 		    ' seem to get over SCP. 
@@ -85,9 +85,9 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub Write(text As String, StreamID As Integer)
+		Sub Write(text As String)
 		  If mPosition + text.LenB > mLength Then Raise New SSHException(ERR_SCP_LENGTH_EXCEEDED)
-		  Super.Write(text, StreamID)
+		  Super.Write(text, 0)
 		  mPosition = mPosition + text.LenB
 		End Sub
 	#tag EndMethod
