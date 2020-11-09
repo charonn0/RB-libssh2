@@ -251,8 +251,17 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h0
 		Sub Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False)
+		  Dim name As String
+		  name = Rename(SourceName, DestinationName, Overwrite)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False) As String
 		  ' Renames the SourceName file. If DestinationName already exists
-		  ' and Overwrite=False then the operation will fail.
+		  ' and Overwrite=False then the operation will fail. On success
+		  ' the DestinationName is updated to the normalized new path. On
+		  ' failure returns the normalized original path.
 		  
 		  Dim sn As MemoryBlock = NormalizePath(SourceName, False, False)
 		  Dim dn As MemoryBlock = NormalizePath(DestinationName, False, False)
@@ -261,8 +270,10 @@ Protected Class SFTPSession
 		  Do
 		    mLastError = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, flag)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError = 0 Then Return DefineEncoding(dn, DestinationName.Encoding)
+		  Return DefineEncoding(sn, SourceName.Encoding)
 		  
-		End Sub
+		End Function
 	#tag EndMethod
 
 

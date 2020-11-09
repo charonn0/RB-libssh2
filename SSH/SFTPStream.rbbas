@@ -297,7 +297,9 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
-			  mSession.Rename(Me.FullPath, value)
+			  ' Sets a new full path, effectively moving or renaming the file/directory
+			  
+			  value = mSession.Rename(Me.FullPath, value)
 			  If mSession.LastStatusCode = 0 Then
 			    mFilename = value
 			  End If
@@ -477,9 +479,9 @@ Implements SSHStream
 			  ' Renames the file/directory, if the server allows it.
 			  
 			  Dim p As SFTPDirectory = Me.Parent()
-			  mSession.Rename(Me.FullPath, p.FullPath + value)
+			  value = mSession.Rename(Me.FullPath, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
-			    mFilename = p.FullPath + value
+			    mFilename = value
 			  End If
 			  
 			End Set

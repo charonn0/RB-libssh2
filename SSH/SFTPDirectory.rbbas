@@ -328,7 +328,7 @@ Protected Class SFTPDirectory
 		#tag Setter
 			Set
 			  Dim p As SFTPDirectory = Me.Parent()
-			  mSession.Rename(Me.FullPath + CurrentName, p.FullPath + value)
+			  value = mSession.Rename(Me.FullPath + CurrentName, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
 			    mCurrentName = value
 			  End If
@@ -389,7 +389,7 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
-			  mSession.Rename(Me.FullPath, value)
+			  value = mSession.Rename(Me.FullPath, value)
 			  If mSession.LastStatusCode = 0 Then
 			    mName = value
 			  End If
@@ -497,9 +497,9 @@ Protected Class SFTPDirectory
 		#tag Setter
 			Set
 			  Dim p As SFTPDirectory = Me.Parent()
-			  mSession.Rename(Me.FullPath, p.FullPath + value)
+			  value = mSession.Rename(Me.FullPath, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
-			    mName = p.FullPath + value
+			    mName = value
 			  End If
 			  
 			End Set
