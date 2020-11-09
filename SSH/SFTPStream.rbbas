@@ -4,6 +4,9 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Close()
 		  // Part of the SSHStream interface.
+		  ' Closes the stream. No further data may be sent or received after
+		  ' calling this method. Called automatically by the Destructor().
+		  
 		  If mStream <> Nil Then
 		    Do
 		      mLastError = libssh2_sftp_close_handle(mStream)
@@ -15,6 +18,14 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
+		  ' Constructs a new instance of SFTPStream for the file or directory indicated
+		  ' by the parameters. The RemoteName is the full remote path of the item. The
+		  ' Flags parameter is any reasonable combination of the LIBSSH2_FXF_* constants, 
+		  ' and indicates what operations(s) are to be performed on the item. If the operation
+		  ' will create a remote file or directory then the Mode parameter indicates its initial
+		  ' permissions. This Constructor cannot be called from outside the SFTPStream class; 
+		  ' refer to the SFTSession.CreateStream method for equivalent functionality.
+		  
 		  mSession = Session
 		  mDirectory = Directory
 		  mFilename = RemoteName
@@ -45,8 +56,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  Me.Close()
-		  mStream = Nil
+		  If mStream <> Nil Then Me.Close()
 		End Sub
 	#tag EndMethod
 
@@ -60,6 +70,8 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function EOF() As Boolean
 		  // Part of the Readable interface.
+		  ' Returns True if the last call to Read() resulted in an EOF
+		  
 		  Return mEOF
 		End Function
 	#tag EndMethod
@@ -67,12 +79,17 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub Flush()
 		  // Part of the Writeable interface.
-		  ' Not all servers support this. If that's the case then LastError will be LIBSSH2_ERROR_SFTP_PROTOCOL
+		  ' Not all servers support this. If that's the case then LastError
+		  ' will be LIBSSH2_ERROR_SFTP_PROTOCOL and Session.LastStatusCode
+		  ' will be LIBSSH2_FX_OP_UNSUPPORTED, but no exception will be raised.
+		  
 		  If mDirectory Then Raise New IOException
 		  Do
 		    mLastError = libssh2_sftp_fsync(mStream)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 And mLastError <> LIBSSH2_ERROR_SFTP_PROTOCOL Then Raise New SSHException(Me)
+		  Dim unsupported As Boolean = (mSession.LastStatusCode = LIBSSH2_FX_OP_UNSUPPORTED)
+		  If mLastError <> 0 And Not unsupported Then Raise New SSHException(Me)
+		  
 		  
 		  
 		  
@@ -81,6 +98,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h21
 		Private Function HasAttribute(AttributeID As Int32) As Boolean
+		  ' Returns True if the file/directory has the specified AttributeID.
+		  ' AttributeID is one of the LIBSSH2_SFTP_ATTR_* constants.
+		  
 		  Return Mask(mAttribs.Flags, AttributeID)
 		End Function
 	#tag EndMethod
@@ -88,6 +108,10 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
 		  // Part of the Readable interface.
+		  ' If the stream represents a file opened for reading then this method
+		  ' reads from the file. If the stream represents a directory then this
+		  ' method returns the next file name in the listing.
+		  
 		  If mDirectory Then ' read directory listing
 		    Dim longentry As MemoryBlock
 		    Dim attribs As LIBSSH2_SFTP_ATTRIBUTES
@@ -112,6 +136,8 @@ Implements SSHStream
 
 	#tag Method, Flags = &h21
 		Private Sub ReadAttributes()
+		  ' Refreshes the mAttribs property.
+		  
 		  If mStream = Nil Then Return
 		  Do
 		    mLastError = libssh2_sftp_fstat_ex(mStream, mAttribs, 0)
@@ -121,6 +147,9 @@ Implements SSHStream
 
 	#tag Method, Flags = &h1
 		Protected Function ReadDirectoryEntry(ByRef SFTPAttributes As LIBSSH2_SFTP_ATTRIBUTES, ByRef LongEntry As MemoryBlock, Encoding As TextEncoding = Nil) As String
+		  ' If the stream represents a directory then this method returns then
+		  ' next filename in the listing. Called by Read() if appropriate.
+		  
 		  If Not mDirectory Then Return ""
 		  Dim buffer As New MemoryBlock(1024 * 16)
 		  LongEntry = New MemoryBlock(512)
@@ -164,6 +193,10 @@ Implements SSHStream
 
 	#tag Method, Flags = &h21
 		Private Sub WriteAttributes()
+		  ' If the stream is writeable then this method updates its attributes with the
+		  ' values stored in the mAttribs property. If the stream is not writeable then
+		  ' this method resets the mAttribs property and sets mLastError to LIBSSH2_FX_PERMISSION_DENIED
+		  
 		  If mStream = Nil Then Return
 		  If Not IsWriteable Then
 		    ReadAttributes() ' reset values
@@ -181,8 +214,8 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Sub WriteBuffer(Data As MemoryBlock)
 		  ' This method is the same as Write() except it takes a
-		  ' MemoryBlock instead of a String. This allows use to
-		  ' refer to the Data directly instead of copying it.
+		  ' MemoryBlock instead of a String. This allows us to
+		  ' point to the Data directly instead of copying it.
 		  
 		  If mDirectory Then Raise New IOException
 		  Dim p As Ptr = Data
@@ -193,7 +226,7 @@ Implements SSHStream
 		    mLastError = libssh2_sftp_write(mStream, p, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
-		      ' call libssh2_sftp_write() with the same params.
+		      ' call libssh2_sftp_write() again with the same params
 		      Continue
 		      
 		    Case Is > 0 ' the amount ack'd
@@ -223,12 +256,16 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Reads the last access time attribute.
+			  
 			  If mStream = Nil Then Return Nil
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return time_t(mAttribs.ATime)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Modifies the last access time attribute, if the stream is writeable.
+			  
 			  If mStream = Nil Then Return
 			  Call ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' atime not settable
@@ -242,6 +279,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the stream represents a directory
+			  
 			  return mDirectory
 			End Get
 		#tag EndGetter
@@ -251,6 +290,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the full remote path
+			  
 			  Return mFilename
 			End Get
 		#tag EndGetter
@@ -310,12 +351,16 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the total size of the file.
+			  
 			  If mStream = Nil Then Return 0
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then Return mAttribs.FileSize
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Extends or truncates the file to the specified size if the stream is writeable.
+			  
 			  If mStream = Nil Then Return
 			  Call ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then Return ' size not settable
@@ -361,6 +406,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Reads the Unix-style permission of the file/directory, if the server supports them.
+			  
 			  If mStream = Nil Then Return Nil
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then Return New Permissions(mAttribs.Perms)
 			  
@@ -368,6 +415,9 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Updates the Unix-style permission of the file/directory if the stream is writeable
+			  ' and the server supports them.
+			  
 			  If mStream = Nil Then Return
 			  Call ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then Return ' perms not settable
@@ -381,6 +431,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Reads the last modified time of the file/directory.
+			  
 			  If mStream = Nil Then Return Nil
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return time_t(mAttribs.MTime)
 			  
@@ -416,6 +468,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the name of the file/directory without any path.
+			  
 			  If Right(FullPath, 1) = "/" Then
 			    return NthField(FullPath, "/", CountFields(FullPath, "/") - 1)
 			  Else
@@ -425,6 +479,8 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Renames the file/directory, if the server allows it.
+			  
 			  Dim p As SFTPDirectory = Me.Parent()
 			  mSession.Rename(Me.FullPath, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
@@ -439,6 +495,8 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Creates a SFTPDirectory for the parent directory of this stream.
+			  
 			  Dim nm() As String = Split(mFilename.Trim, "/")
 			  For i As Integer = UBound(nm) DownTo 0
 			    If nm(i).Trim = "" Then nm.Remove(i)
@@ -453,6 +511,8 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets a new parent directlry, effectively moving the file/directory
+			  
 			  Me.FullPath = value.FullPath + Me.Name
 			End Set
 		#tag EndSetter
@@ -462,11 +522,17 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the current position of the file pointer in the stream.
+			  
 			  If mStream <> Nil Then Return libssh2_sftp_tell64(mStream)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Moves the file pointer to the offset indicated. If the stream was opened
+			  ' in AppendOnly mode then this will fail. If the new offset is equal to the 
+			  ' old offset then the attributes will also be refreshed.
+			  
 			  If mStream <> Nil Then
 			    If value = Me.Position Then ReadAttributes() ' refresh
 			    If mAppendOnly Then
