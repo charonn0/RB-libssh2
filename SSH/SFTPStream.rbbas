@@ -230,17 +230,18 @@ Implements SSHStream
 		      Continue
 		      
 		    Case Is > 0 ' the amount ack'd
-		      If mLastError = size Then Exit Do ' done
-		      ' update the size and call libssh2_sftp_write() again
+		      If mLastError = size Then
+		        Exit Do ' done
+		      End If
+		      ' update the pointer and the size, then call libssh2_sftp_write() again
 		      size = size - mLastError
 		      p = Ptr(Integer(p) + mLastError)
 		      Continue
 		      
 		    Case Is < 0 ' error
-		      Exit Do
+		      Raise New SSHException(Me)
 		    End Select
 		  Loop
-		  If mLastError < 0 Then Raise New SSHException(Me)
 		  mLastError = 0
 		End Sub
 	#tag EndMethod
