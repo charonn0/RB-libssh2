@@ -25,6 +25,9 @@ Inherits SSH.Channel
 		  
 		  mLength = stat.UInt64Value(24)
 		  mPosition = 0
+		  If stat.Int16Value(6) <> 0 Then
+		    mMode = New Permissions(stat.Int16Value(6))
+		  End If
 		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
@@ -54,6 +57,7 @@ Inherits SSH.Channel
 		  
 		  mLength = Length
 		  mPosition = 0
+		  mMode = New Permissions(Mode)
 		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
@@ -101,6 +105,20 @@ Inherits SSH.Channel
 	#tag Property, Flags = &h21
 		Private mLength As UInt64
 	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mMode As Permissions
+	#tag EndProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mMode = Nil Then mMode = New Permissions(&o0644)
+			  Return mMode
+			End Get
+		#tag EndGetter
+		Mode As Permissions
+	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
 		Private mPosition As UInt64
