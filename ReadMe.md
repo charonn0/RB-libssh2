@@ -95,5 +95,5 @@ RB-libssh2 will raise a PlatformNotSupportedException when used if all required 
 * [SFTP recursive upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#recursive-upload)
 * [SFTP directory listing](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#list-directory)
 * [Execute command](https://github.com/charonn0/RB-libssh2/wiki/Process-Start-Example)
-* [Forward a local port to the server](https://github.com/charonn0/RB-libssh2/wiki/TCP-Listener-Example)
-* [Forward a server port to a local port](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunnel-Example)
+* [TCP tunneling example](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#example)
+* [TCP forwarding example](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener#example)
