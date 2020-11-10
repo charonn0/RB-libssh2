@@ -12,7 +12,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
   Dim result As String
   Do Until sh.EOF
     If sh.PollReadable() Then
-      result = result + sh.Read(sh.BytesAvailable, 0)
+      result = result + sh.Read(sh.BytesReadable, 0)
     End If
   Loop
   sh.Close
