@@ -1083,8 +1083,7 @@ Protected Module SSH
 
 	#tag Method, Flags = &h21
 		Private Function time_t(d As Date) As Integer
-		  Dim epoch As New Date(1970, 1, 1, 0, 0, 0, 0.0) 'UNIX epoch
-		  Return d.TotalSeconds - epoch.TotalSeconds
+		  Return d.TotalSeconds - time_t(0).TotalSeconds
 		End Function
 	#tag EndMethod
 
