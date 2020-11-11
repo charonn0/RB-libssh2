@@ -295,6 +295,8 @@ Protected Module SSH
 		    Return "ERR_APPEND_ONLY"
 		  Case ERR_SCP_LENGTH_EXCEEDED
 		    Return "ERR_SCP_LENGTH_EXCEEDED"
+		  Case ERR_SIZE_REQUIRED
+		    Return "ERR_SIZE_REQUIRED"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1165,6 +1167,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_SESSION_MISMATCH, Type = Double, Dynamic = False, Default = \"-506", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_SIZE_REQUIRED, Type = Double, Dynamic = False, Default = \"-515", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_SOCKET, Type = Double, Dynamic = False, Default = \"-501", Scope = Protected

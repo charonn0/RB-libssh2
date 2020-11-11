@@ -145,6 +145,26 @@ Implements SSHStream
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function ReadBuffer(Count As Integer) As MemoryBlock
+		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
+		  
+		  Dim buffer As New MemoryBlock(Count)
+		  Do
+		    mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  
+		  If mLastError > 0 Then ' error is the size
+		    buffer.Size = mLastError
+		    Return buffer
+		  ElseIf mLastError = 0 Then
+		    mEOF = True
+		  Else
+		    Raise New SSHException(Me)
+		  End If
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h1
 		Protected Function ReadDirectoryEntry(ByRef SFTPAttributes As LIBSSH2_SFTP_ATTRIBUTES, ByRef LongEntry As MemoryBlock, Encoding As TextEncoding = Nil) As String
 		  ' If the stream represents a directory then this method returns then
@@ -213,16 +233,18 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub WriteBuffer(Data As MemoryBlock)
-		  ' This method is the same as Write() except it takes a
-		  ' MemoryBlock instead of a String. This allows us to
-		  ' point to the Data directly instead of copying it.
+		  ' This method is the same as Write() except it takes a MemoryBlock instead of a String.
+		  ' This allows us to point to the Data directly instead of copying it.
 		  
 		  If mDirectory Then Raise New IOException
-		  Dim p As Ptr = Data
+		  If Data = Nil Then Return
 		  Dim size As Integer = Data.Size
+		  If size = 0 Then Return
+		  If size < 0 Then Raise New SSHException(ERR_SIZE_REQUIRED) ' MemoryBlock.Size must be known!
+		  Dim p As Ptr = Data
+		  
 		  Do
-		    ' write the next packet, or continue writing a previous
-		    ' packet that hasn't finished
+		    ' write the next packet, or continue writing a previous packet that hasn't finished
 		    mLastError = libssh2_sftp_write(mStream, p, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
@@ -233,7 +255,7 @@ Implements SSHStream
 		      If mLastError = size Then
 		        Exit Do ' done
 		      End If
-		      ' update the pointer and the size, then call libssh2_sftp_write() again
+		      ' update the size and ptr and call libssh2_sftp_write() again
 		      size = size - mLastError
 		      p = Ptr(Integer(p) + mLastError)
 		      Continue

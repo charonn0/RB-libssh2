@@ -288,15 +288,7 @@ Implements SSHStream
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  ' Attempts to read up to the specified number of bytes from the specified StreamID.
 		  
-		  If BytesReadable = 0 Then Return ""
-		  
-		  Dim buffer As New MemoryBlock(Count)
-		  Do
-		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError < 0 Then Raise New SSHException(Me)
-		  If mLastError <> buffer.Size Then buffer.Size = mLastError
-		  Return DefineEncoding(buffer, encoding)
+		  Return DefineEncoding(ReadBuffer(Count, StreamID), encoding)
 		End Function
 	#tag EndMethod
 
@@ -304,6 +296,22 @@ Implements SSHStream
 		Private Function Read(Count As Integer, encoding As TextEncoding = Nil) As String Implements Readable.Read
 		  // Part of the Readable interface.
 		  Return Me.Read(Count, 0, encoding)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function ReadBuffer(Count As Integer, StreamID As Integer) As MemoryBlock
+		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
+		  
+		  If BytesReadable = 0 Then Return New MemoryBlock(0)
+		  
+		  Dim buffer As New MemoryBlock(Count)
+		  Do
+		    mLastError = libssh2_channel_read_ex(mChannel, StreamID, buffer, buffer.Size)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError < 0 Then Raise New SSHException(Me)
+		  If mLastError <> buffer.Size Then buffer.Size = mLastError
+		  Return buffer
 		End Function
 	#tag EndMethod
 
@@ -393,24 +401,38 @@ Implements SSHStream
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
-		  ' Writes the text to the specified StreamID.
-		  ' Waits for the sent data to be ack'd before sending the rest
+		  // Part of the Writeable interface.
+		  ' This method writes the text to the specified StreamID. If not all the data
+		  ' could be written at once this method will wait until it is done.
 		  
-		  Dim buffer As MemoryBlock = text
-		  Dim p As Ptr = buffer
-		  Dim size As Integer = buffer.Size
+		  Me.WriteBuffer(text, StreamID)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub WriteBuffer(Data As MemoryBlock, StreamID As Integer)
+		  ' This method is the same as Write() except it takes a MemoryBlock instead of a String.
+		  ' This allows us to point to the Data directly instead of copying it.
+		  
+		  If Data = Nil Then Return
+		  Dim size As Integer = Data.Size
 		  If size = 0 Then Return
+		  If size < 0 Then Raise New SSHException(ERR_SIZE_REQUIRED) ' MemoryBlock.Size must be known!
+		  Dim p As Ptr = Data
+		  
 		  Do
+		    ' write the next packet, or continue writing a previous packet that hasn't finished
 		    mLastError = libssh2_channel_write_ex(mChannel, StreamID, p, size)
 		    Select Case mLastError
 		    Case 0, LIBSSH2_ERROR_EAGAIN ' nothing ack'd yet
+		      ' call libssh2_channel_write_ex() again with the same params
 		      Continue
 		      
 		    Case Is > 0 ' the amount ack'd
 		      If mLastError = size Then
 		        Exit Do ' done
 		      Else
-		        ' update the size and call libssh2_channel_write_ex() again
+		        ' update the size and ptr and call libssh2_channel_write_ex() again
 		        size = size - mLastError
 		        p = Ptr(Integer(p) + mLastError)
 		        Continue
