@@ -18,6 +18,13 @@ Protected Class TCPListener
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Sub Destructor()
+		  If mListener <> Nil Then Me.StopListening()
+		  mListener = Nil
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Sub Poll(Timeout As Integer = 1000)
 		  ' Polls the listener and raises the appropriate events if there is activity.

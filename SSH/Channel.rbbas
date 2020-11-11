@@ -590,8 +590,8 @@ Implements SSHStream
 		Protected mLastError As Int32
 	#tag EndProperty
 
-	#tag Property, Flags = &h21
-		Private mOpen As Boolean
+	#tag Property, Flags = &h1
+		Protected mOpen As Boolean
 	#tag EndProperty
 
 	#tag Property, Flags = &h1

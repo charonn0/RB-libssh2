@@ -27,6 +27,8 @@ Inherits SSH.Channel
 		    Super.Close()
 		    RaiseEvent Disconnected()
 		  End If
+		  If mListener <> Nil Then mListener.StopListening()
+		  mListener = Nil
 		End Sub
 	#tag EndMethod
 
@@ -66,6 +68,61 @@ Inherits SSH.Channel
 		Sub Flush()
 		  Super.Flush(0)
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Listen()
+		  ' Listens for exactly one inbound connection. To accept more than one inbound connection
+		  ' on the remote port refer to the TCPListener class.
+		  
+		  If Me.IsConnected Or Me.IsListening Then
+		    mLastError = ERR_ILLEGAL_OPERATION ' technically this is a xojo socket error code
+		    Return
+		  End If
+		  
+		  mListener = New TCPListener(Me.Session)
+		  AddHandler mListener.ConnectionReceived, WeakAddressOf ListenerConnectionReceivedHandler
+		  AddHandler mListener.Error, WeakAddressOf ListenerErrorHandler
+		  mListener.RemoteInterface = Me.RemoteAddress
+		  mListener.RemotePort = Me.RemotePort
+		  mListener.MaxConnections = 1
+		  mListener.StartListening()
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub ListenerConnectionReceivedHandler(Sender As SSH.TCPListener, Stream As SSH.TCPTunnel)
+		  ' we're taking ownership of the Stream's channel so tell it not to clean up
+		  Stream.mFreeable = False 
+		  Stream.mOpen = False
+		  
+		  // Calling the overridden superclass constructor.
+		  // Constructor(SSH.Session, Ptr) -- From Channel
+		  Super.Constructor(Stream.Session, Stream.Handle)
+		  mRemotePort = Stream.RemotePort
+		  RaiseEvent Connected()
+		  Sender.StopListening()
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub ListenerErrorHandler(Sender As SSH.TCPListener, Reasons As Integer)
+		  #pragma Unused Sender
+		  mLastError = Reasons
+		  RaiseEvent Error(Reasons)
+		  Me.Close()
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Poll(Timeout As Integer = 1000, EventMask As Integer = -1) As Boolean
+		  If Me.IsConnected Then Return Super.Poll(Timeout, EventMask)
+		  If Me.IsListening Then 
+		    mListener.Poll(Timeout)
+		    Return Me.IsConnected
+		  End If
+		  
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -128,6 +185,24 @@ Inherits SSH.Channel
 
 
 	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return Me.Handle <> Nil
+			End Get
+		#tag EndGetter
+		IsConnected As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  Return mListener <> Nil
+			End Get
+		#tag EndGetter
+		IsListening As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
 		#tag Note
 			The local NetworkInterface that is initiating the outbound connection. 
 			If this property is not set to a custom value then Session.NetworkInterface
@@ -170,6 +245,10 @@ Inherits SSH.Channel
 		#tag EndSetter
 		LocalPort As Integer
 	#tag EndComputedProperty
+
+	#tag Property, Flags = &h21
+		Private mListener As SSH.TCPListener
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private mLocalInterface As NetworkInterface
