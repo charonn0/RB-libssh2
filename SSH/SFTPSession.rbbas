@@ -174,8 +174,6 @@ Protected Class SFTPSession
 		  End Try
 		  
 		  Return p <> Nil
-		  
-		  
 		End Function
 	#tag EndMethod
 
