@@ -63,11 +63,19 @@ Protected Class TCPListener
 
 	#tag Method, Flags = &h0
 		Sub StartListening()
-		  ' Instruct the server to begin accepting TCP connections on the network interface(s)
-		  ' indicated by RemoteInterface and the port number indicated by RemotePort.
-		  ' If RemoteInterface="" then the server will listen on all of its local interfaced.
-		  ' If RemotePort<=0 Then the server will select a random ephemeral port to listen on,
-		  ' and the RemotePort will be updated accordingly.
+		  ' Instructs the SSH server to begin listening on its local network interface(s), identified
+		  ' by RemoteInterface, for an inbound connection to RemotePort. If RemoteInterface="" then the
+		  ' server will listen on all of its local interfaces. If RemotePort<=0 then the server will
+		  ' select a random ephemeral port to listen on, and the RemotePort property will be updated
+		  ' accordingly.
+		  '
+		  ' You must periodically call the Poll() method to poll the listener for activity. If a
+		  ' connection is received then the ConnectionReceived() event will be raised. If an error
+		  ' occurs then the Error() event will be raised. 
+		  '
+		  ' libssh2 will enqueue at most MaxConnections before refusing to accept new ones. Once a
+		  ' connection is passed to the ConnectionReceived() event it is no longer counted against
+		  ' MaxConnections.
 		  
 		  If mListener <> Nil Then Return
 		  Do Until mListener <> Nil
@@ -85,8 +93,8 @@ Protected Class TCPListener
 	#tag Method, Flags = &h0
 		Sub StopListening()
 		  ' Instruct the server to stop accepting TCP connections. Existing connections will
-		  ' continue to exist until they are explicitly closed. Pending connections will be
-		  ' dropped.
+		  ' continue to exist until they are explicitly closed. Connections that were already
+		  ' received by the server but not yet accepted by us will be dropped.
 		  
 		  If mListener <> Nil Then
 		    Do
@@ -99,7 +107,7 @@ Protected Class TCPListener
 
 
 	#tag Hook, Flags = &h0
-		Event ConnectionReceived(Stream As SSH.TCPTunnel)
+		Event ConnectionReceived(Connection As SSH.TCPTunnel)
 	#tag EndHook
 
 	#tag Hook, Flags = &h0

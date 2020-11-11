@@ -23,28 +23,34 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Close()
-		  If IsOpen Then
-		    Super.Close()
-		    RaiseEvent Disconnected()
-		  End If
 		  If mListener <> Nil Then mListener.StopListening()
 		  mListener = Nil
+		  Super.Close()
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h1000
 		Function Connect() As Boolean
-		  ' Initiates an outbound TCP connection to RemoteAddress:RemotePort via the SSH server.
-		  ' If the connection was successful the Connected() event will be raised and this
-		  ' method returns True. Otherwise, the Error() event will be raised.
-		  ' Once connected you may read and write to the tunnel like any other Channel.
+		  ' Initiates an outbound TCP connection to the third party, as indicated by the RemoteAddress
+		  ' and RemotePort properties, using the SSH server as an intermediary. If the connection was
+		  ' successful then the Connected() event will be raised and this method returns True. Otherwise,
+		  ' the Error() event will be raised. Once connected you may read from and write to the tunnel
+		  ' like any other Channel.
+		  '
+		  ' If the tunnel is forwarding an actual TCPSocket then the LocalInterface and LocalPort properties
+		  ' should reflect the corresponding properties of the socket being forwarded.
 		  
-		  If IsOpen Then Return True
+		  If Me.IsConnected Or Me.IsListening Then
+		    mLastError = ERR_ILLEGAL_OPERATION ' technically this is a xojo socket error code
+		    Return False
+		  End If
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  
 		  Dim p As Ptr
 		  p = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteAddress, RemotePort, LocalInterface.IPAddress, LocalPort)
 		  If p <> Nil Then
+		    // Calling the superclass constructor.
+		    // Constructor(SSH.Session, Ptr) -- From Channel
 		    Super.Constructor(mSession, p)
 		    RaiseEvent Connected()
 		    Return True
@@ -72,8 +78,19 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Listen()
-		  ' Listens for exactly one inbound connection. To accept more than one inbound connection
-		  ' on the remote port refer to the TCPListener class.
+		  ' Instructs the SSH server to begin listening on its local network interface(s), identified
+		  ' by RemoteAddress, for an inbound connection to RemotePort. If RemoteAddress="" then the
+		  ' server will listen on all of its local interfaces. If RemotePort<=0 then the server will
+		  ' select a random ephemeral port to listen on, and the RemotePort property will be updated
+		  ' accordingly.
+		  '
+		  ' You must periodically call the Poll() method to poll the listener for activity. If a
+		  ' connection is received then the Connected() event will be raised. If an error occurs then
+		  ' the Error() event will be raised. Once connected you may read from and write to the tunnel
+		  ' like any other Channel.
+		  '
+		  ' This method listens for exactly one inbound connection and accepts the first one that arrives.
+		  ' To accept more than one inbound connection on the remote port refer to the TCPListener class.
 		  
 		  If Me.IsConnected Or Me.IsListening Then
 		    mLastError = ERR_ILLEGAL_OPERATION ' technically this is a xojo socket error code
@@ -87,21 +104,24 @@ Inherits SSH.Channel
 		  mListener.RemotePort = Me.RemotePort
 		  mListener.MaxConnections = 1
 		  mListener.StartListening()
+		  If mListener.IsListening Then mRemotePort = mListener.RemotePort
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Sub ListenerConnectionReceivedHandler(Sender As SSH.TCPListener, Stream As SSH.TCPTunnel)
-		  ' we're taking ownership of the Stream's channel so tell it not to clean up
-		  Stream.mFreeable = False 
-		  Stream.mOpen = False
-		  
-		  // Calling the overridden superclass constructor.
-		  // Constructor(SSH.Session, Ptr) -- From Channel
-		  Super.Constructor(Stream.Session, Stream.Handle)
-		  mRemotePort = Stream.RemotePort
-		  RaiseEvent Connected()
+		Private Sub ListenerConnectionReceivedHandler(Sender As SSH.TCPListener, Connection As SSH.TCPTunnel)
+		  ' free the listener
 		  Sender.StopListening()
+		  
+		  ' we're taking ownership of the Connection's channel so tell it not to clean up
+		  Connection.mFreeable = False
+		  Connection.mOpen = False
+		  Connection.mSession = Nil
+		  
+		  // Calling the superclass constructor.
+		  // Constructor(SSH.Session, Ptr) -- From Channel
+		  Super.Constructor(Me.Session, Connection.Handle)
+		  RaiseEvent Connected()
 		End Sub
 	#tag EndMethod
 
@@ -156,7 +176,7 @@ Inherits SSH.Channel
 
 
 	#tag Note, Name = About this class
-		This class is for initiating an outbound connection from the client to a third party, using the SSH server as an intermediary.
+		This class is for initiating or accepting a TCP tunnel from the client to a third party, using the SSH server as an intermediary.
 		
 		For example, this forwards an HTTP request through the SSH server to google.com:
 		
@@ -187,7 +207,7 @@ Inherits SSH.Channel
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return Me.Handle <> Nil
+			  Return IsOpen
 			End Get
 		#tag EndGetter
 		IsConnected As Boolean
@@ -346,6 +366,7 @@ Inherits SSH.Channel
 			Name="RemoteAddress"
 			Group="Behavior"
 			Type="String"
+			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 		#tag ViewProperty
 			Name="RemotePort"
