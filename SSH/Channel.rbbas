@@ -13,6 +13,7 @@ Implements SSHStream
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  
 		  mOpen = False
+		  RaiseEvent Disconnected()
 		End Sub
 	#tag EndMethod
 
