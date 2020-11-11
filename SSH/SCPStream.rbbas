@@ -4,7 +4,7 @@ Inherits SSH.Channel
 	#tag Method, Flags = &h1000
 		Sub Constructor(Session As SSH.Session, Path As String)
 		  ' Creates a new channel over the session for downloading over SCP. Perform the download by
-		  ' reading from this object until Channel.EOF returns True. Session is an existing SSH session.
+		  ' reading from this object until EOF() returns True. Session is an existing SSH session.
 		  ' Path is the full remote path of the file being downloaded.
 		  
 		  mSession = Session
