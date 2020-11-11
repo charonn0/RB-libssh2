@@ -47,8 +47,7 @@ Implements SSHStream
 		  End If
 		  
 		  mAppendOnly = Mask(Flags, LIBSSH2_FXF_APPEND)
-		  mIsWriteable = Mask(Flags, LIBSSH2_FXF_WRITE)
-		  If mAppendOnly Then mIsWriteable = True
+		  mIsWriteable = mAppendOnly Or Mask(Flags, LIBSSH2_FXF_WRITE)
 		  mIsReadable = Mask(Flags, LIBSSH2_FXF_READ)
 		  Call ReadAttributes()
 		End Sub
