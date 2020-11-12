@@ -283,18 +283,6 @@ Implements ChannelParent
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Sub Listen(Socket As TCPSocket)
-		  If mSession = Nil Then Raise New RuntimeException
-		  mSocket = Socket
-		  Do
-		    mLastError = libssh2_session_handshake(mSession, mSocket.Handle)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(Me)
-		  
-		End Sub
-	#tag EndMethod
-
 	#tag Method, Flags = &h21
 		Private Function LookupChannel(Ref As Ptr) As Channel
 		  Dim w As WeakRef = mChannels.Lookup(Ref, Nil)
