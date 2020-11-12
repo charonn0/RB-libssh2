@@ -71,6 +71,13 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function EOF() As Boolean
+		  If mListener <> Nil And mListener.IsListening Then Return False
+		  Return Super.EOF()
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub Flush()
 		  Super.Flush(0)
 		End Sub
