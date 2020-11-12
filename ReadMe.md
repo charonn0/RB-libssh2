@@ -38,7 +38,7 @@ For more thorough documentation of individual classes and methods refer to the [
 
 ***
 
-The SSH2 protocol permits an arbitrary number (up to 2<sup>32</sup>-1) of simultaneous [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)) binary data streams to be efficiently and securely [multiplexed](https://en.wikipedia.org/wiki/Multiplexing) over a single TCP connection. A data stream can be an upload or download using SFTP or SCP, the input/output of a program being executed on the server, or your own custom protocol.
+The SSH2 protocol permits an arbitrary number (up to 2<sup>32</sup>-1) of simultaneous [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)) binary data streams to be efficiently and securely [multiplexed](https://en.wikipedia.org/wiki/Multiplexing) over a single TCP connection. A data stream can be an upload or download using SFTP or SCP, the input/output of a program being executed on the server, a TCP connection to a third party forwarded through the SSH server, or your own custom protocol.
 
 For simple, one-off operations you can usually use the [Get](https://github.com/charonn0/RB-libssh2/wiki/SSH.Get), [Put](https://github.com/charonn0/RB-libssh2/wiki/SSH.Put), [Execute](https://github.com/charonn0/RB-libssh2/wiki/SSH.Execute), or [OpenChannel](https://github.com/charonn0/RB-libssh2/wiki/SSH.OpenChannel) convenience methods in the SSH module. See also the [Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect) convenience method if you want to perform several such operations on the same connection.
 
