@@ -96,6 +96,7 @@ Inherits SSH.Channel
 		    mLastError = ERR_ILLEGAL_OPERATION ' technically this is a xojo socket error code
 		    Return
 		  End If
+		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  
 		  mListener = New TCPListener(Me.Session)
 		  AddHandler mListener.ConnectionReceived, WeakAddressOf ListenerConnectionReceivedHandler
