@@ -49,12 +49,13 @@ Protected Class TCPListener
 		  invalErr = Mask(mLastError, LIBSSH2_POLLFD_POLLNVAL)
 		  exErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEX)
 		  
-		  If canRead Then RaiseEvent ConnectionReceived(AcceptNextConnection)
+		  If canRead Then RaiseEvent ConnectionReceived(AcceptNextConnection())
 		  If pollErr Or hupErr Or invalErr Or exErr Then
 		    RaiseEvent Error(mLastError)
 		    StopListening()
 		  ElseIf closedErr Then
 		    mLastError = Session.LastError()
+		    RaiseEvent Error(mLastError)
 		    StopListening()
 		  End If
 		  
