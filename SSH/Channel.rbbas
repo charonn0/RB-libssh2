@@ -1,6 +1,6 @@
 #tag Class
 Protected Class Channel
-Implements SSHStream
+Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Sub Close()
 		  // Part of the SSHStream interface.
@@ -147,6 +147,26 @@ Implements SSHStream
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Sub LastError(Assigns err As Int32)
+		  // Part of the ErrorSetter interface.
+		  mLastError = err
+		  If err > 0 Then ' poll results
+		    If Mask(err, LIBSSH2_POLLFD_POLLIN) Then RaiseEvent DataAvailable(False)
+		    If Mask(err, LIBSSH2_POLLFD_POLLEXT) Then RaiseEvent DataAvailable(True)
+		    If Mask(err, LIBSSH2_POLLFD_POLLERR) Or Mask(err, LIBSSH2_POLLFD_POLLHUP) Or _
+		      Mask(err, LIBSSH2_POLLFD_POLLNVAL) Or Mask(err, LIBSSH2_POLLFD_POLLEX) Then
+		      RaiseEvent Error(err)
+		      mOpen = False
+		    ElseIf Mask(err, LIBSSH2_POLLFD_SESSION_CLOSED) Or Mask(err, LIBSSH2_POLLFD_CHANNEL_CLOSED) Then
+		      err = Session.LastError()
+		      RaiseEvent Disconnected()
+		      mOpen = False
+		    End If
+		  End If
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Attributes( deprecated = "SSH.OpenChannel" )  Shared Function Open(Session As SSH.Session) As SSH.Channel
 		  ' Creates a new channel over the Session of type "session". This is the most commonly used channel type.
@@ -210,32 +230,11 @@ Implements SSHStream
 		  pollfd.Descriptor = Me.Handle
 		  pollfd.Events = EventMask
 		  If libssh2_poll(pollfd, 1, Timeout) <> 1 Then
-		    mLastError = Session.LastError
+		    Me.LastError = Session.LastError
 		    Return False
 		  End If
-		  mLastError = pollfd.REvents
-		  
-		  Dim canRead, canWrite, canReadErr, pollErr, hupErr, closedErr, invalErr, exErr As Boolean
-		  canRead = Mask(mLastError, LIBSSH2_POLLFD_POLLIN)
-		  canWrite = Mask(mLastError, LIBSSH2_POLLFD_POLLOUT)
-		  canReadErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEXT)
-		  pollErr = Mask(mLastError, LIBSSH2_POLLFD_POLLERR)
-		  hupErr = Mask(mLastError, LIBSSH2_POLLFD_POLLHUP)
-		  closedErr = Mask(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) Or Mask(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED)
-		  invalErr = Mask(mLastError, LIBSSH2_POLLFD_POLLNVAL)
-		  exErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEX)
-		  
-		  If canRead Then RaiseEvent DataAvailable(False)
-		  If canReadErr Then RaiseEvent DataAvailable(True)
-		  If pollErr Or hupErr Or invalErr Or exErr Then
-		    RaiseEvent Error(mLastError)
-		    mOpen = False
-		  ElseIf closedErr Then
-		    mLastError = Session.LastError()
-		    RaiseEvent Disconnected()
-		    mOpen = False
-		  End If
-		  Return canRead Or canWrite Or canReadErr
+		  Me.LastError = pollfd.REvents
+		  Return Mask(mLastError, LIBSSH2_POLLFD_POLLIN) Or Mask(mLastError, LIBSSH2_POLLFD_POLLOUT) Or Mask(mLastError, LIBSSH2_POLLFD_POLLEXT)
 		  
 		End Function
 	#tag EndMethod

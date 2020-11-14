@@ -1,5 +1,6 @@
 #tag Class
 Protected Class TCPListener
+Implements ErrorSetter
 	#tag Method, Flags = &h1
 		Protected Function AcceptNextConnection() As TCPTunnel
 		  If mListener = Nil Then Return Nil
@@ -25,6 +26,27 @@ Protected Class TCPListener
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Sub LastError(Assigns err As Int32)
+		  // Part of the ErrorSetter interface.
+		  If err > 0 Then ' poll results
+		    Select Case True
+		    Case Mask(err, LIBSSH2_POLLFD_POLLIN)
+		      RaiseEvent ConnectionReceived(AcceptNextConnection())
+		      
+		    Case Mask(err, LIBSSH2_POLLFD_POLLERR), Mask(err, LIBSSH2_POLLFD_POLLHUP), Mask(err, LIBSSH2_POLLFD_POLLNVAL), _
+		      Mask(err, LIBSSH2_POLLFD_POLLEX), Mask(err, LIBSSH2_POLLFD_SESSION_CLOSED), Mask(err, LIBSSH2_POLLFD_CHANNEL_CLOSED)
+		      If Mask(err, LIBSSH2_POLLFD_SESSION_CLOSED) Or Mask(err, LIBSSH2_POLLFD_CHANNEL_CLOSED) Then
+		        err = Session.LastError()
+		      End If
+		      RaiseEvent Error(err)
+		      StopListening()
+		    End Select
+		  End If
+		  mLastError = err
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Sub Poll(Timeout As Integer = 1000)
 		  ' Polls the listener and raises the appropriate events if there is activity.
@@ -34,29 +56,10 @@ Protected Class TCPListener
 		  pollfd.Type = LIBSSH2_POLLFD_LISTENER
 		  pollfd.Descriptor = Me.Handle
 		  pollfd.Events = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
-		  If libssh2_poll(pollfd, 1, Timeout) <> 1 Then
-		    mLastError = Session.LastError
-		    Return
-		  End If
-		  mLastError = pollfd.REvents
-		  
-		  Dim canRead, canWrite, pollErr, hupErr, closedErr, invalErr, exErr As Boolean
-		  canRead = Mask(mLastError, LIBSSH2_POLLFD_POLLIN)
-		  canWrite = Mask(mLastError, LIBSSH2_POLLFD_POLLOUT)
-		  pollErr = Mask(mLastError, LIBSSH2_POLLFD_POLLERR)
-		  hupErr = Mask(mLastError, LIBSSH2_POLLFD_POLLHUP)
-		  closedErr = Mask(mLastError, LIBSSH2_POLLFD_SESSION_CLOSED) Or Mask(mLastError, LIBSSH2_POLLFD_CHANNEL_CLOSED)
-		  invalErr = Mask(mLastError, LIBSSH2_POLLFD_POLLNVAL)
-		  exErr = Mask(mLastError, LIBSSH2_POLLFD_POLLEX)
-		  
-		  If canRead Then RaiseEvent ConnectionReceived(AcceptNextConnection())
-		  If pollErr Or hupErr Or invalErr Or exErr Then
-		    RaiseEvent Error(mLastError)
-		    StopListening()
-		  ElseIf closedErr Then
-		    mLastError = Session.LastError()
-		    RaiseEvent Error(mLastError)
-		    StopListening()
+		  If libssh2_poll(pollfd, 1, Timeout) = 1 Then
+		    Me.LastError = pollfd.REvents
+		  Else
+		    Me.LastError = Session.LastError
 		  End If
 		  
 		End Sub
