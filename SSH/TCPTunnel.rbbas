@@ -9,12 +9,6 @@ Inherits SSH.Channel
 	#tag EndEvent
 
 	#tag Event
-		Sub Disconnected()
-		  RaiseEvent Disconnected()
-		End Sub
-	#tag EndEvent
-
-	#tag Event
 		Sub Error(Reasons As Integer)
 		  RaiseEvent Error(Reasons)
 		End Sub
@@ -112,7 +106,7 @@ Inherits SSH.Channel
 		  mListener.RemotePort = Me.RemotePort
 		  mListener.MaxConnections = 1
 		  mListener.StartListening()
-		  If mListener.IsListening Then mRemotePort = mListener.RemotePort
+		  If mListener <> Nil And mListener.IsListening Then mRemotePort = mListener.RemotePort
 		End Sub
 	#tag EndMethod
 
@@ -175,10 +169,6 @@ Inherits SSH.Channel
 	#tag EndHook
 
 	#tag Hook, Flags = &h0
-		Event Disconnected()
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
 		Event Error(Reasons As Integer)
 	#tag EndHook
 
@@ -228,6 +218,15 @@ Inherits SSH.Channel
 			End Get
 		#tag EndGetter
 		IsListening As Boolean
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mListener
+			End Get
+		#tag EndGetter
+		Listener As SSH.TCPListener
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
