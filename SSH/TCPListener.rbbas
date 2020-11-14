@@ -67,8 +67,8 @@ Implements ErrorSetter
 
 	#tag Method, Flags = &h0
 		Sub StartListening()
-		  ' Instructs the SSH server to begin listening on its local network interface(s), identified
-		  ' by RemoteInterface, for an inbound connection to RemotePort. If RemoteInterface="" then the
+		  ' Instruct the SSH server to begin listening on its local network interface(s), identified
+		  ' by RemoteInterface, for inbound connections to RemotePort. If RemoteInterface="" then the
 		  ' server will listen on all of its local interfaces. If RemotePort<=0 then the server will
 		  ' select a random ephemeral port to listen on, and the RemotePort property will be updated
 		  ' accordingly.
