@@ -90,7 +90,10 @@ Implements ErrorSetter
 		    End If
 		  Loop Until mSession.LastError <> LIBSSH2_ERROR_EAGAIN
 		  
-		  
+		  If mListener = Nil Then
+		    mLastError = Session.LastError
+		    RaiseEvent Error(mLastError)
+		  End If
 		End Sub
 	#tag EndMethod
 
