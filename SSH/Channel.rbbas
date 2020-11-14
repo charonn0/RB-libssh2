@@ -304,7 +304,9 @@ Implements SSHStream
 		Function ReadBuffer(Count As Integer, StreamID As Integer) As MemoryBlock
 		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
 		  
-		  If BytesReadable = 0 Then Return New MemoryBlock(0)
+		  If BytesReadable = 0 Then
+		    If AutoPoll And Not Me.PollReadable() Then Return New MemoryBlock(0)
+		  End If
 		  
 		  Dim buffer As New MemoryBlock(Count)
 		  Do
@@ -419,6 +421,9 @@ Implements SSHStream
 		  Dim size As Integer = Data.Size
 		  If size = 0 Then Return
 		  If size < 0 Then Raise New SSHException(ERR_SIZE_REQUIRED) ' MemoryBlock.Size must be known!
+		  If BytesWriteable = 0 Then
+		    If AutoPoll And Not Me.PollWriteable() Then Return
+		  End If
 		  Dim p As Ptr = Data
 		  
 		  Do
@@ -468,6 +473,10 @@ Implements SSHStream
 		Event Error(Reasons As Integer)
 	#tag EndHook
 
+
+	#tag Property, Flags = &h0
+		AutoPoll As Boolean = True
+	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
