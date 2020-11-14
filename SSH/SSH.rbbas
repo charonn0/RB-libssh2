@@ -881,19 +881,20 @@ Protected Module SSH
 		  ' Pass a URI string to parse. e.g. http://user:password@www.example.com:8080/?foo=bar&bat=baz#Top
 		  
 		  Dim parsed As New Dictionary
-		  Dim tmp As String
-		  Dim pos As Integer
+		  Dim isIPv6 As Boolean
 		  
 		  If InStr(URL, "://") > 0 Then
-		    tmp = NthField(URL, "://", 1)
-		    Parsed.Value("scheme") = URLDecode(tmp).Lowercase
-		    URL = URL.Replace(tmp + "://", "")
+		    Dim scheme As String = NthField(URL, "://", 1)
+		    Parsed.Value("scheme") = URLDecode(scheme)
+		    URL = URL.Replace(scheme + "://", "")
 		  End If
 		  
-		  pos = Instr(URL, "/")
-		  If pos > 0 Then tmp = Left(URL, pos - 1)
-		  If InStr(tmp, "@") > 0 Then //  USER:PASS@Domain
-		    Dim userinfo As String = NthField(tmp, "@", 1)
+		  Dim auth As Integer = Instr(URL, "/")
+		  Dim authority As String = URL
+		  If auth > 0 Then authority = Left(URL, auth - 1)
+		  If InStr(authority, "@") > 0 Then //  USER:PASS@Domain
+		    Dim userinfo As String = NthField(authority, "@", 1)
+		    authority = authority.Replace(userinfo + "@", "")
 		    Dim u, p As String
 		    u = NthField(userinfo, ":", 1)
 		    p = NthField(userinfo, ":", 2)
@@ -903,46 +904,60 @@ Protected Module SSH
 		  End If
 		  
 		  If Instr(URL, ":") > 0 And Left(URL, 1) <> "[" Then //  Domain:Port
-		    tmp = NthField(URL, ":", 2)
-		    tmp = NthField(tmp, "?", 1)
-		    If InStr(tmp, "/") > InStr(tmp, "?") Then
-		      tmp = NthField(tmp, "?", 1)
+		    Dim s As String = NthField(URL, ":", 2)
+		    s = NthField(s, "?", 1)
+		    If InStr(s, "/") > InStr(s, "?") Then
+		      s = NthField(s, "?", 1)
 		    Else
-		      tmp = NthField(tmp, "/", 1)
+		      s = NthField(s, "/", 1)
 		    End If
-		    If Val(tmp) > 0 Then
-		      Dim p As Integer = Val(tmp)
+		    If Val(s) > 0 Then
+		      Dim p As Integer = Val(s)
 		      parsed.Value("port") = p
 		      URL = URL.Replace(":" + Format(p, "######"), "")
 		    End If
 		  ElseIf Left(URL, 1) = "[" And InStr(URL, "]:") > 0 Then ' ipv6 with port
-		    tmp = NthField(URL, "]:", 2)
-		    tmp = NthField(tmp, "?", 1)
-		    Dim p As Integer = Val(tmp)
+		    isIPv6 = True
+		    Dim s As String = NthField(URL, "]:", 2)
+		    s = NthField(s, "?", 1)
+		    Dim p As Integer = Val(s)
 		    parsed.Value("port") = p
 		    URL = URL.Replace("]:" + Format(p, "######"), "]")
+		  ElseIf Left(URL, 1) = "[" And InStr(URL, "]/") > 0 Then ' ipv6 with path
+		    isIPv6 = True
+		    'URL = URL.Replace("]/", "]")
 		  End If
 		  
 		  If Instr(URL, "#") > 0 Then
-		    tmp = NthField(URL, "#", 2)  //    #fragment
-		    parsed.Value("fragment") = tmp
-		    URL = URL.Replace("#" + tmp, "")
+		    Dim f As String = NthField(URL, "#", 2)  //    #fragment
+		    parsed.Value("fragment") = f
+		    URL = URL.Replace("#" + f, "")
 		  End If
 		  
-		  tmp = NthField(URL, "/", 1)  //  [sub.]domain.tld
-		  parsed.Value("host") = URLDecode(tmp)
-		  URL = URL.Replace(tmp, "")
+		  Dim h As String = NthField(URL, "/", 1)  //  [sub.]domain.tld
+		  parsed.Value("host") = URLDecode(h)
+		  URL = URL.Replace(h, "")
 		  
 		  If InStr(URL, "?") > 0 Then
-		    tmp = NthField(URL, "?", 1) //    /foo/bar.php
-		    parsed.Value("path") = URLDecode(tmp)
-		    URL = URL.Replace(tmp + "?", "")
-		    parsed.Value("arguments") = URL
+		    Dim p As String = NthField(URL, "?", 1) //    /foo/bar.php
+		    parsed.Value("path") = URLDecode(p)
+		    URL = URL.Replace(p + "?", "")
+		    
+		    Dim a() As String = Split(URL, "&")
+		    Dim d As New Dictionary
+		    For i As Integer = 0 To UBound(a)
+		      Dim l, r As String
+		      l = NthField(a(i), "=", 1)
+		      r = Right(a(i), a(i).Len - (l.Len + 1)).Trim
+		      l = l.Trim
+		      d.Value(URLDecode(l)) = URLDecode(r)
+		    Next
+		    If d.Count > 0 Then parsed.Value("arguments") = d
+		    
 		  Else
-		    tmp = URL.Trim
-		    parsed.Value("path") = URLDecode(tmp)
-		    URL = Replace(URL, tmp, "")
-		    parsed.Value("arguments") = ""
+		    Dim p As String = URL.Trim
+		    parsed.Value("path") = URLDecode(p)
+		    URL = Replace(URL, p, "")
 		  End If
 		  
 		  Return parsed
