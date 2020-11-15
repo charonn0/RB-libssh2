@@ -4,6 +4,7 @@ MinIDEVersion=20070100
 Class=App;App.rbbas;&h17B2CFFF;&h0;false
 BuildSteps=Build Automation;Build Automation.rbbas;&h61FFFFF;&h0;false
 Module=SSH;SSH/SSH.rbbas;&h514D3FFF;&h0;false
+Interface=SFTPStreamParent;SSH/SFTPStreamParent.rbbas;&h2248BFFF;&h514D3FFF;false
 Interface=ErrorSetter;SSH/ErrorSetter.rbbas;&h60860FFF;&h514D3FFF;false
 Interface=SSHStream;SSH/SSHStream.rbbas;&h4D95E7FF;&h514D3FFF;false
 Interface=ChannelParent;SSH/ChannelParent.rbbas;&h7F21E7FF;&h514D3FFF;false

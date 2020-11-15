@@ -1,5 +1,6 @@
 #tag Class
 Protected Class SFTPSession
+Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Append(FileName As String, CreateIfMissing As Boolean = False, Mode As Integer = 0) As SSH.SFTPStream
 		  ' Returns an SFTPStream to which the file data can be appended.
@@ -21,6 +22,28 @@ Protected Class SFTPSession
 		  If stream <> Nil Then stream.Position = stream.Length
 		  Return stream
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Close()
+		  ' Closes the SFTP session and all streams opened with it.
+		  
+		  If mActiveStreams <> Nil And mActiveStreams.Count > 0 Then
+		    For i As Integer = mActiveStreams.Count - 1 DownTo 0
+		      Dim handle As Ptr = mActiveStreams.Key(i)
+		      Dim stream As SFTPStream = LookupStream(handle)
+		      If stream <> Nil Then stream.Close()
+		    Next
+		  End If
+		  mActiveStreams = Nil
+		  
+		  If mSFTP <> Nil Then
+		    Do
+		      mLastError = libssh2_sftp_shutdown(mSFTP)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  End If
+		  mSFTP = Nil
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -70,12 +93,7 @@ Protected Class SFTPSession
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mSFTP <> Nil Then
-		    Do
-		      mLastError = libssh2_sftp_shutdown(mSFTP)
-		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  End If
-		  mSFTP = Nil
+		  If mSFTP <> Nil Then Me.Close()
 		End Sub
 	#tag EndMethod
 
@@ -122,6 +140,13 @@ Protected Class SFTPSession
 		Exception err As SSHException
 		  mLastError = err.ErrorNumber
 		  If mLastError = 0 Then mLastError = LastStatusCode()
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function LookupStream(Stream As Ptr) As SSH.SFTPStream
+		  Dim w As WeakRef = mActiveStreams.Lookup(Stream, Nil)
+		  If w <> Nil And w.Value <> Nil And w.Value IsA SFTPStream Then Return SFTPStream(w.Value)
 		End Function
 	#tag EndMethod
 
@@ -223,6 +248,15 @@ Protected Class SFTPSession
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h21
+		Private Sub RegisterStream(Stream As SSH.SFTPStream)
+		  // Part of the SFTPStreamParent interface.
+		  If mActiveStreams = Nil Then mActiveStreams = New Dictionary
+		  If Not (Stream.Session Is Me) Then Raise New RuntimeException
+		  mActiveStreams.Value(Stream.Handle) = New WeakRef(Stream)
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Sub RemoveDirectory(DirectoryName As String)
 		  ' Deletes the specified directory on the server. The directory must already be empty.
@@ -272,6 +306,14 @@ Protected Class SFTPSession
 		  Return DefineEncoding(sn, SourceName.Encoding)
 		  
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub UnregisterStream(Stream As SSH.SFTPStream)
+		  // Part of the SFTPStreamParent interface.
+		  If mActiveStreams = Nil Then Return
+		  If mActiveStreams.HasKey(Stream.Handle) Then mActiveStreams.Remove(Stream.Handle)
+		End Sub
 	#tag EndMethod
 
 
@@ -337,6 +379,10 @@ Protected Class SFTPSession
 	#tag EndComputedProperty
 
 	#tag Property, Flags = &h21
+		Private mActiveStreams As Dictionary
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mChannel As SSH.Channel
 	#tag EndProperty
 
@@ -363,6 +409,17 @@ Protected Class SFTPSession
 			End Get
 		#tag EndGetter
 		Session As SSH.Session
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  ' Returns the number of streams opened over the SFTP session
+			  
+			  If mActiveStreams <> Nil Then Return mActiveStreams.Count
+			End Get
+		#tag EndGetter
+		StreamCount As Integer
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0

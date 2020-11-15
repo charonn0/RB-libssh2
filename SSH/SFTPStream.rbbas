@@ -11,6 +11,7 @@ Implements SSHStream
 		    Do
 		      mLastError = libssh2_sftp_close_handle(mStream)
 		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		    SFTPStreamParent(Session).UnregisterStream(Me)
 		  End If
 		  mStream = Nil
 		End Sub
@@ -46,6 +47,7 @@ Implements SSHStream
 		    Raise New SSHException(Me)
 		  End If
 		  
+		  SFTPStreamParent(Session).RegisterStream(Me)
 		  mAppendOnly = Mask(Flags, LIBSSH2_FXF_APPEND)
 		  mIsWriteable = mAppendOnly Or Mask(Flags, LIBSSH2_FXF_WRITE)
 		  mIsReadable = Mask(Flags, LIBSSH2_FXF_READ)

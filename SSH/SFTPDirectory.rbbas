@@ -16,10 +16,7 @@ Protected Class SFTPDirectory
 		  End If
 		  
 		  mStream = New SFTPStreamPtr(mSession, RemoteName, 0, 0, True)
-		  If mStream = Nil Then
-		    mLastError = ERR_INIT_FAILED
-		    Raise New SSHException(Me)
-		  End If
+		  AddHandler mStream.Closed, WeakAddressOf StreamClosedHandler
 		  mIndex = -1
 		  mName = RemoteName
 		End Sub
@@ -173,6 +170,16 @@ Protected Class SFTPDirectory
 		    Return True
 		  End If
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub StreamClosedHandler(Sender As SFTPStreamPtr)
+		  ' This event notifies the SFTPDirectory that the underlying SFTPStreamPtr has been closed,
+		  ' either by the SFTPDirectory itelf or by the SFTPSession.Close() method.
+		  
+		  #pragma Unused Sender
+		  mStream = Nil
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
@@ -481,7 +488,7 @@ Protected Class SFTPDirectory
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mStream As SFTPStream
+		Private mStream As SFTPStreamPtr
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
