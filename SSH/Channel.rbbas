@@ -303,8 +303,8 @@ Implements SSHStream,ErrorSetter
 		Function ReadBuffer(Count As Integer, StreamID As Integer) As MemoryBlock
 		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
 		  
-		  If BytesReadable = 0 Then
-		    If AutoPoll And Not Me.PollReadable() Then Return New MemoryBlock(0)
+		  If (AutoPoll And Not Me.PollReadable(100)) Or BytesReadable = 0 Then
+		    Return New MemoryBlock(0)
 		  End If
 		  
 		  Dim buffer As New MemoryBlock(Count)
@@ -421,7 +421,7 @@ Implements SSHStream,ErrorSetter
 		  If size = 0 Then Return
 		  If size < 0 Then Raise New SSHException(ERR_SIZE_REQUIRED) ' MemoryBlock.Size must be known!
 		  If BytesWriteable = 0 Then
-		    If AutoPoll And Not Me.PollWriteable() Then Return
+		    If AutoPoll And Not Me.PollWriteable(100) Then Return
 		  End If
 		  Dim p As Ptr = Data
 		  
