@@ -292,8 +292,9 @@ Implements SFTPStreamParent
 		Function Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False) As String
 		  ' Renames the SourceName file. If DestinationName already exists
 		  ' and Overwrite=False then the operation will fail. On success
-		  ' the DestinationName is updated to the normalized new path. On
-		  ' failure returns the normalized original path.
+		  ' returns the normalized DestinationName. On failure returns the
+		  ' normalized SourceName. Check SFTPSession.LastError to determine
+		  ' whether the operation succeeded.
 		  
 		  Dim sn As MemoryBlock = NormalizePath(SourceName, False, False)
 		  Dim dn As MemoryBlock = NormalizePath(DestinationName, False, False)
