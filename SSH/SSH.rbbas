@@ -873,6 +873,7 @@ Protected Module SSH
 		  If Not Session.IsAuthenticated Then Raise New SSHException(Session)
 		  Dim ch As SSH.Channel = OpenChannel(Session)
 		  If ch = Nil Then Raise New SSHException(Session)
+		  Return ch
 		End Function
 	#tag EndMethod
 
