@@ -1101,7 +1101,8 @@ Protected Module SSH
 
 	#tag Method, Flags = &h21
 		Private Function time_t(d As Date) As Integer
-		  Return d.TotalSeconds - time_t(0).TotalSeconds
+		  Static epoch As Double = time_t(0).TotalSeconds
+		  Return d.TotalSeconds - epoch
 		End Function
 	#tag EndMethod
 
