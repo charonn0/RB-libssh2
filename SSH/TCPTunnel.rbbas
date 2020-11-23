@@ -44,7 +44,7 @@ Inherits SSH.Channel
 		  p = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteAddress, RemotePort, LocalInterface.IPAddress, LocalPort)
 		  If p <> Nil Then
 		    // Calling the superclass constructor.
-		    // Constructor(SSH.Session, Ptr) -- From Channel
+		    // Constructor(SSH.Session, Ptr) -- From SSH.Channel
 		    Super.Constructor(mSession, p)
 		    RaiseEvent Connected()
 		    Return True
@@ -121,7 +121,7 @@ Inherits SSH.Channel
 		  Connection.mSession = Nil
 		  
 		  // Calling the superclass constructor.
-		  // Constructor(SSH.Session, Ptr) -- From Channel
+		  // Constructor(SSH.Session, Ptr) -- From SSH.Channel
 		  Super.Constructor(Me.Session, Connection.Handle)
 		  RaiseEvent Connected()
 		End Sub
