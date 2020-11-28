@@ -177,6 +177,12 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetAuthenticationMethods(Username As String) As String()
+		  ' Query the remote server for a list of authentication methods that the Username is eligible
+		  ' to use. In the unlikely event that the server allows the user to log on without authenticating,
+		  ' calling this method will successfully log the user on and the returned list will be empty.
+		  ' Consequently an empty return value is not necessarily an error. You can check the IsAuthenticated
+		  ' property to determine whether you're actually authenticated.
+		  
 		  Dim mb As MemoryBlock = Username
 		  Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
 		  If lst <> Nil Then
@@ -226,6 +232,9 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function GetRemoteBanner() As String
+		  ' After Connect() returns successfully, you may call this method to read the
+		  ' server's welcome banner, if it has one.
+		  
 		  Dim mb As MemoryBlock = libssh2_session_banner_get(mSession)
 		  If mb <> Nil Then Return mb.CString(0)
 		End Function
@@ -233,6 +242,11 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function HostKeyHash(Type As SSH.HashType) As MemoryBlock
+		  ' Returns the computed digest of the remote system's hostkey. The size of the returned
+		  ' MemoryBlock is HashType specific (16 bytes for MD5, 20 bytes for SHA1, 32 bytes for SHA256).
+		  ' Returns Nil if the session has not yet been started up or the requested hash algorithm was
+		  ' not available.
+		  
 		  If mSession = Nil Then Return Nil
 		  Dim sz As Integer
 		  Select Case Type
@@ -264,6 +278,9 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function KeepAlive() As Integer
+		  ' Send a keepalive message if needed. The return value indicates how many
+		  ' seconds you can sleep after this call before you need to call it again.
+		  
 		  Dim nxt As Integer
 		  mLastError = libssh2_keepalive_send(mSession, nxt)
 		  If mLastError = 0 Then Return nxt

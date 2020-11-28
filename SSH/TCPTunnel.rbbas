@@ -17,6 +17,7 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Close()
+		  ' frees the listener if necessary then calls Channel.Close()
 		  If mListener <> Nil Then mListener.StopListening()
 		  mListener = Nil
 		  Super.Close()
@@ -205,6 +206,8 @@ Inherits SSH.Channel
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the tunnel is connected. Equivalent to Channel.IsOpen.
+			  
 			  Return IsOpen
 			End Get
 		#tag EndGetter
@@ -214,6 +217,10 @@ Inherits SSH.Channel
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the tunnel is listening for a connection.
+			  ' Check TCPTunnel.IsConnected to determine whether a connection
+			  ' has been received.
+			  
 			  Return mListener <> Nil
 			End Get
 		#tag EndGetter
@@ -223,6 +230,9 @@ Inherits SSH.Channel
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the TCPListener that is actually doing the listening
+			  ' if the tunnel is in listen mode, or Nil if not.
+			  
 			  return mListener
 			End Get
 		#tag EndGetter
