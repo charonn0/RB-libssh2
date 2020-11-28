@@ -138,9 +138,15 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Poll(Timeout As Integer = 1000, EventMask As Integer = -1) As Boolean
-		  If Me.IsConnected Then Return Super.Poll(Timeout, EventMask)
-		  If Me.IsListening Then 
+		Function Poll(Timeout As Integer = 1000, EventMask As Integer = - 1) As Boolean
+		  ' If already connected then this method calls the superclass
+		  ' Poll() method. If listening but not connected, calls TCPListener.Poll()
+		  
+		  If Me.IsConnected Then
+		    Return Super.Poll(Timeout, EventMask)
+		  End If
+		  
+		  If Me.IsListening Then
 		    mListener.Poll(Timeout)
 		    Return Me.IsConnected
 		  End If
