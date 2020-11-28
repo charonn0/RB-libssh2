@@ -260,7 +260,11 @@ Inherits SSH.Channel
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsOpen Then mLocalInterface = value
+			  If IsOpen Then
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mLocalInterface = value
 			End Set
 		#tag EndSetter
 		LocalInterface As NetworkInterface
@@ -283,7 +287,11 @@ Inherits SSH.Channel
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsOpen Then mLocalPort = value
+			  If IsOpen Then
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mLocalPort = value
 			End Set
 		#tag EndSetter
 		LocalPort As Integer
@@ -322,7 +330,11 @@ Inherits SSH.Channel
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsOpen Then mRemoteAddress = value
+			  If IsOpen Then
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mRemoteAddress = value
 			End Set
 		#tag EndSetter
 		RemoteAddress As String
@@ -339,7 +351,11 @@ Inherits SSH.Channel
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsOpen Then mRemotePort = value
+			  If IsOpen Then 
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mRemotePort = value
 			End Set
 		#tag EndSetter
 		RemotePort As Integer
