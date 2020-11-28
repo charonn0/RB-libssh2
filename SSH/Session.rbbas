@@ -580,8 +580,13 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub SetLocalBanner(BannerText As String)
-		  mLastError = libssh2_session_banner_set(mSession, BannerText)
-		  If mLastError <> 0 Then Raise New SSHException(Me)
+		  ' Before calling Connect(), you may call this method to set the local welcome banner.
+		  
+		  If IsConnected Then
+		    mLastError = ERR_TOO_LATE
+		  Else
+		    mLastError = libssh2_session_banner_set(mSession, BannerText)
+		  End If
 		End Sub
 	#tag EndMethod
 
