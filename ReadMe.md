@@ -89,17 +89,17 @@ libssh2 is not installed by default on most systems, and will need to be install
 RB-libssh2 will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
 
 ## Examples
-* [SFTP](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession)
+* [SFTP](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples)
   * [Download](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#download)
   * [Recursive download](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#recursive-download)
   * [Upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#upload)
   * [Recursive upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#recursive-upload)
   * [Directory listing](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#list-directory)
 * [Execute a command line](https://github.com/charonn0/RB-libssh2/wiki/Process-Start-Example)
-* TCP tunneling
+* [TCP tunneling](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunneling)
   * [Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#connect-example)
   * [Listen (single connection)](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#listen-example)
   * [Listen (multiple connections)](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener#example)
-* [SCP](https://github.com/charonn0/RB-libssh2/wiki/SSH.SCPStream)
+* [SCP](https://github.com/charonn0/RB-libssh2/wiki/SCP-Examples)
   * [Download](https://github.com/charonn0/RB-libssh2/wiki/SCP-Examples#download)
   * [Upload](https://github.com/charonn0/RB-libssh2/wiki/SCP-Examples#upload)
