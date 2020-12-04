@@ -535,6 +535,7 @@ Implements SSHStream,ErrorSetter
 			  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 			  
 			  If mLastError < 0 Then Raise New SSHException(Me)
+			  mDataMode = value
 			End Set
 		#tag EndSetter
 		DataMode As SSH.ExtendedDataMode
