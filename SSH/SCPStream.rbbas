@@ -13,15 +13,14 @@ Inherits SSH.Channel
 		    Raise New SSHException(Me)
 		  End If
 		  
-		  Dim c As Ptr
+		  Dim scp As Ptr
 		  Dim stat As New MemoryBlock(64)
-		  Do
-		    c = libssh2_scp_recv2(mSession.Handle, Path, stat)
-		    If c = Nil Then
-		      If mSession.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(Session)
-		    End If
-		  Loop Until c <> Nil
+		  
+		  Do Until scp <> Nil
+		    scp = libssh2_scp_recv2(mSession.Handle, Path, stat)
+		    mLastError = mSession.GetLastError()
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If scp = Nil Then Raise New SSHException(Me)
 		  
 		  mLength = stat.UInt64Value(24)
 		  mPosition = 0
@@ -31,7 +30,7 @@ Inherits SSH.Channel
 		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
-		  Super.Constructor(mSession, c)
+		  Super.Constructor(mSession, scp)
 		End Sub
 	#tag EndMethod
 
@@ -45,15 +44,12 @@ Inherits SSH.Channel
 		  ' date and time are used.
 		  
 		  mSession = Session
-		  Dim c As Ptr
-		  Do
-		    c = libssh2_scp_send64(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
-		    If c = Nil Then
-		      mLastError = mSession.GetLastError
-		      If mLastError = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(Me)
-		    End If
-		  Loop Until c <> Nil
+		  Dim scp As Ptr
+		  Do Until scp <> Nil
+		    scp = libssh2_scp_send64(mSession.Handle, Path, Mode, Length, ModTime, AccessTime)
+		    mLastError = mSession.GetLastError()
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If scp = Nil Then Raise New SSHException(Me)
 		  
 		  mLength = Length
 		  mPosition = 0
@@ -61,7 +57,7 @@ Inherits SSH.Channel
 		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(SSH.Session, Ptr) -- from SSH.Channel
-		  Super.Constructor(mSession, c)
+		  Super.Constructor(mSession, scp)
 		End Sub
 	#tag EndMethod
 
