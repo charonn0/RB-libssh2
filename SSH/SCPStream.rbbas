@@ -68,11 +68,25 @@ Inherits SSH.Channel
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
+		  Dim s As String = Me.ReadBuffer(Count, StreamID)
+		  Return DefineEncoding(s, encoding)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
-		  Dim s As MemoryBlock = Super.Read(Count, 0, encoding)
+		  Dim s As String = Me.ReadBuffer(Count, 0)
+		  Return DefineEncoding(s, encoding)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function ReadBuffer(Count As Integer, StreamID As Integer) As MemoryBlock
+		  Dim s As MemoryBlock = Super.ReadBuffer(Count, StreamID)
 		  If mPosition + s.Size > mLength Then
 		    ' this is a kludge to detect the extra null byte that we always
-		    ' seem to get over SCP. 
+		    ' seem to get over SCP.
 		    s.Size = mLength - mPosition
 		  End If
 		  mPosition = mPosition + s.Size
@@ -82,9 +96,21 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String)
-		  If mPosition + text.LenB > mLength Then Raise New SSHException(ERR_SCP_LENGTH_EXCEEDED)
-		  Super.Write(text, 0)
-		  mPosition = mPosition + text.LenB
+		  Me.WriteBuffer(text, 0)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Write(text As String, StreamID As Integer)
+		  Me.WriteBuffer(text, StreamID)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub WriteBuffer(Data As MemoryBlock, StreamID As Integer)
+		  If mPosition + Data.Size > mLength Then Raise New SSHException(ERR_SCP_LENGTH_EXCEEDED)
+		  Super.WriteBuffer(Data, StreamID)
+		  mPosition = mPosition + Data.Size
 		End Sub
 	#tag EndMethod
 
