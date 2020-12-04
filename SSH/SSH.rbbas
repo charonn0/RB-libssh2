@@ -21,7 +21,7 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
-		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' Returns an instance of SSH.Session even on error; check SessionIsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
 		  Dim d As Dictionary = ParseURL(URL)
@@ -74,7 +74,7 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
-		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
@@ -101,7 +101,7 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
-		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
@@ -127,7 +127,7 @@ Protected Module SSH
 		  ' If KnownHostList is specified then the server's fingerprint will be compared to it. If
 		  ' AddHost is False and the fingerprint is not in the KnownHostList then the connection will
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
-		  ' Returns an instance of SSH.Session even on error; check Session.IsConnected, etc. to determine
+		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
 		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
@@ -141,7 +141,7 @@ Protected Module SSH
 		      If AddHost Then kh.Save(KnownHostList)
 		    End If
 		    If Password = "" Then
-		      ' in the unlikely event that the server allows the user to log on with no password, calling
+		      ' in the unlikely event that the server allows the user to log on without authenticating, calling
 		      ' GetAuthenticationMethods() will actually authenticate the user.
 		      Call sess.GetAuthenticationMethods(Username)
 		    Else
