@@ -21,6 +21,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
 * Password, public-key, agent, and interactive<sup>1</sup> authentication.
 * Known host key verification
 * Download and upload using SFTP or SCP.
+* Manage files and directories over SFTP.
 * Execute commands on the server and read the results.
 * TCP forwarding and tunneling
 * [Stream-oriented](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream), using Xojo's built-in [Readable](http://docs.xojo.com/index.php/Readable) and [Writeable](http://docs.xojo.com/index.php/Writeable) interfaces. 
