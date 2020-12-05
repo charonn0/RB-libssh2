@@ -111,7 +111,7 @@ Implements SFTPStreamParent
 		  
 		  Dim stream As SSHStream = Me.Get(FileName)
 		  Do Until stream.EOF
-		    WriteTo.Write(stream.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
+		    WriteTo.Write(stream.Read(1024 * 32))
 		  Loop
 		  stream.Close
 		  Return True
@@ -219,7 +219,7 @@ Implements SFTPStreamParent
 		  Dim sftp As SSHStream = Me.Put(FileName, Overwrite, Mode)
 		  
 		  Do Until Upload.EOF
-		    sftp.Write(Upload.Read(LIBSSH2_CHANNEL_PACKET_DEFAULT))
+		    sftp.Write(Upload.Read(1024 * 32))
 		  Loop
 		  sftp.Close
 		  Return True
