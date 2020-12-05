@@ -69,6 +69,7 @@ Implements ChannelParent
 		  
 		  mSocket = Socket
 		  mRemotePort = mSocket.Port
+		  mOriginalRemoteHost = mSocket.Address
 		  
 		  Dim timestart As UInt32 = Microseconds / 1000
 		  
@@ -379,10 +380,8 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError = 0 Then
-		    mUsername = Username
-		    Return True
-		  End If
+		  mUsername = Username
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -399,10 +398,8 @@ Implements ChannelParent
 		      mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, Nil, PrivateKey.AbsolutePath_, PrivateKeyPassword)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError = 0 Then
-		    mUsername = Username
-		    Return True
-		  End If
+		  mUsername = Username
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -419,10 +416,8 @@ Implements ChannelParent
 		      mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, Nil, 0, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
 		    End If
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError = 0 Then
-		    mUsername = Username
-		    Return True
-		  End If
+		  mUsername = Username
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -435,6 +430,8 @@ Implements ChannelParent
 		    mLastError = ERR_SESSION_MISMATCH
 		    Return False
 		  End If
+		  
+		  mUsername = Username
 		  Dim cleanup As Boolean
 		  If Not Agent.IsConnected Then
 		    If Not Agent.Connect() Then Return False
@@ -448,8 +445,6 @@ Implements ChannelParent
 		  Finally
 		    If cleanup Then Agent.Disconnect()
 		  End Try
-		  
-		  If ok Then mUsername = Username
 		  Return ok
 		End Function
 	#tag EndMethod
@@ -461,10 +456,8 @@ Implements ChannelParent
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError = 0 Then
-		    mUsername = Username
-		    Return True
-		  End If
+		  mUsername = Username
+		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -805,6 +798,10 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mOriginalRemoteHost As String
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mRemotePort As Integer
 	#tag EndProperty
 
@@ -848,7 +845,9 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  If mSocket <> Nil Then Return mSocket.RemoteAddress
+			  If IsConnected Then Return mSocket.RemoteAddress
+			  Return mOriginalRemoteHost
+			  
 			End Get
 		#tag EndGetter
 		RemoteHost As String
