@@ -248,6 +248,37 @@ Implements SFTPStreamParent
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Sub RecursiveRemoveDirectory(Path As String)
+		  ' Recursively deletes the directory. Path is assumed to be a fully qualified path to
+		  ' the directory.
+		  
+		  ' first collect all the files and directories in the current directory
+		  Dim files(), dirs() As String
+		  Dim lister As SSH.SFTPDirectory = ListDirectory(Path)
+		  Do
+		    If lister.CurrentType = SFTPEntryType.Directory Then
+		      dirs.Append(lister.FullPath + lister.CurrentName)
+		    ElseIf lister.CurrentType <> SFTPEntryType.Unknown Then
+		      files.Append(lister.FullPath + lister.CurrentName)
+		    End If
+		  Loop Until Not lister.ReadNextEntry()
+		  lister.Close
+		  
+		  ' now delete all the files we found
+		  For i As Integer = 0 To UBound(files)
+		    RemoveFile(files(i))
+		  Next
+		  ' now recurse into each directory we found
+		  For i As Integer = 0 To UBound(dirs)
+		    RecursiveRemoveDirectory(dirs(i))
+		  Next
+		  
+		  ' now delete the current directory
+		  RemoveDirectory(Path)
+		End Sub
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub RegisterStream(Stream As SSH.SFTPStream)
 		  // Part of the SFTPStreamParent interface.
@@ -258,14 +289,22 @@ Implements SFTPStreamParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Sub RemoveDirectory(DirectoryName As String)
-		  ' Deletes the specified directory on the server. The directory must already be empty.
+		Sub RemoveDirectory(DirectoryName As String, Recursive As Boolean = False)
+		  ' Deletes the specified directory on the server. If Recursive=False then the
+		  ' directory must already be empty.
+		  '
+		  ' If Recursive=True then the directory and everything in it is deleted. This
+		  ' make take a long time if the directory is very large and/or deep.
 		  
+		  If Not PathExists(DirectoryName) Then Return
 		  Dim dn As MemoryBlock = NormalizePath(DirectoryName, True, False)
-		  Do
-		    mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  
+		  If Recursive Then
+		    RecursiveRemoveDirectory(dn)
+		  Else
+		    Do
+		      mLastError = libssh2_sftp_rmdir_ex(mSFTP, dn, dn.Size)
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  End If
 		End Sub
 	#tag EndMethod
 
