@@ -294,7 +294,7 @@ Implements SFTPStreamParent
 		  ' directory must already be empty.
 		  '
 		  ' If Recursive=True then the directory and everything in it is deleted. This
-		  ' make take a long time if the directory is very large and/or deep.
+		  ' may take a long time if the directory is very large and/or deep.
 		  
 		  If Not PathExists(DirectoryName) Then Return
 		  Dim dn As MemoryBlock = NormalizePath(DirectoryName, True, False)
