@@ -218,9 +218,10 @@ Implements SSHStream,ErrorSetter
 
 	#tag Method, Flags = &h0
 		Function Poll(Timeout As Integer = 1000, EventMask As Integer = - 1) As Boolean
-		  ' Polls all streams and returns True if any of them signal readiness. A bitmask of
-		  ' LIBSSH2_POLLFD_* constants is stored in Channel.LastError indicating which stream(s)
-		  ' are ready.
+		  ' Polls the streams indicated by EventMask and returns True if any of them signal readiness.
+		  ' When returning True, Channel.LastError will be a bitmask of LIBSSH2_POLLFD_* constants indicating which stream(s)
+		  ' are ready. When returning False, Channel.LastError will be a libssh2 error code: zero indicates that no errors or
+		  ' activity occured before the Timeout elapsed.
 		  
 		  If Not mOpen Then Return False
 		  If EventMask = -1 Then EventMask = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
@@ -303,7 +304,7 @@ Implements SSHStream,ErrorSetter
 		Function ReadBuffer(Count As Integer, StreamID As Integer) As MemoryBlock
 		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
 		  
-		  If (AutoPoll And Not Me.PollReadable(100)) Or BytesReadable = 0 Then
+		  If Count <= 0 Or (AutoPoll And Not Me.PollReadable(100)) Or BytesReadable = 0 Then
 		    Return New MemoryBlock(0)
 		  End If
 		  
