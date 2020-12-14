@@ -378,7 +378,6 @@ Implements SSHStream,ErrorSetter
 		  Do
 		    mLastError = libssh2_channel_wait_closed(mChannel)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
 	#tag EndMethod
 
