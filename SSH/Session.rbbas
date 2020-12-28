@@ -450,6 +450,14 @@ Implements ChannelParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function SendCredentials(Username As String, Key As SSH.AgentKey) As Boolean
+		  ' Authenticate as the specified user with the specified key from the Agent's list of keys.
+		  
+		  Return SendCredentials(Username, Key.Owner, Key.Index)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Password As String) As Boolean
 		  ' Authenticate as the specified user with a password.
 		  

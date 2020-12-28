@@ -45,6 +45,15 @@ Protected Class AgentKey
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  Return mAgent
+			End Get
+		#tag EndGetter
+		Owner As SSH.Agent
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  ' Returns a copy of the PublicKey at Index in the Agent's list of keys.
 			  
 			  Dim mb As MemoryBlock = mStruct.Blob
