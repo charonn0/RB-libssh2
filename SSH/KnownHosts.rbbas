@@ -21,7 +21,11 @@ Protected Class KnownHosts
 		  ' Add the Host+Key to the list of known hosts.
 		  
 		  If Port > 0 And Port <> 22 Then Host = "[" + Host + "]:" + Str(Port, "####0")
-		  Dim store As libssh2_knownhost
+		  #If Target32Bit Then
+		    Dim store As libssh2_knownhost
+		  #Else
+		    Dim store As libssh2_knownhost_64
+		  #endif
 		  If Comment = Nil Then
 		    mLastError = libssh2_knownhost_addc(mKnownHosts, Host, Nil, Key, Key.Size, Nil, 0, Type, store)
 		  Else
@@ -73,13 +77,26 @@ Protected Class KnownHosts
 		Sub DeleteHost(Index As Integer)
 		  ' Delete the host at Index from the list
 		  
-		  Dim this As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #If Target32Bit Then
+		    Dim this As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #Else
+		    Dim this As libssh2_knownhost_64 = Me.GetEntry(Index).libssh2_knownhost_64
+		  #EndIf
 		  DeleteHost(this)
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
 		Protected Sub DeleteHost(Host As libssh2_knownhost)
+		  ' Delete the Host from the list
+		  
+		  mLastError = libssh2_knownhost_del(mKnownHosts, Host)
+		  If mLastError <> 0 Then Raise New SSHException(Me)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Sub DeleteHost(Host As libssh2_knownhost_64)
 		  ' Delete the Host from the list
 		  
 		  mLastError = libssh2_knownhost_del(mKnownHosts, Host)
@@ -107,7 +124,11 @@ Protected Class KnownHosts
 		Sub DeleteHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer)
 		  ' Delete the Host+Key from the list
 		  
-		  Dim this As libssh2_knownhost
+		  #If Target32Bit Then
+		    Dim this As libssh2_knownhost
+		  #Else
+		    Dim this As libssh2_knownhost_64
+		  #endif
 		  If Me.Lookup(Host, Port, Key, Type, this) Then
 		    DeleteHost(this)
 		  Else
@@ -143,7 +164,11 @@ Protected Class KnownHosts
 		Function Key(Index As Integer) As MemoryBlock
 		  ' Returns the key of the fingerprint at Index
 		  
-		  Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #If Target32Bit Then
+		    Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #Else
+		    Dim struct As libssh2_knownhost_64 = Me.GetEntry(Index).libssh2_knownhost_64
+		  #EndIf
 		  Dim mb As MemoryBlock = struct.Key
 		  Return mb.CString(0)
 		  
@@ -184,7 +209,11 @@ Protected Class KnownHosts
 		Function Lookup(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
 		  ' Returns True if the host+key was found
 		  
-		  Dim Store As libssh2_knownhost
+		  #If Target32Bit Then
+		    Dim Store As libssh2_knownhost
+		  #Else
+		    Dim Store As libssh2_knownhost_64
+		  #endif
 		  Return Lookup(Host, Port, Key, Type, Store)
 		End Function
 	#tag EndMethod
@@ -214,11 +243,40 @@ Protected Class KnownHosts
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function Lookup(Host As String, Port As Integer, Key As MemoryBlock, Type As Integer, ByRef Store As libssh2_knownhost_64) As Boolean
+		  ' Returns True and populates the Store parameter if the host+key was found.
+		  ' Check LastError if this method returns False.
+		  
+		  If Key = Nil Then Return False
+		  If Port = 0 Then
+		    mLastError = libssh2_knownhost_check(mKnownHosts, Host, Key, Key.Size, Type, Store)
+		  Else
+		    mLastError = libssh2_knownhost_checkp(mKnownHosts, Host, Port, Key, Key.Size, Type, Store)
+		  End If
+		  ' libssh2_knownhost_check doesn't return a standard error code
+		  Select Case mLastError
+		  Case 0 ' host was found and keys match
+		    Return True
+		  Case LIBSSH2_KNOWNHOST_CHECK_MISMATCH ' host was found but keys don't match!
+		    mLastError = ERR_HOSTKEY_MISMATCH
+		  Case LIBSSH2_KNOWNHOST_CHECK_NOTFOUND ' host not found
+		    mLastError = ERR_HOSTKEY_NOTFOUND
+		  Else
+		    Raise New SSHException(Me)
+		  End Select
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function Name(Index As Integer) As String
 		  ' Returns the host name of the fingerprint at Index
 		  
-		  Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #If Target32Bit Then
+		    Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #Else
+		    Dim struct As libssh2_knownhost_64 = Me.GetEntry(Index).libssh2_knownhost_64
+		  #EndIf
 		  Dim mb As MemoryBlock = struct.Name
 		  If mb <> Nil Then Return mb.CString(0)
 		  

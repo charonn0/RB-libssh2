@@ -555,7 +555,15 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_addc Lib libssh2 (KnownHosts As Ptr, Host As CString, Salt As Ptr, Key As Ptr, KeyLength As UInt32, Comment As Ptr, CommentLength As UInt32, TypeMask As Integer, ByRef Store As libssh2_knownhost_64) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_knownhost_check Lib libssh2 (KnownHosts As Ptr, Host As CString, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As libssh2_knownhost) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_check Lib libssh2 (KnownHosts As Ptr, Host As CString, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As libssh2_knownhost_64) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -563,7 +571,15 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_checkp Lib libssh2 (KnownHosts As Ptr, Host As CString, Port As Integer, Key As Ptr, KeyLength As Integer, TypeMask As Integer, ByRef Store As libssh2_knownhost_64) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Function libssh2_knownhost_del Lib libssh2 (KnownHosts As Ptr, Entry As libssh2_knownhost) As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_knownhost_del Lib libssh2 (KnownHosts As Ptr, Entry As libssh2_knownhost_64) As Int32
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
@@ -1567,6 +1583,14 @@ Protected Module SSH
 	#tag EndStructure
 
 	#tag Structure, Name = libssh2_knownhost, Flags = &h21
+		Magic As UInt32
+		  Node As Ptr
+		  Name As Ptr
+		  Key As Ptr
+		TypeMask As Integer
+	#tag EndStructure
+
+	#tag Structure, Name = libssh2_knownhost_64, Flags = &h21, Attributes = \"StructureAlignment \x3D 8"
 		Magic As UInt32
 		  Node As Ptr
 		  Name As Ptr
