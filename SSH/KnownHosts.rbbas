@@ -215,12 +215,12 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Name(Index As Integer) As MemoryBlock
+		Function Name(Index As Integer) As String
 		  ' Returns the host name of the fingerprint at Index
 		  
 		  Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
 		  Dim mb As MemoryBlock = struct.Name
-		  Return mb.CString(0)
+		  If mb <> Nil Then Return mb.CString(0)
 		  
 		End Function
 	#tag EndMethod
