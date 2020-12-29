@@ -1558,6 +1558,14 @@ Protected Module SSH
 		Comment As Ptr
 	#tag EndStructure
 
+	#tag Structure, Name = libssh2_agent_publickey_64, Flags = &h21, Attributes = \"StructureAlignment \x3D 8"
+		Magic As UInt32
+		  Node As Ptr
+		  Blob As Ptr
+		  BlobLength As UInt32
+		Comment As Ptr
+	#tag EndStructure
+
 	#tag Structure, Name = libssh2_knownhost, Flags = &h21
 		Magic As UInt32
 		  Node As Ptr
