@@ -2,6 +2,8 @@
 Protected Class SFTPDirectory
 	#tag Method, Flags = &h0
 		Sub Close()
+		  ' Ends the directory listing.
+		  
 		  If mStream <> Nil Then mStream.Close()
 		  
 		End Sub
@@ -387,6 +389,8 @@ Protected Class SFTPDirectory
 		#tag EndNote
 		#tag Getter
 			Get
+			  ' Gets the full remote path of the directory being listed.
+			  
 			  Dim nm As String = mName
 			  Do Until InStr(nm, "//") = 0
 			    nm = ReplaceAll(nm, "//", "/")
@@ -396,6 +400,9 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the full remote path of the directory being listed. If the server allows/supports the operation
+			  ' then the directory is moved/renamed.
+			  
 			  value = mSession.Rename(Me.FullPath, value)
 			  If mSession.LastStatusCode = 0 Then
 			    mName = value
