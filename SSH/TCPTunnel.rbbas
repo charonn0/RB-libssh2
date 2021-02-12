@@ -39,10 +39,12 @@ Inherits SSH.Channel
 		    mLastError = ERR_ILLEGAL_OPERATION ' technically this is a xojo socket error code
 		    Return False
 		  End If
-		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
+		  If Not Session.IsAuthenticated Then 
+		    mLastError = ERR_NOT_AUTHENTICATED
+		    Return False
+		  End If
 		  
-		  Dim p As Ptr
-		  p = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteAddress, RemotePort, LocalInterface.IPAddress, LocalPort)
+		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteAddress, RemotePort, LocalInterface.IPAddress, LocalPort)
 		  If p <> Nil Then
 		    // Calling the superclass constructor.
 		    // Constructor(SSH.Session, Ptr) -- From SSH.Channel
