@@ -60,7 +60,7 @@ Implements SFTPStreamParent
 		    mSFTP = libssh2_sftp_init(mSession.Handle)
 		  Loop Until mSession.LastError <> LIBSSH2_ERROR_EAGAIN
 		  If mSFTP = Nil Then Raise New SSHException(mSession)
-		  If PathExists("/home/" + mSession.Username + "/") Then WorkingDirectory = "/home/" + mSession.Username + "/"
+		  WorkingDirectory = "/home/" + mSession.Username + "/"
 		  
 		End Sub
 	#tag EndMethod
@@ -250,7 +250,7 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h1
 		Protected Sub RecursiveRemoveDirectory(Path As String)
-		  ' Recursively deletes the directory. Path is assumed to be a fully qualified path to
+		  ' Recursively deletes the directory. Path is assumed to be an absolute path to
 		  ' the directory.
 		  
 		  ' first collect all the files and directories in the current directory
