@@ -6,6 +6,8 @@ Inherits SSH.SFTPDirectory
 		  ' This class exists solely to protect the superclass constructor from being called from outside
 		  ' the SSH module.
 		  
+		  // Calling the overridden superclass constructor.
+		  // Constructor(Session As SSH.SFTPSession, RemoteName As String) -- From SFTPDirectory
 		  Super.Constructor(Session, RemoteName)
 		End Sub
 	#tag EndMethod

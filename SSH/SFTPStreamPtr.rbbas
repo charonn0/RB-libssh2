@@ -13,6 +13,8 @@ Inherits SSH.SFTPStream
 		  ' This class exists solely to protect the superclass constructor from being called from outside
 		  ' the SSH module.
 		  
+		  // Calling the overridden superclass constructor.
+		  // Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean) -- From SFTPStream
 		  Super.Constructor(Session, RemoteName, Flags, Mode, Directory)
 		End Sub
 	#tag EndMethod

@@ -3,6 +3,9 @@ Private Class TCPTunnelPtr
 Inherits SSH.TCPTunnel
 	#tag Method, Flags = &h1000
 		Sub Constructor(Session As SSH.Session, ChannelPtr As Ptr)
+		  ' This class exists solely to protect the superclass constructor from being called from outside
+		  ' the SSH module.
+		  
 		  // Calling the overridden superclass constructor.
 		  // Constructor(Session As SSH.Session, ChannelPtr As Ptr) -- From Channel
 		  Super.Constructor(Session, ChannelPtr)
