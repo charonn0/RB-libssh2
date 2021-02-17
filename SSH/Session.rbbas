@@ -179,10 +179,13 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function GetAuthenticationMethods(Username As String) As String()
 		  ' Query the remote server for a list of authentication methods that the Username is eligible
-		  ' to use. In the unlikely event that the server allows the user to log on without authenticating,
-		  ' calling this method will successfully log the user on and the returned list will be empty.
-		  ' Consequently an empty return value is not necessarily an error. You can check the IsAuthenticated
-		  ' property to determine whether you're actually authenticated.
+		  ' to use. Note that most server implementations do not permit attempting authentication with
+		  ' different usernames between requests. Therefore this must be the same username you will use
+		  ' on later SendCredentials() calls.
+		  ' In the unlikely event that the server allows the user to log on *without* authenticating, calling
+		  ' this method will successfully log the user on and the returned list will be empty. Consequently,
+		  ' an empty return value is not necessarily an error. You can check the IsAuthenticated property to
+		  ' determine whether you're actually authenticated.
 		  
 		  Dim mb As MemoryBlock = Username
 		  Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
@@ -582,6 +585,8 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Sub SetLocalBanner(BannerText As String)
 		  ' Before calling Connect(), you may call this method to set the local welcome banner.
+		  ' This is optional; a banner corresponding to the protocol and libssh2 version will be
+		  ' sent by default. 
 		  
 		  If IsConnected Then
 		    mLastError = ERR_TOO_LATE
@@ -731,7 +736,7 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  Return mSocket <> Nil And mSocket.IsConnected()
+			  Return mSocket <> Nil And mSocket.IsConnected
 			End Get
 		#tag EndGetter
 		IsConnected As Boolean
