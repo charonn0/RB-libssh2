@@ -18,12 +18,12 @@ This example starts a command ("uptime") on the remote machine and reads from it
   sh.Close
 ```
 ## Hilights
-* Password, public-key, agent, and interactive<sup>1</sup> authentication.
-* Known host key verification
-* Download and upload using SFTP or SCP.
+* Password, public-key, agent, and interactive<sup>1</sup> [authentication](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials).
+* [Known host](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts) key verification
+* Download and upload using [SFTP](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples) or [SCP](https://github.com/charonn0/RB-libssh2/wiki/SCP-Examples).
 * Manage files and directories over SFTP.
-* Execute commands on the server and read the results.
-* TCP forwarding and tunneling
+* [Execute commands](https://github.com/charonn0/RB-libssh2/wiki/Process-Start-Example) on the server and read the results.
+* [TCP forwarding and tunneling](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunneling)
 * [Stream-oriented](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream), using Xojo's built-in [Readable](http://docs.xojo.com/index.php/Readable) and [Writeable](http://docs.xojo.com/index.php/Writeable) interfaces. 
 * A consistent, high-level API over the full range of libssh2's features.
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
