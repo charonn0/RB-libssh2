@@ -394,6 +394,11 @@ Implements ChannelParent
 		  ' PublicKey MAY be Nil if libssh2 was built against OpenSSL.
 		  ' https://www.libssh2.org/libssh2_userauth_publickey_fromfile_ex.html
 		  
+		  If IsAuthenticated Then
+		    mLastError = ERR_TOO_LATE
+		    Return Username = mUsername
+		  End If
+		  
 		  Do
 		    If PublicKey <> Nil Then
 		      mLastError = libssh2_userauth_publickey_fromfile_ex(mSession, Username, Username.Len, PublicKey.AbsolutePath_, PrivateKey.AbsolutePath_, PrivateKeyPassword)
@@ -412,6 +417,11 @@ Implements ChannelParent
 		  ' PublicKey MAY be Nil if libssh2 was built against OpenSSL.
 		  ' https://www.libssh2.org/libssh2_userauth_publickey_frommemory.html
 		  
+		  If IsAuthenticated Then
+		    mLastError = ERR_TOO_LATE
+		    Return Username = mUsername
+		  End If
+		  
 		  Do
 		    If PublicKey <> Nil Then
 		      mLastError = libssh2_userauth_publickey_frommemory(mSession, Username, Username.Len, PublicKey, PublicKey.Size, PrivateKey, PrivateKey.Size, PrivateKeyPassword)
@@ -428,6 +438,11 @@ Implements ChannelParent
 		Function SendCredentials(Username As String, Agent As SSH.Agent, KeyIndex As Integer) As Boolean
 		  ' Authenticate as the specified user with the key at the specified
 		  ' index in the Agent's list of keys.
+		  
+		  If IsAuthenticated Then
+		    mLastError = ERR_TOO_LATE
+		    Return Username = mUsername
+		  End If
 		  
 		  If Agent = Nil Or Not (Agent.Session Is Me) Then
 		    mLastError = ERR_SESSION_MISMATCH
@@ -463,6 +478,11 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Password As String) As Boolean
 		  ' Authenticate as the specified user with a password.
+		  
+		  If IsAuthenticated Then
+		    mLastError = ERR_TOO_LATE
+		    Return Username = mUsername
+		  End If
 		  
 		  Do
 		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
