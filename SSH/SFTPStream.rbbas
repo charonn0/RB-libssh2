@@ -51,7 +51,7 @@ Implements SSHStream
 		  mAppendOnly = Mask(Flags, LIBSSH2_FXF_APPEND)
 		  mIsWriteable = mAppendOnly Or Mask(Flags, LIBSSH2_FXF_WRITE)
 		  mIsReadable = Mask(Flags, LIBSSH2_FXF_READ)
-		  Call ReadAttributes()
+		  ReadAttributes()
 		End Sub
 	#tag EndMethod
 
@@ -291,10 +291,10 @@ Implements SSHStream
 			  ' Modifies the last access time attribute, if the stream is writeable.
 			  
 			  If mStream = Nil Then Return
-			  Call ReadAttributes() ' refresh
+			  ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' atime not settable
 			  mAttribs.ATime = time_t(value)
-			  Call WriteAttributes()
+			  WriteAttributes()
 			End Set
 		#tag EndSetter
 		AccessTime As Date
@@ -388,10 +388,10 @@ Implements SSHStream
 			  ' Extends or truncates the file to the specified size if the stream is writeable.
 			  
 			  If mStream = Nil Then Return
-			  Call ReadAttributes() ' refresh
+			  ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then Return ' size not settable
 			  mAttribs.FileSize = value
-			  Call WriteAttributes()
+			  WriteAttributes()
 			End Set
 		#tag EndSetter
 		Length As UInt64
@@ -445,10 +445,10 @@ Implements SSHStream
 			  ' and the server supports them.
 			  
 			  If mStream = Nil Then Return
-			  Call ReadAttributes() ' refresh
+			  ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then Return ' perms not settable
 			  mAttribs.Perms = PermissionsToMode(value)
-			  Call WriteAttributes()
+			  WriteAttributes()
 			End Set
 		#tag EndSetter
 		Mode As Permissions
@@ -469,10 +469,10 @@ Implements SSHStream
 			  ' Modifies the last access time attribute, if the stream is writeable.
 			  
 			  If mStream = Nil Then Return
-			  Call ReadAttributes() ' refresh
+			  ReadAttributes() ' refresh
 			  If Not HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return ' mtime not settable
 			  mAttribs.MTime = time_t(value)
-			  Call WriteAttributes()
+			  WriteAttributes()
 			End Set
 		#tag EndSetter
 		ModifyTime As Date
