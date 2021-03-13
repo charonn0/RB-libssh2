@@ -189,12 +189,8 @@ Implements SSHStream,ErrorSetter
 		  Dim msg As MemoryBlock = Message + Chr(0)
 		  Do
 		    Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size - 1, WindowSize, PacketSize, msg, msg.Size - 1)
-		    If c = Nil Then
-		      If Session.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Return Nil
-		    End If
-		    Return New Channel(Session, c)
-		  Loop
+		    If c <> Nil Then Return New Channel(Session, c)
+		  Loop Until Session.GetLastError <> LIBSSH2_ERROR_EAGAIN
 		End Function
 	#tag EndMethod
 
