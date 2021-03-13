@@ -67,6 +67,11 @@ Implements ChannelParent
 		  ' period elapses. The TimeOut period is measured in milliseconds.
 		  ' Returns True on success. Check Session.LastError if it returns False.
 		  
+		  If IsConnected Then
+		    mLastError = ERR_TOO_LATE
+		    Return Socket.Address = mOriginalRemoteHost
+		  End If
+		  
 		  mSocket = Socket
 		  mRemotePort = mSocket.Port
 		  mOriginalRemoteHost = mSocket.Address
