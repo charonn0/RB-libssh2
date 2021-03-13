@@ -43,9 +43,13 @@ Protected Module SSH
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
-		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
-		  
 		  Dim session As New SSH.Session
+		  If Username = "" Then
+		    ErrorSetter(session).LastError = ERR_USERNAME_REQUIRED
+		    Return session
+		  End If
+		  
+		  session.Blocking = True
 		  If Not session.Connect(Address, Port) Then Return session
 		  
 		  If KnownHostList <> Nil Then
@@ -77,20 +81,23 @@ Protected Module SSH
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
-		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
-		  
-		  Dim sess As New SSH.Session()
-		  sess.Blocking = True
-		  
-		  If sess.Connect(Address, Port) Then
-		    If KnownHostList <> Nil Then
-		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
-		      If Not sess.CheckHost(kh, AddHost) Then Return sess
-		      If AddHost Then kh.Save(KnownHostList)
-		    End If
-		    Call sess.SendCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		  Dim session As New SSH.Session()
+		  If Username = "" Then
+		    ErrorSetter(session).LastError = ERR_USERNAME_REQUIRED
+		    Return session
 		  End If
-		  Return sess
+		  
+		  session.Blocking = True
+		  If Not session.Connect(Address, Port) Then Return session
+		  
+		  If KnownHostList <> Nil Then
+		    Dim kh As New SSH.KnownHosts(session, KnownHostList)
+		    If Not session.CheckHost(kh, AddHost) Then Return session
+		    If AddHost Then kh.Save(KnownHostList)
+		  End If
+		  
+		  Call session.SendCredentials(Username, PublicKeyFile, PrivateKeyFile, PrivateKeyFilePassword)
+		  Return session
 		End Function
 	#tag EndMethod
 
@@ -104,19 +111,23 @@ Protected Module SSH
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
-		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
-		  
-		  Dim sess As New SSH.Session()
-		  sess.Blocking = True
-		  If sess.Connect(Address, Port) Then
-		    If KnownHostList <> Nil Then
-		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
-		      If Not sess.CheckHost(kh, AddHost) Then Return sess
-		      If AddHost Then kh.Save(KnownHostList)
-		    End If
-		    Call sess.SendCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
+		  Dim session As New SSH.Session()
+		  If Username = "" Then
+		    ErrorSetter(session).LastError = ERR_USERNAME_REQUIRED
+		    Return session
 		  End If
-		  Return sess
+		  
+		  session.Blocking = True
+		  If Not session.Connect(Address, Port) Then Return session
+		  
+		  If KnownHostList <> Nil Then
+		    Dim kh As New SSH.KnownHosts(session, KnownHostList)
+		    If Not session.CheckHost(kh, AddHost) Then Return session
+		    If AddHost Then kh.Save(KnownHostList)
+		  End If
+		  
+		  Call session.SendCredentials(Username, PublicKey, PrivateKey, PrivateKeyPassword)
+		  Return session
 		End Function
 	#tag EndMethod
 
@@ -130,25 +141,30 @@ Protected Module SSH
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
 		  
-		  If Username = "" Then Raise New SSHException(ERR_USERNAME_REQUIRED)
-		  
-		  Dim sess As New SSH.Session()
-		  sess.Blocking = True
-		  If sess.Connect(Address, Port) Then
-		    If KnownHostList <> Nil Then
-		      Dim kh As New SSH.KnownHosts(sess, KnownHostList)
-		      If Not sess.CheckHost(kh, AddHost) Then Return sess
-		      If AddHost Then kh.Save(KnownHostList)
-		    End If
-		    If Password = "" Then
-		      ' in the unlikely event that the server allows the user to log on without authenticating, calling
-		      ' GetAuthenticationMethods() will actually authenticate the user.
-		      Call sess.GetAuthenticationMethods(Username)
-		    Else
-		      Call sess.SendCredentials(Username, Password)
-		    End If
+		  Dim session As New SSH.Session()
+		  If Username = "" Then
+		    ErrorSetter(session).LastError = ERR_USERNAME_REQUIRED
+		    Return session
 		  End If
-		  Return sess
+		  
+		  session.Blocking = True
+		  If Not session.Connect(Address, Port) Then Return session
+		  
+		  If KnownHostList <> Nil Then
+		    Dim kh As New SSH.KnownHosts(session, KnownHostList)
+		    If Not session.CheckHost(kh, AddHost) Then Return session
+		    If AddHost Then kh.Save(KnownHostList)
+		  End If
+		  
+		  If Password = "" Then
+		    ' in the unlikely event that the server allows the user to log on without authenticating, calling
+		    ' GetAuthenticationMethods() will actually authenticate the user.
+		    Call session.GetAuthenticationMethods(Username)
+		  Else
+		    Call session.SendCredentials(Username, Password)
+		  End If
+		  
+		  Return session
 		End Function
 	#tag EndMethod
 
