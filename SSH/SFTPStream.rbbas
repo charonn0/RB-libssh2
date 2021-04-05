@@ -488,6 +488,10 @@ Implements SSHStream
 		Private mStream As Ptr
 	#tag EndProperty
 
+	#tag Property, Flags = &h21
+		Private mType As SSH.SFTPEntryType
+	#tag EndProperty
+
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
@@ -576,6 +580,22 @@ Implements SSHStream
 			End Get
 		#tag EndGetter
 		Session As SSH.SFTPSession
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  If mStream = Nil Then Return SFTPEntryType.Unknown
+			  If mType <> SFTPEntryType.Unknown Then Return mType
+			  Dim p As SFTPDirectory = Me.Parent
+			  Do Until p.CurrentName = Me.Name
+			    If Not p.ReadNextEntry() Then Return SFTPEntryType.Unknown
+			  Loop
+			  mType = p.CurrentType
+			  Return mType
+			End Get
+		#tag EndGetter
+		Type As SSH.SFTPEntryType
 	#tag EndComputedProperty
 
 
