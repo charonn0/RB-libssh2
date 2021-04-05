@@ -324,7 +324,9 @@ Implements SSHStream
 			  ' Sets a new full path, effectively moving or renaming the file/directory
 			  
 			  value = mSession.Rename(Me.FullPath, value)
-			  If mSession.LastStatusCode = 0 Then
+			  If mSession.LastStatusCode <> 0 Then
+			    mLastError = mSession.LastError
+			  Else
 			    mFilename = value
 			  End If
 			  
