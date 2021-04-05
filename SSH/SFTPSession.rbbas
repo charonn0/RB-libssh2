@@ -375,7 +375,7 @@ Implements SFTPStreamParent
 			  
 			  If mChannel = Nil And mSFTP <> Nil Then
 			    Dim ch As Ptr = libssh2_sftp_get_channel(mSFTP)
-			    If ch <> Nil Then mChannel = New ChannelPtr(Session, ch)
+			    If ch <> Nil Then mChannel = New ChannelPtr(Session, ch, False)
 			  End If
 			  Return mChannel
 			End Get
