@@ -122,6 +122,15 @@ Implements SFTPStreamParent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Function IsDirectory(Path As String) As Boolean
+		  ' This method returns True if the Path exists and refers to a directory.
+		  
+		  If Not PathExists(Path) Then Return False
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Function IsSymbolicLink(LinkPath As String) As Boolean
 		  ' This method returns True if the LinkPath is actually a symlink.
 		  ' Use ReadSymbolicLink to get the target path.
