@@ -288,7 +288,7 @@ Implements ChannelParent
 		    sz = 32
 		  End Select
 		  Dim mb As MemoryBlock = libssh2_hostkey_hash(mSession, Type)
-		  If mb <> Nil Then Return mb.StringValue(0, sz)
+		  If mb <> Nil Then Return mb.StringValue(0, sz) Else mLastError = GetLastError()
 		End Function
 	#tag EndMethod
 
