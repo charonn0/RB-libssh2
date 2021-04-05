@@ -508,8 +508,7 @@ Implements SSHStream
 			Set
 			  ' Renames the file/directory, if the server allows it.
 			  
-			  Dim p As SFTPDirectory = Me.Parent()
-			  value = mSession.Rename(Me.FullPath, p.FullPath + value)
+			  value = mSession.Rename(Me.FullPath, Me.Parent.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
 			    mFilename = value
 			  End If
