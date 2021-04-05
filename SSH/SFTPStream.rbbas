@@ -522,7 +522,7 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Creates a SFTPDirectory for the parent directory of this stream.
+			  ' Returns an instance of SFTPDirectory for the parent directory of this stream.
 			  
 			  Dim nm() As String = Split(mFilename.Trim, "/")
 			  For i As Integer = UBound(nm) DownTo 0
@@ -538,7 +538,7 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
-			  ' Sets a new parent directlry, effectively moving the file/directory
+			  ' Sets a new parent directory, effectively moving the file/directory
 			  
 			  Me.FullPath = value.FullPath + Me.Name
 			End Set
