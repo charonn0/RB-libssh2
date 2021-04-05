@@ -175,7 +175,13 @@ Implements ChannelParent
 		  ' Once connected to a server, this method returns the negotiated algorithm
 		  ' for the specified AlgorithmType.
 		  
-		  Dim item As CString = libssh2_session_methods(mSession, Type)
+		  Dim item As CString
+		  If Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    item = ""
+		  Else
+		    item = libssh2_session_methods(mSession, Type)
+		  End If
 		  Return item
 		  
 		End Function
@@ -192,12 +198,20 @@ Implements ChannelParent
 		  ' an empty return value is not necessarily an error. You can check the IsAuthenticated property to
 		  ' determine whether you're actually authenticated.
 		  
-		  Dim mb As MemoryBlock = Username
-		  Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
-		  If lst <> Nil Then
-		    mb = lst
-		    Return Split(mb.CString(0), ",")
+		  Dim auth() As String
+		  If Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		  ElseIf IsAuthenticated And mUsername <> Username Then
+		    mLastError = ERR_TOO_LATE
+		  Else
+		    Dim mb As MemoryBlock = Username
+		    Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
+		    If lst <> Nil Then
+		      mb = lst
+		      auth = Split(mb.CString(0), ",")
+		    End If
 		  End If
+		  Return auth
 		End Function
 	#tag EndMethod
 
@@ -244,6 +258,10 @@ Implements ChannelParent
 		  ' After Connect() returns successfully, you may call this method to read the
 		  ' server's welcome banner, if it has one.
 		  
+		  If Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return ""
+		  End If
 		  Dim mb As MemoryBlock = libssh2_session_banner_get(mSession)
 		  If mb <> Nil Then Return mb.CString(0)
 		End Function
@@ -256,7 +274,10 @@ Implements ChannelParent
 		  ' Returns Nil if the session has not yet been started up or the requested hash algorithm was
 		  ' not available.
 		  
-		  If mSession = Nil Then Return Nil
+		  If Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return Nil
+		  End If
 		  Dim sz As Integer
 		  Select Case Type
 		  Case HashType.MD5
@@ -291,7 +312,11 @@ Implements ChannelParent
 		  ' seconds you can sleep after this call before you need to call it again.
 		  
 		  Dim nxt As Integer
-		  mLastError = libssh2_keepalive_send(mSession, nxt)
+		  If Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		  Else
+		    mLastError = libssh2_keepalive_send(mSession, nxt)
+		  End If
 		  If mLastError = 0 Then Return nxt
 		End Function
 	#tag EndMethod
@@ -353,7 +378,10 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function Poll(Timeout As Integer = 1000, EventMask As Integer = 0) As Boolean
-		  If Not IsConnected Then Return False
+		  If Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return False
+		  End If
 		  If EventMask = 0 Then EventMask = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLOUT
 		  Dim pollfd As LIBSSH2_POLLFD
 		  pollfd.Type = LIBSSH2_POLLFD_SOCKET
@@ -402,6 +430,9 @@ Implements ChannelParent
 		  If IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
 		    Return Username = mUsername
+		  ElseIf Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return False
 		  End If
 		  
 		  Do
@@ -425,6 +456,9 @@ Implements ChannelParent
 		  If IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
 		    Return Username = mUsername
+		  ElseIf Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return False
 		  End If
 		  
 		  Do
@@ -447,6 +481,9 @@ Implements ChannelParent
 		  If IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
 		    Return Username = mUsername
+		  ElseIf Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return False
 		  End If
 		  
 		  If Agent = Nil Or Not (Agent.Session Is Me) Then
@@ -487,6 +524,9 @@ Implements ChannelParent
 		  If IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
 		    Return Username = mUsername
+		  ElseIf Not IsConnected Then
+		    mLastError = ERR_TOO_EARLY
+		    Return False
 		  End If
 		  
 		  Do

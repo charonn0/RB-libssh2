@@ -166,7 +166,11 @@ Implements ErrorSetter
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsListening Then mMaxConnections = value
+			  If IsListening Then
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mMaxConnections = value
 			End Set
 		#tag EndSetter
 		MaxConnections As Integer
@@ -204,7 +208,11 @@ Implements ErrorSetter
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsListening Then mRemoteInterface = value
+			  If IsListening Then
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mRemoteInterface = value
 			End Set
 		#tag EndSetter
 		RemoteInterface As String
@@ -218,7 +226,11 @@ Implements ErrorSetter
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If Not IsListening Then mRemotePort = value
+			  If IsListening Then
+			    mLastError = ERR_TOO_LATE
+			    Return
+			  End If
+			  mRemotePort = value
 			End Set
 		#tag EndSetter
 		RemotePort As Integer

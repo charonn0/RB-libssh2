@@ -313,6 +313,8 @@ Protected Module SSH
 		    Return "ERR_SCP_LENGTH_EXCEEDED"
 		  Case ERR_SIZE_REQUIRED
 		    Return "ERR_SIZE_REQUIRED"
+		  Case ERR_TOO_EARLY
+		    Return "ERR_TOO_EARLY"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1225,6 +1227,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_TIMEOUT_ELAPSED, Type = Double, Dynamic = False, Default = \"-509", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_TOO_EARLY, Type = Double, Dynamic = False, Default = \"-516", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_TOO_LATE, Type = Double, Dynamic = False, Default = \"-512", Scope = Protected

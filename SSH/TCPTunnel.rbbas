@@ -36,7 +36,7 @@ Inherits SSH.Channel
 		  ' should reflect the corresponding properties of the socket being forwarded.
 		  
 		  If Me.IsConnected Or Me.IsListening Then
-		    mLastError = ERR_ILLEGAL_OPERATION ' technically this is a xojo socket error code
+		    mLastError = ERR_TOO_LATE
 		    Return False
 		  End If
 		  If Not Session.IsAuthenticated Then 
@@ -97,7 +97,7 @@ Inherits SSH.Channel
 		  ' To accept more than one inbound connection on the remote port refer to the TCPListener class.
 		  
 		  If Me.IsConnected Or Me.IsListening Then
-		    mLastError = ERR_ILLEGAL_OPERATION ' technically this code is a xojo socket error code
+		    mLastError = ERR_TOO_LATE
 		    Return
 		  End If
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
