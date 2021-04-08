@@ -201,15 +201,21 @@ Implements ChannelParent
 		  Dim auth() As String
 		  If Not IsConnected Then
 		    mLastError = ERR_TOO_EARLY
-		  ElseIf IsAuthenticated And mUsername <> Username Then
+		  ElseIf IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
 		  Else
 		    Dim mb As MemoryBlock = Username
-		    Dim lst As Ptr = libssh2_userauth_list(mSession, mb, mb.Size)
-		    If lst <> Nil Then
-		      mb = lst
-		      auth = Split(mb.CString(0), ",")
-		    End If
+		    Dim lst As Ptr
+		    Do
+		      lst = libssh2_userauth_list(mSession, mb, mb.Size)
+		      If lst = Nil Then
+		        mLastError = GetLastError()
+		      Else
+		        mb = lst
+		        auth = Split(mb.CString(0), ",")
+		        mLastError = 0
+		      End If
+		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  End If
 		  Return auth
 		End Function
