@@ -24,11 +24,22 @@ Implements ChannelParent
 		  ' If AddHost=False and the host+key of the current session were found in the list
 		  ' this method returns True. Check Session.LastError if it returns False.
 		  
-		  If Hosts.Lookup(Me) Then Return True
+		  If Hosts.Lookup(Me) Then Return True ' the server is known and its fingerprint is valid
 		  mLastError = Hosts.LastError
-		  If Not AddHost Then Return False
-		  Hosts.AddHost(Me)
-		  Return True
+		  
+		  If mLastError = ERR_HOSTKEY_MISMATCH Then
+		    ' the server is known but its fingerprint has changed!
+		    ' If, and *only* if, this change was expected then remove the old fingerprint and try again.
+		    Return False
+		  End If
+		  
+		  If Not AddHost Then Return False ' the server is unknown
+		  
+		  If mLastError = ERR_HOSTKEY_NOTFOUND Then
+		    Hosts.AddHost(Me)
+		    Return True ' the server's fingerprint was added
+		  End If
+		  
 		End Function
 	#tag EndMethod
 
