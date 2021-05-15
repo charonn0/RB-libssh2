@@ -253,7 +253,7 @@ Implements ChannelParent
 		        #EndIf
 		      Next
 		    Finally
-		      libssh2_free(mSession, lst)
+		      If lst <> Nil Then libssh2_free(mSession, lst)
 		    End Try
 		  End If
 		  
