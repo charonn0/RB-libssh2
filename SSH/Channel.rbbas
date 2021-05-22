@@ -230,7 +230,7 @@ Implements SSHStream,ErrorSetter
 		    Me.LastError = Session.LastError
 		    Return False
 		  End If
-		  Me.LastError = pollfd.REvents
+		  Me.LastError = pollfd.REvents ' Setting Channel.LastError to the poll result will raise the appropriate events for the Channel.
 		  Return Mask(mLastError, LIBSSH2_POLLFD_POLLIN) Or Mask(mLastError, LIBSSH2_POLLFD_POLLOUT) Or Mask(mLastError, LIBSSH2_POLLFD_POLLEXT)
 		  
 		End Function
