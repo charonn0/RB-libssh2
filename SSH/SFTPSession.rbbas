@@ -480,6 +480,7 @@ Implements SFTPStreamParent
 		#tag Setter
 			Set
 			  If value.Trim = "." Or value = mWorkingDirectory Then Return
+			  If Left(value, 1) = "~" Then value = "/home/" + Session.Username + Right(value, value.Len - 1)
 			  Dim p() AS String = Split(mWorkingDirectory, "/")
 			  If value.Trim = ".." Then
 			    If mWorkingDirectory = "/" Then Return ' meh
