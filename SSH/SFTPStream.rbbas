@@ -379,6 +379,17 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the name of last SFTP error code
+			  
+			  Return SFTPErrorName(LastError)
+			End Get
+		#tag EndGetter
+		LastErrorName As String
+	#tag EndComputedProperty
+
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
 			  ' Gets the total size of the file.
 			  
 			  If mStream = Nil Then Return 0
