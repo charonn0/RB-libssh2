@@ -126,7 +126,7 @@ Implements SFTPStreamParent
 		  ' This method returns True if the Path exists and refers to a directory.
 		  
 		  If Not PathExists(Path) Then Return False
-		  
+		  Return CreateStream(Path, LIBSSH2_FXF_READ, 0, True) <> Nil
 		End Function
 	#tag EndMethod
 
