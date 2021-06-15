@@ -32,39 +32,6 @@ Implements SSHStream,ErrorSetter
 		End Sub
 	#tag EndMethod
 
-	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function CreateSCP(Session As SSH.Session, Path As String, Mode As Integer, Length As UInt64, ModTime As Integer, AccessTime As Integer) As SSH.Channel
-		  ' Creates a new channel over the session for uploading over SCP. Perform the upload by writing to the returned
-		  ' Channel object. Make sure to call Channel.Close() when finished.
-		  ' Session is an existing SSH session. Path is the full remote path to save the upload to.
-		  ' Mode is the Unix-style permissions of the remote file. Length is the total size in bytes
-		  ' of the file being uploaded. ModTime and AccessTime may be zero, in which case the current 
-		  ' date and time are used.
-		  
-		  Dim c As Ptr
-		  Do
-		    c = libssh2_scp_send64(Session.Handle, Path, Mode, Length, ModTime, AccessTime)
-		    If c = Nil Then
-		      Dim e As Integer = Session.GetLastError
-		      If e = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Raise New SSHException(e)
-		    End If
-		  Loop Until c <> Nil
-		  Return New Channel(Session, c)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.TCPTunnel.Connect" )  Shared Function CreateTunnel(Session As SSH.Session, RemoteHost As String, RemotePort As Integer, LocalHost As String, LocalPort As Integer) As SSH.Channel
-		  ' Creates a new channel over the Session which tunnels a TCP/IP connection via the remote host to a third party.
-		  ' Communication from the client to the SSH server remains encrypted, communication from the
-		  ' server to the 3rd party host travels in cleartext.
-		  
-		  Dim p As Ptr = libssh2_channel_direct_tcpip_ex(Session.Handle, RemoteHost, RemotePort, LocalHost, LocalPort)
-		  If p <> Nil Then Return New Channel(Session, p)
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mChannel <> Nil Then
@@ -183,14 +150,6 @@ Implements SSHStream,ErrorSetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.OpenChannel" )  Shared Function Open(Session As SSH.Session) As SSH.Channel
-		  ' Creates a new channel over the Session of type "session". This is the most commonly used channel type.
-		  
-		  Return Open(Session, "session", LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, "")
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		 Shared Function Open(Session As SSH.Session, Type As String, WindowSize As UInt32, PacketSize As UInt32, Message As String) As SSH.Channel
 		  ' Creates a new channel over the Session.
 		  ' Type is typically either "session", "direct-tcpip", or "tcpip-forward".
@@ -209,24 +168,6 @@ Implements SSHStream,ErrorSetter
 		    Dim c As Ptr = libssh2_channel_open_ex(Session.Handle, typ, typ.Size - 1, WindowSize, PacketSize, msg, msg.Size - 1)
 		    If c <> Nil Then Return New Channel(Session, c)
 		  Loop Until Session.GetLastError <> LIBSSH2_ERROR_EAGAIN
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.SCPStream.Constructor" )  Shared Function OpenSCP(Session As SSH.Session, Path As String) As SSH.Channel
-		  ' Creates a new channel over the session for downloading over SCP. Perform the download by
-		  ' reading from the returned Channel object until Channel.EOF returns True.
-		  ' Session is an existing SSH session. Path is the full remote path of the file being downloaded.
-		  
-		  Dim c As Ptr
-		  Do
-		    c = libssh2_scp_recv2(Session.Handle, Path, Nil)
-		    If c = Nil Then
-		      If Session.GetLastError = LIBSSH2_ERROR_EAGAIN Then Continue
-		      Return Nil
-		    End If
-		  Loop Until c <> Nil
-		  Return New Channel(Session, c)
 		End Function
 	#tag EndMethod
 
@@ -533,24 +474,6 @@ Implements SSHStream,ErrorSetter
 	#tag Property, Flags = &h0
 		AutoPoll As Boolean = True
 	#tag EndProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  Return BytesReadable
-			End Get
-		#tag EndGetter
-		Attributes( deprecated = "SSH.Channel.BytesReadable" ) BytesAvailable As UInt32
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  Return BytesWriteable
-			End Get
-		#tag EndGetter
-		Attributes( deprecated = "SSH.Channel.BytesWriteable" ) BytesLeft As UInt32
-	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter

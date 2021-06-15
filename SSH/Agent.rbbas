@@ -15,16 +15,6 @@ Protected Class Agent
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.Agent.GetIdentity" )  Function Comment(Index As Integer) As String
-		  ' Returns the comment (if any) for the key at Index in the Agent's list of keys.
-		  
-		  Dim struct As libssh2_agent_publickey = Me.GetIdentityPtr(Index).libssh2_agent_publickey
-		  Dim mb As MemoryBlock = struct.Comment
-		  If mb <> Nil Then Return mb.CString(0)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
 		Function Connect() As Boolean
 		  ' Connect to the local key management service.
 		  '
@@ -132,16 +122,6 @@ Protected Class Agent
 		  Loop Until mLastError <> 0
 		  If mLastError = 1 Then mLastError = ERR_INVALID_INDEX
 		  Raise New SSHException(Me)
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Attributes( deprecated = "SSH.Agent.GetIdentity" )  Function PublicKey(Index As Integer) As MemoryBlock
-		  ' Returns a copy of the PublicKey at Index in the Agent's list of keys.
-		  
-		  Dim struct As libssh2_agent_publickey = Me.GetIdentityPtr(Index).libssh2_agent_publickey
-		  Dim mb As MemoryBlock = struct.Blob
-		  Return mb.StringValue(0, struct.BlobLength)
 		End Function
 	#tag EndMethod
 
