@@ -65,7 +65,7 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
 		  If mChannel <> Nil Then
-		    Me.Close
+		    Me.Close()
 		    If mFreeable Then
 		      mLastError = libssh2_channel_free(mChannel)
 		      If mLastError <> 0 Then Raise New SSHException(Me)
@@ -239,7 +239,7 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function PollReadable(Timeout As Integer = 1000, PollStdErr As Boolean = False) As Boolean
 		  ' Polls the Channel for readability. Returns True if you may Read() from the
-		  ' Channel without blocking. Check Channel.BytesAvailable to learn how much
+		  ' Channel without blocking. Check Channel.BytesReadable to learn how much
 		  ' may be read.
 		  
 		  If Not mOpen Then Return False
@@ -255,7 +255,7 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function PollWriteable(Timeout As Integer = 1000) As Boolean
 		  ' Polls the Channel for writeability. Returns True if you may Write() to the
-		  ' Channel without blocking. Check Channel.BytesLeft to learn how much
+		  ' Channel without blocking. Check Channel.BytesWriteable to learn how much
 		  ' may be written.
 		  
 		  If Not mOpen Then Return False
