@@ -14,6 +14,9 @@ Implements ErrorSetter
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
 		  ' Creates a listener for inbound TCP connections to the SSH server.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.Constructor
 		  
 		  mSession = Session
 		End Sub
@@ -50,6 +53,9 @@ Implements ErrorSetter
 	#tag Method, Flags = &h0
 		Sub Poll(Timeout As Integer = 1000)
 		  ' Polls the listener and raises the appropriate events if there is activity.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.Poll
 		  
 		  If Not IsListening Then Return
 		  Dim pollfd As LIBSSH2_POLLFD
@@ -80,6 +86,9 @@ Implements ErrorSetter
 		  ' libssh2 will enqueue at most MaxConnections before refusing to accept new ones. Once a
 		  ' connection is passed to the ConnectionReceived() event it is no longer counted against
 		  ' MaxConnections.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.StartListening
 		  
 		  If mListener <> Nil Then Return
 		  Do Until mListener <> Nil
@@ -102,6 +111,9 @@ Implements ErrorSetter
 		  ' Instruct the server to stop accepting TCP connections. Existing connections will
 		  ' continue to exist until they are explicitly closed. Connections that were already
 		  ' received by the server but not yet accepted by us will be dropped.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.StopListening
 		  
 		  If mListener <> Nil Then
 		    Do
@@ -134,6 +146,11 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  ' 
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.Handle
+			  
 			  return mListener
 			End Get
 		#tag EndGetter
@@ -143,6 +160,11 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the listener is active.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.IsListening
+			  
 			  return mListener <> Nil
 			End Get
 		#tag EndGetter
@@ -152,6 +174,11 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the most recent libssh2 error code for this instance of TCPListener.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.LastError
+			  
 			  return mLastError
 			End Get
 		#tag EndGetter
@@ -161,11 +188,22 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the maximum number of pending connections to queue before rejecting further attempts.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.MaxConnections
+			  
 			  return mMaxConnections
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets maximum number of pending connections to queue before rejecting further attempts. 
+			  ' This cannot be changed while listening.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.MaxConnections
+			  
 			  If IsListening Then
 			    mLastError = ERR_TOO_LATE
 			    Return
@@ -203,11 +241,23 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The IP address of the network interface on the server on which to accept connections. If
+			  ' this property is the empty string then the server will listen on all of its interfaces.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.RemoteInterface
+			  
 			  return mRemoteInterface
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' The IP address of the network interface on the server on which to accept connections. If
+			  ' this property is the empty string then the server will listen on all of its interfaces.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.RemoteInterface
+			  
 			  If IsListening Then
 			    mLastError = ERR_TOO_LATE
 			    Return
@@ -221,11 +271,21 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The port number on which to accept connections.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.RemotePort
+			  
 			  return mRemotePort
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' The port number on which to accept connections.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.RemotePort
+			  
 			  If IsListening Then
 			    mLastError = ERR_TOO_LATE
 			    Return
@@ -239,6 +299,11 @@ Implements ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the Session that owns the listener.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPListener.Session
+			  
 			  return mSession
 			End Get
 		#tag EndGetter

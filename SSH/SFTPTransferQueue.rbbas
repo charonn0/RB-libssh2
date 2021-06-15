@@ -2,6 +2,11 @@
 Protected Class SFTPTransferQueue
 	#tag Method, Flags = &h0
 		Sub AddDownload(Source As SSH.SFTPStream, Destination As BinaryStream)
+		  ' Adds a new download transfer to the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.AddDownload
+		  
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
 		  mStreams.Value(Source) = DIRECTION_DOWN:Destination
@@ -10,6 +15,11 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Sub AddUpload(Destination As SSH.SFTPStream, Source As BinaryStream)
+		  ' Adds a new upload transfer to the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.AddDownload
+		  
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
@@ -24,6 +34,11 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Sub Constructor()
+		  ' Creates a new empty queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.Constructor
+		  
 		  mLock = New Semaphore
 		  mStreams = New Dictionary
 		End Sub
@@ -31,6 +46,11 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function Count() As Integer
+		  ' Returns the number of transfers in the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.Count
+		  
 		  Return mStreams.Count
 		End Function
 	#tag EndMethod
@@ -80,6 +100,11 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function HasTransfer(Stream As BinaryStream) As Boolean
+		  ' Returns True if the Stream is in the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.HasTransfer
+		  
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
 		    If GetUpStream(netstream) Is Stream Or GetDownStream(netstream) Is Stream Then Return True
@@ -89,12 +114,22 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function HasTransfer(Stream As SSH.SFTPStream) As Boolean
+		  ' Returns True if the Stream is in the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.HasTransfer
+		  
 		  Return mStreams <> Nil And mStreams.HasKey(Stream)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function IsDownload(Stream As BinaryStream) As Boolean
+		  ' Returns True if the Stream represents a download.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.IsDownload
+		  
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
 		    Return GetDownStream(netstream) Is Stream
@@ -104,12 +139,22 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function IsDownload(Stream As SSH.SFTPStream) As Boolean
+		  ' Returns True if the Stream represents a download.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.IsDownload
+		  
 		  Return (GetUpStream(Stream) Is Stream)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function IsUpload(Stream As BinaryStream) As Boolean
+		  ' Returns True if the Stream represents an upload.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.IsUpload
+		  
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
 		    Return GetUpStream(netstream) Is Stream
@@ -119,12 +164,22 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function IsUpload(Stream As SSH.SFTPStream) As Boolean
+		  ' Returns True if the Stream represents an upload.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.IsUpload
+		  
 		  Return (GetDownStream(Stream) Is Stream)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub Perform()
+		  ' Triggers a Timer that calls PerformOnce() repeatedly until all transfers have completed.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.Perform
+		  
 		  If mPerformTimer = Nil Then
 		    mPerformTimer = New Timer
 		    mPerformTimer.Period = 100
@@ -136,6 +191,11 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Function PerformOnce() As Boolean
+		  ' Returns True if there are still transfers in the queue. Call PerformOnce() again until
+		  ' it returns False.
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.PerformOnce
+		  
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
 		  Loop
@@ -186,12 +246,22 @@ Protected Class SFTPTransferQueue
 
 	#tag Method, Flags = &h0
 		Sub RemoveTransfer(Stream As BinaryStream)
+		  ' Removes the transfer from the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.RemoveTransfer
+		  
 		  RemoveTransfer(GetNetworkStream(Stream))
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub RemoveTransfer(Stream As SSH.SFTPStream)
+		  ' Removes the transfer from the queue.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.RemoveTransfer
+		  
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
 		  Loop
@@ -213,14 +283,24 @@ Protected Class SFTPTransferQueue
 	#tag EndHook
 
 
-
 	#tag Property, Flags = &h0
+		#tag Note
+			If True (the default) then both the remote SFTPStream and the local BinaryStream will have their
+			Close() methods called automatically. If False then you must be sure to close the streams yourself
+			at some point, typically in the TransferComplete() event.
+			
+			See:
+			https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.AutoClose
+		#tag EndNote
 		AutoClose As Boolean = True
 	#tag EndProperty
 
 	#tag Property, Flags = &h0
 		#tag Note
 			AddUpload and AddDownload will raise an exception if this limit would be exceeded.
+			
+			See:
+			https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.MaxCount
 		#tag EndNote
 		MaxCount As Integer = 256
 	#tag EndProperty
@@ -241,6 +321,9 @@ Protected Class SFTPTransferQueue
 		#tag Note
 			The number of SFTP packets to exchange per transfer in a call to PerformOnce()
 			Packets are SFTP_MAX_PACKET_SIZE(32KB) bytes long.
+			
+			See:
+			https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.PacketCount
 		#tag EndNote
 		PacketCount As Integer = 1
 	#tag EndProperty

@@ -6,6 +6,9 @@ Implements SSHStream
 		  // Part of the SSHStream interface.
 		  ' Closes the stream. No further data may be sent or received after
 		  ' calling this method. Called automatically by the Destructor().
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Close
 		  
 		  If mStream <> Nil Then
 		    Do
@@ -26,6 +29,9 @@ Implements SSHStream
 		  ' will create a remote file or directory then the Mode parameter indicates its initial
 		  ' permissions. This Constructor cannot be called from outside the SFTPStream class; 
 		  ' refer to the SFTSession.CreateStream method for equivalent functionality.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Constructor
 		  
 		  mSession = Session
 		  mDirectory = Directory
@@ -72,6 +78,9 @@ Implements SSHStream
 		Function EOF() As Boolean
 		  // Part of the Readable interface.
 		  ' Returns True if the last call to Read() resulted in an EOF
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.EOF
 		  
 		  Return mEOF
 		End Function
@@ -83,6 +92,9 @@ Implements SSHStream
 		  ' Not all servers support this. If that's the case then LastError
 		  ' will be LIBSSH2_ERROR_SFTP_PROTOCOL and Session.LastStatusCode
 		  ' will be LIBSSH2_FX_OP_UNSUPPORTED, but no exception will be raised.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Flush
 		  
 		  If mDirectory Then Raise New IOException
 		  Do
@@ -112,6 +124,9 @@ Implements SSHStream
 		  ' If the stream represents a file opened for reading then this method
 		  ' reads from the file. If the stream represents a directory then this
 		  ' method returns the next file name in the listing.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Read
 		  
 		  If mDirectory Then ' read directory listing
 		    Dim longentry As MemoryBlock
@@ -149,6 +164,9 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function ReadBuffer(Count As Integer) As MemoryBlock
 		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.ReadBuffer
 		  
 		  Dim buffer As New MemoryBlock(Count)
 		  Do
@@ -193,6 +211,9 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function ReadError() As Boolean
 		  // Part of the Readable interface.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.ReadError
 		  
 		  Return mLastError <> 0
 		End Function
@@ -207,6 +228,9 @@ Implements SSHStream
 		  ' must be individually acknowledged by the server the ideal size of the text
 		  ' parameter is a multiple of the maximum packet size. This minimizes the number
 		  ' of packets, and hence maximizes the throughput of the stream.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Write
 		  
 		  WriteBuffer(text) ' copy the string data into a MemoryBlock and call WriteBuffer()
 		End Sub
@@ -236,6 +260,9 @@ Implements SSHStream
 		Sub WriteBuffer(Data As MemoryBlock)
 		  ' This method is the same as Write() except it takes a MemoryBlock instead of a String.
 		  ' This allows us to point to the Data directly instead of copying it.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.WriteBuffer
 		  
 		  If mDirectory Then Raise New IOException
 		  If Data = Nil Then Return
@@ -272,6 +299,9 @@ Implements SSHStream
 	#tag Method, Flags = &h0
 		Function WriteError() As Boolean
 		  // Part of the Writeable interface.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.WriteError
 		  Return mLastError <> 0
 		End Function
 	#tag EndMethod
@@ -281,6 +311,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Reads the last access time attribute.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.AccessTime
 			  
 			  If mStream = Nil Then Return Nil
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return time_t(mAttribs.ATime)
@@ -289,6 +322,9 @@ Implements SSHStream
 		#tag Setter
 			Set
 			  ' Modifies the last access time attribute, if the stream is writeable.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.AccessTime
 			  
 			  If mStream = Nil Then Return
 			  ReadAttributes() ' refresh
@@ -304,6 +340,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Returns True if the stream represents a directory
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Directory
 			  
 			  return mDirectory
 			End Get
@@ -314,14 +353,20 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Gets the full remote path
+			  ' Gets the full remote path.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.FullPath
 			  
 			  Return mFilename
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
-			  ' Sets a new full path, effectively moving or renaming the file/directory
+			  ' Sets a new full path, effectively moving or renaming the file/directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.FullPath
 			  
 			  value = mSession.Rename(Me.FullPath, value)
 			  If mSession.LastStatusCode <> 0 Then
@@ -338,6 +383,11 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Handle
+			  
 			  Return mStream
 			End Get
 		#tag EndGetter
@@ -347,6 +397,11 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the stream is a download.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.IsReadable
+			  
 			  return mIsReadable
 			End Get
 		#tag EndGetter
@@ -356,6 +411,11 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the stream is an upload.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.IsWriteable
+			  
 			  return mIsWriteable
 			End Get
 		#tag EndGetter
@@ -369,6 +429,9 @@ Implements SSHStream
 			  ' LIBSSH2_ERROR_SFTP_PROTOCOL(-31) then refer to the LastStatusCode property
 			  ' of the SFTPSession that owns this stream for the SFTP status code (which will
 			  ' be one of the LIBSSH2_FX_* constants.)
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.LastError
 			  
 			  Return mLastError
 			End Get
@@ -379,7 +442,10 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns the name of last SFTP error code
+			  ' Returns the name of last SFTP error code.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.LastErrorName
 			  
 			  Return SFTPErrorName(LastError)
 			End Get
@@ -391,6 +457,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Gets the total size of the file.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Length
 			  
 			  If mStream = Nil Then Return 0
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then Return mAttribs.FileSize
@@ -399,6 +468,9 @@ Implements SSHStream
 		#tag Setter
 			Set
 			  ' Extends or truncates the file to the specified size if the stream is writeable.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Length
 			  
 			  If mStream = Nil Then Return
 			  ReadAttributes() ' refresh
@@ -446,6 +518,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Reads the Unix-style permission of the file/directory, if the server supports them.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Mode
 			  
 			  If mStream = Nil Then Return Nil
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then Return New Permissions(mAttribs.Perms)
@@ -456,6 +531,9 @@ Implements SSHStream
 			Set
 			  ' Updates the Unix-style permission of the file/directory if the stream is writeable
 			  ' and the server supports them.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Mode
 			  
 			  If mStream = Nil Then Return
 			  ReadAttributes() ' refresh
@@ -471,6 +549,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Reads the last modified time of the file/directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.ModifyTime
 			  
 			  If mStream = Nil Then Return Nil
 			  If HasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then Return time_t(mAttribs.MTime)
@@ -480,6 +561,9 @@ Implements SSHStream
 		#tag Setter
 			Set
 			  ' Modifies the last access time attribute, if the stream is writeable.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.ModifyTime
 			  
 			  If mStream = Nil Then Return
 			  ReadAttributes() ' refresh
@@ -507,6 +591,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Returns the name of the file/directory without any path.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Name
 			  
 			  If Right(FullPath, 1) = "/" Then
 			    return NthField(FullPath, "/", CountFields(FullPath, "/") - 1)
@@ -518,6 +605,9 @@ Implements SSHStream
 		#tag Setter
 			Set
 			  ' Renames the file/directory, if the server allows it.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Name
 			  
 			  value = mSession.Rename(Me.FullPath, Me.Parent.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
@@ -533,6 +623,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Returns an instance of SFTPDirectory for the parent directory of this stream.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Parent
 			  
 			  Dim nm() As String = Split(mFilename.Trim, "/")
 			  For i As Integer = UBound(nm) DownTo 0
@@ -548,7 +641,10 @@ Implements SSHStream
 		#tag EndGetter
 		#tag Setter
 			Set
-			  ' Sets a new parent directory, effectively moving the file/directory
+			  ' Sets a new parent directory, effectively moving the file/directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Parent
 			  
 			  Me.FullPath = value.FullPath + Me.Name
 			End Set
@@ -560,6 +656,9 @@ Implements SSHStream
 		#tag Getter
 			Get
 			  ' Returns the current position of the file pointer in the stream.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Position
 			  
 			  If mStream <> Nil Then Return libssh2_sftp_tell64(mStream)
 			End Get
@@ -569,6 +668,9 @@ Implements SSHStream
 			  ' Moves the file pointer to the offset indicated. If the stream was opened
 			  ' in AppendOnly mode then this will fail. If the new offset is equal to the 
 			  ' old offset then the attributes will also be refreshed.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Position
 			  
 			  If mStream <> Nil Then
 			    If value = Me.Position Then ReadAttributes() ' refresh
@@ -586,6 +688,11 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the SFTPSession that owns this SFTPStream.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.
+			  
 			  return mSession
 			End Get
 		#tag EndGetter
@@ -595,6 +702,11 @@ Implements SSHStream
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the Type of this stream (file, directory, symlink, etc.)
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Type
+			  
 			  If mStream = Nil Then Return SFTPEntryType.Unknown
 			  If mType <> SFTPEntryType.Unknown Then Return mType
 			  Dim p As SFTPDirectory = Me.Parent

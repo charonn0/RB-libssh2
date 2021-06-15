@@ -4,6 +4,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Append(FileName As String, CreateIfMissing As Boolean = False, Mode As Integer = 0) As SSH.SFTPStream
 		  ' Returns an SFTPStream to which the file data can be appended.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Append
 		  
 		  If Mode = 0 Then
 		    Dim meta As SFTPStream
@@ -27,6 +30,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Sub Close()
 		  ' Closes the SFTP session and all streams opened with it.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Close
 		  
 		  If mActiveStreams <> Nil And mActiveStreams.Count > 0 Then
 		    For i As Integer = mActiveStreams.Count - 1 DownTo 0
@@ -49,6 +55,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
 		  ' Create a new SFTP session over the specified SSH session.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Constructor
 		  
 		  mSession = Session
 		  If Not mSession.IsAuthenticated Then
@@ -69,7 +78,10 @@ Implements SFTPStreamParent
 		Function CreateStream(FileName As String, Flags As Integer, Mode As Integer, Directory As Boolean) As SSH.SFTPStream
 		  ' This method opens a SFTPStream according to the parameters. It is a more generic
 		  ' version of the Get(), Put(), and ListDirectory() methods, allowing custom functionality.
-		  ' See https://www.libssh2.org/libssh2_sftp_open_ex.html for a description of the parameters.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.
+		  ' https://www.libssh2.org/libssh2_sftp_open_ex.html 
 		  
 		  Return New SFTPStreamPtr(Me, NormalizePath(FileName, Directory, Not Directory), Flags, Mode, Directory)
 		  
@@ -83,6 +95,9 @@ Implements SFTPStreamParent
 		Function CreateSymbolicLink(Path As String, Link As String) As Boolean
 		  ' This method creates a new symlink on the server from the Path to the Link.
 		  ' If the Path is a directory then it must end with "/", however the Link must not.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.CreateSymbolicLink
 		  
 		  Dim src As MemoryBlock = NormalizePath(Path, False, False)
 		  Dim dst As MemoryBlock = NormalizePath(Link, False, True)
@@ -100,6 +115,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Get(FileName As String) As SSH.SFTPStream
 		  ' Returns an SFTPStream from which the file data can be read.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Get
 		  
 		  Return CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
 		End Function
@@ -108,6 +126,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Get(FileName As String, WriteTo As Writeable) As Boolean
 		  ' Downloads the FileName to WriteTo.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Get
 		  
 		  Dim stream As SSHStream = Me.Get(FileName)
 		  Do Until stream.EOF
@@ -124,6 +145,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function IsDirectory(Path As String) As Boolean
 		  ' This method returns True if the Path exists and refers to a directory.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.IsDirectory
 		  
 		  If Not PathExists(Path) Then Return False
 		  Return CreateStream(Path, LIBSSH2_FXF_READ, 0, True) <> Nil
@@ -134,6 +158,9 @@ Implements SFTPStreamParent
 		Function IsSymbolicLink(LinkPath As String) As Boolean
 		  ' This method returns True if the LinkPath is actually a symlink.
 		  ' Use ReadSymbolicLink to get the target path.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.IsSymbolicLink
 		  
 		  Return ReadSymbolicLink(LinkPath) <> ""
 		End Function
@@ -143,6 +170,9 @@ Implements SFTPStreamParent
 		Function ListDirectory(DirectoryName As String) As SSH.SFTPDirectory
 		  ' Returns an instance of SFTPDirectory with which you can iterate over
 		  ' all the items in the remote directory.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.ListDirectory
 		  
 		  Return New SFTPDirectoryPtr(Me, NormalizePath(DirectoryName, True, False))
 		  
@@ -161,7 +191,10 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Sub MakeDirectory(DirectoryName As String, Mode As Integer = &o744)
-		  ' Creates the specified directory on the server. 
+		  ' Creates the specified directory on the server.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.MakeDirectory
 		  
 		  Dim dn As MemoryBlock = NormalizePath(DirectoryName, True, False)
 		  Do
@@ -189,6 +222,9 @@ Implements SFTPStreamParent
 		Function PathExists(Path As String) As Boolean
 		  ' Returns True if the specified Path exists on the server. Paths ending in "/" are interpreted
 		  ' as directories; some servers will fail the query if it's omitted.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.PathExists
 		  
 		  If Not mSession.IsAuthenticated Then Return False
 		  Dim fn As MemoryBlock = NormalizePath(Path, False, False)
@@ -214,6 +250,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
 		  ' Returns an SFTPStream to which the file data can be written.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Put
 		  
 		  Dim flags As Integer = LIBSSH2_FXF_CREAT Or LIBSSH2_FXF_WRITE
 		  If Overwrite Then flags = flags Or LIBSSH2_FXF_TRUNC Else flags = flags Or LIBSSH2_FXF_EXCL
@@ -224,6 +263,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744) As Boolean
 		  ' Writes the Upload stream to FileName.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Put
 		  
 		  Dim sftp As SSHStream = Me.Put(FileName, Overwrite, Mode)
 		  
@@ -244,6 +286,9 @@ Implements SFTPStreamParent
 		  ' file/directory. If the linked file/directory is itself a symlink and FollowAll=True then
 		  ' that (and all subsequent) symlinks are followed until we reach the final target.
 		  ' If the LinkPath is not actually a symlink then this method returns the empty string.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.ReadSymbolicLink
 		  
 		  Dim src As MemoryBlock = NormalizePath(LinkPath, False, False)
 		  Dim dst As New MemoryBlock(1024 * 64)
@@ -304,6 +349,9 @@ Implements SFTPStreamParent
 		  '
 		  ' If Recursive=True then the directory and everything in it is deleted. This
 		  ' may take a long time if the directory is very large and/or deep.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.RemoveDirectory
 		  
 		  If Not PathExists(DirectoryName) Then Return
 		  Dim dn As MemoryBlock = NormalizePath(DirectoryName, True, False)
@@ -320,6 +368,9 @@ Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Sub RemoveFile(FileName As String)
 		  ' Deletes the specified file on the server.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.RemoveFile
 		  
 		  Dim fn As MemoryBlock = NormalizePath(FileName, False, True)
 		  Do
@@ -331,6 +382,13 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Sub Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False)
+		  ' Renames the SourceName file. If DestinationName already exists and Overwrite=False then
+		  ' the operation will fail. Check SFTPSession.LastError to determine whether the operation
+		  ' succeeded.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Rename
+		  
 		  Dim name As String
 		  name = Rename(SourceName, DestinationName, Overwrite)
 		End Sub
@@ -338,11 +396,13 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Function Rename(SourceName As String, DestinationName As String, Overwrite As Boolean = False) As String
-		  ' Renames the SourceName file. If DestinationName already exists
-		  ' and Overwrite=False then the operation will fail. On success
-		  ' returns the normalized DestinationName. On failure returns the
-		  ' normalized SourceName. Check SFTPSession.LastError to determine
-		  ' whether the operation succeeded.
+		  ' Renames the SourceName file. If DestinationName already exists and Overwrite=False then
+		  ' the operation will fail. On success returns the normalized DestinationName. On failure
+		  ' returns the normalized SourceName. Check SFTPSession.LastError to determine whether the
+		  ' operation succeeded.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Rename
 		  
 		  Dim sn As MemoryBlock = NormalizePath(SourceName, False, False)
 		  Dim dn As MemoryBlock = NormalizePath(DestinationName, False, False)
@@ -371,7 +431,10 @@ Implements SFTPStreamParent
 			Get
 			  ' Returns a reference to the Channel, which was created internally by libssh2, over
 			  ' which the SFTPSession is opened. This property exists for the sake of completeness,
-			  ' but is not generally needed by users of the binding. 
+			  ' but is not generally needed by users of the binding.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Channel
 			  
 			  If mChannel = Nil And mSFTP <> Nil Then
 			    Dim ch As Ptr = libssh2_sftp_get_channel(mSFTP)
@@ -386,6 +449,11 @@ Implements SFTPStreamParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Handle
+			  
 			  Return mSFTP
 			End Get
 		#tag EndGetter
@@ -395,7 +463,10 @@ Implements SFTPStreamParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns the most recent error code returned from libssh2.
+			  ' Returns the most recent error code returned from libssh2. Not to be confused with the last SFTP status code.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.LastError
 			  
 			  Return mLastError
 			End Get
@@ -408,6 +479,10 @@ Implements SFTPStreamParent
 			Get
 			  ' Returns the last SFTP status code, which will be one of the LIBSSH2_FX_* constants.
 			  ' Check this value if SFTPStream.LastError or SFTPDirectory.LastError = LIBSSH2_ERROR_SFTP_PROTOCOL(-31)
+			  ' Not to be confused with the LastError.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.LastStatusCode
 			  
 			  If mSFTP = Nil Then Return 0
 			  Return libssh2_sftp_last_error(mSFTP)
@@ -419,7 +494,10 @@ Implements SFTPStreamParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns the name of last SFTP status code
+			  ' Returns the name of last SFTP status code.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.LastStatusName
 			  
 			  Return SFTPErrorName(LastStatusCode)
 			End Get
@@ -454,6 +532,11 @@ Implements SFTPStreamParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the SSH Session that owns this SFTP session.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Session
+			  
 			  return mSession
 			End Get
 		#tag EndGetter
@@ -463,7 +546,10 @@ Implements SFTPStreamParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns the number of streams opened over the SFTP session
+			  ' Returns the number of streams opened over the SFTP session.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.StreamCount
 			  
 			  If mActiveStreams <> Nil Then Return mActiveStreams.Count
 			End Get
@@ -474,11 +560,30 @@ Implements SFTPStreamParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the current working directory for the SFTP session. Defaults to "/home/username/", where
+			  ' username is the name used to authenticate to the server. If that directory doesn't exist on
+			  ' the server then the default working directory is "/".
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.WorkingDirectory
+			  
 			  return mWorkingDirectory
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the current working directory for the SFTP session. Paths that begin with a slash (/) are
+			  ' interpreted as absolute paths. Paths without a leading slash are interpreted as being relative
+			  ' to the current working directory.
+			  '
+			  ' Attempting to set the WorkingDirectory to a file or to a directory which doesn't exist will fail.
+			  '
+			  ' As a convenience you can change to the parent directory by assigning a value of ".." to this property.
+			  ' The tilde character (~) will be expanded to "/home/username" if it appears at the beginning of the path.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.WorkingDirectory
+			  
 			  If value.Trim = "." Or value = mWorkingDirectory Then Return
 			  If Left(value, 1) = "~" Then value = "/home/" + Session.Username + Right(value, value.Len - 1)
 			  Dim p() AS String = Split(mWorkingDirectory, "/")

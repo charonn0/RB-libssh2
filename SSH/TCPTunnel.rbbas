@@ -17,7 +17,11 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Close()
-		  ' frees the listener if necessary then calls Channel.Close()
+		  ' Frees the listener if necessary then calls Channel.Close()
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Close
+		  
 		  If mListener <> Nil Then mListener.StopListening()
 		  mListener = Nil
 		  Super.Close()
@@ -34,6 +38,9 @@ Inherits SSH.Channel
 		  '
 		  ' If the tunnel is forwarding an actual TCPSocket then the LocalInterface and LocalPort properties
 		  ' should reflect the corresponding properties of the socket being forwarded.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Connect
 		  
 		  If Me.IsConnected Or Me.IsListening Then
 		    mLastError = ERR_TOO_LATE
@@ -63,12 +70,21 @@ Inherits SSH.Channel
 		Sub Constructor(Session As SSH.Session)
 		  ' Construct a new unconnected tunnel.
 		  ' The Session need not yet be connected or authenticated.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Constructor
+		  
 		  mSession = Session
 		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Function EOF() As Boolean
+		  ' Returns True if the tunnel is neither connected nor listening.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.EOF
+		  
 		  If mListener <> Nil And mListener.IsListening Then Return False
 		  Return Super.EOF()
 		End Function
@@ -76,6 +92,11 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Sub Flush()
+		  ' Flushes the stream.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Flush
+		  
 		  Super.Flush(0)
 		End Sub
 	#tag EndMethod
@@ -95,6 +116,9 @@ Inherits SSH.Channel
 		  '
 		  ' This method listens for exactly one inbound connection and accepts the first one that arrives.
 		  ' To accept more than one inbound connection on the remote port refer to the TCPListener class.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Listen
 		  
 		  If Me.IsConnected Or Me.IsListening Then
 		    mLastError = ERR_TOO_LATE
@@ -143,6 +167,9 @@ Inherits SSH.Channel
 		Function Poll(Timeout As Integer = 1000, EventMask As Integer = - 1) As Boolean
 		  ' If already connected then this method calls the superclass
 		  ' Poll() method. If listening but not connected, calls TCPListener.Poll()
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Poll
 		  
 		  If Me.IsConnected Then
 		    Return Super.Poll(Timeout, EventMask)
@@ -158,12 +185,22 @@ Inherits SSH.Channel
 
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, encoding As TextEncoding = Nil) As String
+		  ' Reads bytes from a tunnel if there is data available.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Read
+		  
 		  Return Super.Read(Count, 0, encoding)
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String)
+		  ' Writes data to the tunnel.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Write
+		  
 		  Super.Write(text, 0)
 		End Sub
 	#tag EndMethod
@@ -215,6 +252,9 @@ Inherits SSH.Channel
 		#tag Getter
 			Get
 			  ' Returns True if the tunnel is connected. Equivalent to Channel.IsOpen.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.IsConnected
 			  
 			  Return IsOpen
 			End Get
@@ -228,6 +268,9 @@ Inherits SSH.Channel
 			  ' Returns True if the tunnel is listening for a connection.
 			  ' Check TCPTunnel.IsConnected to determine whether a connection
 			  ' has been received.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.IsListening
 			  
 			  Return mListener <> Nil
 			End Get
@@ -240,6 +283,9 @@ Inherits SSH.Channel
 			Get
 			  ' Returns a reference to the TCPListener that is actually doing the listening
 			  ' if the tunnel is in listen mode, or Nil if not.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.Listener
 			  
 			  return mListener
 			End Get
@@ -256,12 +302,26 @@ Inherits SSH.Channel
 		#tag EndNote
 		#tag Getter
 			Get
+			  ' Returns the local NetworkInterface that is initiating the outbound connection. If this
+			  ' property is not set to a custom value then Session.NetworkInterface is used. The
+			  ' LocalInterface need not refer to the same interface that the SSH session is using.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.LocalInterface
+			  
 			  If mLocalInterface = Nil Then mLocalInterface = mSession.NetworkInterface
 			  return mLocalInterface
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Specifies the local NetworkInterface that is initiating the outbound connection. If this
+			  ' property is not set to a custom value then Session.NetworkInterface is used. The
+			  ' LocalInterface need not refer to the same interface that the SSH session is using.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.LocalInterface
+			  
 			  If IsOpen Then
 			    mLastError = ERR_TOO_LATE
 			    Return
@@ -273,13 +333,15 @@ Inherits SSH.Channel
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
-		#tag Note
-			The local port number that is initiating the outbound connection.
-			If this property is not set to a custom value then a random ephemeral
-			port is used. The local port number need not actually be available.
-		#tag EndNote
 		#tag Getter
 			Get
+			  ' The local port number that is initiating the outbound connection. If this property is
+			  ' not set to a custom value then a random ephemeral port is used. The local port number
+			  ' need not actually be available.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.LocalPort
+			  
 			  If mLocalPort <= 0 Then
 			    Dim r As New Random
 			    mLocalPort = r.InRange(4096, 65534)
@@ -289,6 +351,13 @@ Inherits SSH.Channel
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' The local port number that is initiating the outbound connection. If this property is
+			  ' not set to a custom value then a random ephemeral port is used. The local port number
+			  ' need not actually be available.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.LocalPort
+			  
 			  If IsOpen Then
 			    mLastError = ERR_TOO_LATE
 			    Return
@@ -320,13 +389,15 @@ Inherits SSH.Channel
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
-		#tag Note
-			The hostname or IP address of the third-party server we want the SSH server
-			to open a connection to. If a hostname is provided the SSH server will 
-			resolve it to an IP according to its own DNS configuration.
-		#tag EndNote
 		#tag Getter
 			Get
+			  ' The hostname or IP address of the third-party server we want the SSH server to open a
+			  ' connection to. If a hostname is provided the SSH server will resolve it to an IP according
+			  ' to its own DNS configuration.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.RemoteAddress
+			  
 			  return mRemoteAddress
 			End Get
 		#tag EndGetter
@@ -343,17 +414,24 @@ Inherits SSH.Channel
 	#tag EndComputedProperty
 
 	#tag ComputedProperty, Flags = &h0
-		#tag Note
-			The port number on the third-party server we want the SSH server to open a connection to.
-		#tag EndNote
 		#tag Getter
 			Get
+			  ' The port number on the third-party server we want the SSH server to open a connection to.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.RemotePort
+			  
 			  return mRemotePort
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
-			  If IsOpen Then 
+			  ' The port number on the third-party server we want the SSH server to open a connection to.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.RemotePort
+			  
+			  If IsOpen Then
 			    mLastError = ERR_TOO_LATE
 			    Return
 			  End If
