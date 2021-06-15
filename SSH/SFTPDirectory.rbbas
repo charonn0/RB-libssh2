@@ -3,6 +3,9 @@ Protected Class SFTPDirectory
 	#tag Method, Flags = &h0
 		Sub Close()
 		  ' Ends the directory listing.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Close
 		  
 		  If mStream <> Nil Then mStream.Close()
 		  
@@ -11,6 +14,17 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h1
 		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String)
+		  ' Constructs a new instance of SFTPDirectory. The specified directory must exist.
+		  ' This Constructor is only available to subclasses; in other places use one of these
+		  ' methods instead:
+		  '    SFTPSession.ListDirectory
+		  '    SFTPDirectory.Parent
+		  '    SFTPDirectory.OpenSubdirectory
+		  '    SFTPStream.Parent
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Constructor
+		  
 		  mSession = Session
 		  If Not mSession.Session.IsAuthenticated Then
 		    mLastError = ERR_NOT_AUTHENTICATED
@@ -26,6 +40,11 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function Count() As Integer
+		  ' Returns the number of files and subdirectories in this directory.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Count
+		  
 		  Dim thisdir As New SFTPDirectory(Session, FullPath)
 		  Dim c As Integer
 		  Do
@@ -50,6 +69,11 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function OpenFile(Index As Integer) As SSH.SFTPStream
+		  ' Open a file in the directory for download by its index.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.OpenFile
+		  
 		  Dim thisdir As New SFTPDirectory(Session, FullPath)
 		  Do Until thisdir.CurrentIndex = Index
 		    If Not thisdir.ReadNextEntry() Then
@@ -63,6 +87,12 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function OpenFile(Optional FileName As String, TruePath As Boolean = False) As SSH.SFTPStream
+		  ' Open a file in the directory for download by its name. If the name is not specified then
+		  ' the CurrentName property is used.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.OpenFile
+		  
 		  If FileName = "" Then ' get the current file
 		    Select Case True
 		    Case CurrentName <> "" And CurrentType <> SFTPEntryType.Directory
@@ -91,6 +121,11 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function OpenSubdirectory(Index As Integer) As SSH.SFTPDirectory
+		  ' Open a subdirectory in the directory by its index.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.OpenSubdirectory
+		  
 		  Dim thisdir As New SFTPDirectory(Session, FullPath)
 		  Do Until thisdir.CurrentIndex = Index
 		    If Not thisdir.ReadNextEntry() Then
@@ -104,6 +139,12 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function OpenSubdirectory(Optional DirectoryName As String, TruePath As Boolean = False) As SSH.SFTPDirectory
+		  ' Open a subdirectory in the directory by its name. If the name is not specified then the
+		  ' CurrentName property is used.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.OpenSubdirectory
+		  
 		  If DirectoryName = "" Then ' get the current directory
 		    Select Case True
 		    Case CurrentName <> "" And CurrentType = SFTPEntryType.Directory
@@ -150,6 +191,12 @@ Protected Class SFTPDirectory
 
 	#tag Method, Flags = &h0
 		Function ReadNextEntry() As Boolean
+		  ' This method reads the next directory entry and populates the CurrentName, CurrentLength, etc.
+		  ' properties. Keep calling this method until it returns False to iterate over the entire directory.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.ReadNextEntry
+		  
 		  If mStream = Nil Then Return False
 		  mCurrentLongEntry = New MemoryBlock(512)
 		  Dim name As New MemoryBlock(1024 * 16)
@@ -201,12 +248,22 @@ Protected Class SFTPDirectory
 		#tag EndNote
 		#tag Getter
 			Get
+			  ' Gets the last access timestamp of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.AccessTime
+			  
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
 			  If ReadDirectoryAttributes(attrib) Then Return time_t(attrib.ATime)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the last access timestamp of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.AccessTime
+			  
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
 			  If Not ReadDirectoryAttributes(attrib) Then Return
 			  attrib.ATime = time_t(value)
@@ -219,6 +276,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the last access timestamp of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentAccessTime
+			  
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then
@@ -228,6 +290,11 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the last access timestamp of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentAccessTime
+			  
 			  If mStream = Nil Then Return
 			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
@@ -244,6 +311,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the index of the current file/subdirectory in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentIndex
+			  
 			  If mStream = Nil Then Return -1
 			  If mIndex = -1 Then Call ReadNextEntry()
 			  return mIndex
@@ -255,6 +327,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the length of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentLength
+			  
 			  If mIndex = -1 And Not ReadNextEntry() Then Return 0
 			  If CurrentType = SFTPEntryType.Directory Then Return 0
 			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_SIZE) Then
@@ -264,6 +341,11 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the length of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentLength
+			  
 			  If mStream = Nil Then Return
 			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
@@ -280,6 +362,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the Unix-style permissions of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentMode
+			  
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_PERMISSIONS) Then
@@ -289,6 +376,11 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the Unix-style permissions of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentMode
+			  
 			  If mStream = Nil Then Return
 			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, 0, 0, False)
@@ -305,6 +397,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the last modified timestamp of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentModifyTime
+			  
 			  If mStream = Nil Then Return Nil
 			  If mIndex = -1 And Not ReadNextEntry() Then Return Nil
 			  If CurrentHasAttribute(LIBSSH2_SFTP_ATTR_ACMODTIME) Then
@@ -314,6 +411,11 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the last modified timestamp of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentModifyTime
+			  
 			  If mStream = Nil Then Return
 			  If mIndex = -1 And Not ReadNextEntry() Then Return
 			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, LIBSSH2_FXF_READ Or LIBSSH2_FXF_WRITE, 0, False)
@@ -330,12 +432,22 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the name of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentName
+			  
 			  If mIndex = -1 And Not ReadNextEntry() Then Return ""
 			  return mCurrentName
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the name of the current file in the listing.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentName
+			  
 			  Dim p As SFTPDirectory = Me.Parent()
 			  value = mSession.Rename(Me.FullPath + CurrentName, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
@@ -350,6 +462,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns the type of the current entry in the listing (file, directory, symlink, etc.)
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.CurrentType
+			  
 			  If mStream = Nil Then Return SFTPEntryType.Unknown
 			  If mIndex = -1 Then Call ReadNextEntry()
 			  If mIndex = -1 Then Return SFTPEntryType.Unknown
@@ -390,6 +507,9 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  ' Gets the full remote path of the directory being listed.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.FullPath
 			  
 			  Dim nm As String = mName
 			  Do Until InStr(nm, "//") = 0
@@ -402,6 +522,9 @@ Protected Class SFTPDirectory
 			Set
 			  ' Sets the full remote path of the directory being listed. If the server allows/supports the operation
 			  ' then the directory is moved/renamed.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.FullPath
 			  
 			  value = mSession.Rename(Me.FullPath, value)
 			  If mSession.LastStatusCode = 0 Then
@@ -417,6 +540,9 @@ Protected Class SFTPDirectory
 		#tag Getter
 			Get
 			  ' Returns the most recent libssh2 error code for this instance of SFTPDirectory
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.LastError
 			  
 			  Return mLastError
 			End Get
@@ -454,12 +580,22 @@ Protected Class SFTPDirectory
 		#tag EndNote
 		#tag Getter
 			Get
+			  ' Gets and sets the Unix-style permissions of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Mode
+			  
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
 			  If ReadDirectoryAttributes(attrib) Then Return New Permissions(attrib.Perms)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets and sets the Unix-style permissions of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Mode
+			  
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
 			  If Not ReadDirectoryAttributes(attrib) Then Return
 			  attrib.Perms = PermissionsToMode(value)
@@ -475,12 +611,22 @@ Protected Class SFTPDirectory
 		#tag EndNote
 		#tag Getter
 			Get
+			  ' Gets the last modified timestamp of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.ModifyTime
+			  
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
 			  If ReadDirectoryAttributes(attrib) Then Return time_t(attrib.MTime)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the last modified timestamp of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.ModifyTime
+			  
 			  Dim attrib As LIBSSH2_SFTP_ATTRIBUTES
 			  If Not ReadDirectoryAttributes(attrib) Then Return
 			  attrib.MTime = time_t(value)
@@ -501,6 +647,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the name of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Name
+			  
 			  If Right(mName, 1) = "/" Then
 			    return NthField(mName, "/", CountFields(mName, "/") - 1)
 			  Else
@@ -510,6 +661,11 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the name of this directory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Name
+			  
 			  Dim p As SFTPDirectory = Me.Parent()
 			  value = mSession.Rename(Me.FullPath, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
@@ -524,6 +680,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' A new SFTPDirectory representing the parent of the current directory, or Nil on error.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Parent
+			  
 			  If mName = "/" Or mName = "" Then
 			    mLastError = LIBSSH2_FX_NOT_A_DIRECTORY
 			    Return Nil
@@ -542,6 +703,11 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Move this directory to a new parent.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Parent
+			  
 			  Me.FullPath = value.FullPath + Me.Name
 			End Set
 		#tag EndSetter
@@ -551,6 +717,11 @@ Protected Class SFTPDirectory
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the SFTPSession that owns the SFTPDirectory.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Session
+			  
 			  return mSession
 			End Get
 		#tag EndGetter
@@ -560,6 +731,9 @@ Protected Class SFTPDirectory
 	#tag Property, Flags = &h0
 		#tag Note
 			When True, the self(.) and parent(..) virtual directory references are skipped.
+			
+			See:
+			https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.SuppressVirtualEntries
 		#tag EndNote
 		SuppressVirtualEntries As Boolean = True
 	#tag EndProperty

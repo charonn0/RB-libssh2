@@ -4,6 +4,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function BlockInbound() As Boolean
 		  ' Returns True if reading from the the session (via Channel, SFTPStream, etc.) would block
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.BlockInbound
 		  
 		  Return Mask(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_INBOUND)
 		End Function
@@ -12,6 +15,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function BlockOutbound() As Boolean
 		  ' Returns True if writing to the the session (via Channel, SFTPStream, etc.) would block
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.BlockOutbound
 		  
 		  Return Mask(libssh2_session_block_directions(mSession), LIBSSH2_SESSION_BLOCK_OUTBOUND)
 		End Function
@@ -23,6 +29,9 @@ Implements ChannelParent
 		  ' If AddHost=True then the current session's host+key will be added to the list.
 		  ' If AddHost=False and the host+key of the current session were found in the list
 		  ' this method returns True. Check Session.LastError if it returns False.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.CheckHost
 		  
 		  If Hosts.Lookup(Me) Then Return True ' the server is known and its fingerprint is valid
 		  mLastError = Hosts.LastError
@@ -46,6 +55,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Sub Close(Description As String = "The session has ended.", Reason As SSH.DisconnectReason = SSH.DisconnectReason.AppRequested, Language As String = "")
 		  ' Ends the SSH session and closes the socket.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Close
 		  
 		  If mSession <> Nil Then
 		    Do
@@ -63,6 +75,9 @@ Implements ChannelParent
 		  ' If TimeOut is specified then the connection attempt will be abandoned after the TimeOut
 		  ' period elapses. The TimeOut period is measured in milliseconds.
 		  ' Returns True on success. Check Session.LastError if it returns False.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Connect
 		  
 		  Dim sock As New TCPSocket
 		  sock.Address = Address
@@ -77,6 +92,9 @@ Implements ChannelParent
 		  ' If TimeOut is specified then the connection attempt will be abandoned after the TimeOut
 		  ' period elapses. The TimeOut period is measured in milliseconds.
 		  ' Returns True on success. Check Session.LastError if it returns False.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Connect
 		  
 		  If IsConnected Then
 		    mLastError = ERR_TOO_LATE
@@ -118,6 +136,11 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub Constructor()
+		  ' Creates a new instance of Session.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Constructor
+		  
 		  mInit = SSHInit.GetInstance()
 		  Static abstract As Integer
 		  If Sessions = Nil Then Sessions = New Dictionary
@@ -185,6 +208,9 @@ Implements ChannelParent
 		Function GetActualAlgorithm(Type As SSH.AlgorithmType) As String
 		  ' Once connected to a server, this method returns the negotiated algorithm
 		  ' for the specified AlgorithmType.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.GetActualAlgorithm
 		  
 		  Dim item As CString
 		  If Not IsConnected Then
@@ -208,6 +234,9 @@ Implements ChannelParent
 		  ' this method will successfully log the user on and the returned list will be empty. Consequently,
 		  ' an empty return value is not necessarily an error. You can check the IsAuthenticated property to
 		  ' determine whether you're actually authenticated.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.GetAuthenticationMethods
 		  
 		  Dim auth() As String
 		  If Not IsConnected Then
@@ -235,6 +264,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function GetAvailableAlgorithms(Type As SSH.AlgorithmType) As String()
 		  ' Returns an array of available algorithms for the specified AlgorithmType.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.GetAvailableAlgorithms
 		  
 		  Dim ret() As String
 		  If mSession = Nil Then Return ret
@@ -264,6 +296,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function GetLastError() As Int32
 		  ' Queries the most recent error code known to libshh2.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.GetLastError
 		  
 		  If mSession = Nil Then Return 0
 		  Return libssh2_session_last_errno(mSession)
@@ -274,6 +309,9 @@ Implements ChannelParent
 		Function GetRemoteBanner() As String
 		  ' After Connect() returns successfully, you may call this method to read the
 		  ' server's welcome banner, if it has one.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.GetRemoteBanner
 		  
 		  If Not IsConnected Then
 		    mLastError = ERR_TOO_EARLY
@@ -290,6 +328,9 @@ Implements ChannelParent
 		  ' MemoryBlock is HashType specific (16 bytes for MD5, 20 bytes for SHA1, 32 bytes for SHA256).
 		  ' Returns Nil if the session has not yet been started up or the requested hash algorithm was
 		  ' not available.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.HostKeyHash
 		  
 		  If Not IsConnected Then
 		    mLastError = ERR_TOO_EARLY
@@ -327,6 +368,9 @@ Implements ChannelParent
 		Function KeepAlive() As Integer
 		  ' Send a keepalive message if needed. The return value indicates how many
 		  ' seconds you can sleep after this call before you need to call it again.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.KeepAlive
 		  
 		  Dim nxt As Integer
 		  If Not IsConnected Then
@@ -395,6 +439,15 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Function Poll(Timeout As Integer = 1000, EventMask As Integer = 0) As Boolean
+		  ' Polls the underlying TCP connection for activity. If this method returns True then
+		  ' Session.LastError will contain a bitmask of LIBSSH2_POLLFD_* constants indicating
+		  ' which streams are ready. If it returns False because of an error condition then the
+		  ' LastError will contain the error code, otherwise (that is, no errors and no activity)
+		  ' the LastError will be zero.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Poll
+		  
 		  If Not IsConnected Then
 		    mLastError = ERR_TOO_EARLY
 		    Return False
@@ -429,6 +482,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String) As Boolean
 		  ' EXPERIMENTAL. Authenticate as the specified user through the Authenticate() event.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
 		  
 		  Do
 		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
@@ -442,6 +498,9 @@ Implements ChannelParent
 		Function SendCredentials(Username As String, PublicKey As FolderItem, PrivateKey As FolderItem, PrivateKeyPassword As String) As Boolean
 		  ' Authenticate as the specified user with keys stored in files.
 		  ' PublicKey MAY be Nil if libssh2 was built against OpenSSL.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
 		  ' https://www.libssh2.org/libssh2_userauth_publickey_fromfile_ex.html
 		  
 		  If IsAuthenticated Then
@@ -468,6 +527,9 @@ Implements ChannelParent
 		Function SendCredentials(Username As String, PublicKey As MemoryBlock, PrivateKey As MemoryBlock, PrivateKeyPassword As String) As Boolean
 		  ' Authenticate as the specified user with keys from memory.
 		  ' PublicKey MAY be Nil if libssh2 was built against OpenSSL.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
 		  ' https://www.libssh2.org/libssh2_userauth_publickey_frommemory.html
 		  
 		  If IsAuthenticated Then
@@ -494,6 +556,9 @@ Implements ChannelParent
 		Function SendCredentials(Username As String, Agent As SSH.Agent, KeyIndex As Integer) As Boolean
 		  ' Authenticate as the specified user with the key at the specified
 		  ' index in the Agent's list of keys.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
 		  
 		  If IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
@@ -529,6 +594,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Key As SSH.AgentKey) As Boolean
 		  ' Authenticate as the specified user with the specified key from the Agent's list of keys.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
 		  
 		  Return SendCredentials(Username, Key.Owner, Key.Index)
 		End Function
@@ -537,6 +605,9 @@ Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function SendCredentials(Username As String, Password As String) As Boolean
 		  ' Authenticate as the specified user with a password.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
 		  
 		  If IsAuthenticated Then
 		    mLastError = ERR_TOO_LATE
@@ -659,6 +730,12 @@ Implements ChannelParent
 
 	#tag Method, Flags = &h0
 		Sub SetFlag(Flag As Integer, Value As Integer)
+		  ' Sets various options for the session.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SetFlag
+		  ' https://www.libssh2.org/libssh2_session_flag.html
+		  
 		  mLastError = libssh2_session_flag(mSession, Flag, Value)
 		  If mLastError <> 0 Then Raise New SSHException(Me)
 		End Sub
@@ -668,7 +745,10 @@ Implements ChannelParent
 		Sub SetLocalBanner(BannerText As String)
 		  ' Before calling Connect(), you may call this method to set the local welcome banner.
 		  ' This is optional; a banner corresponding to the protocol and libssh2 version will be
-		  ' sent by default. 
+		  ' sent by default.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SetLocalBanner
 		  
 		  If IsConnected Then
 		    mLastError = ERR_TOO_LATE
@@ -682,6 +762,9 @@ Implements ChannelParent
 		Sub SetPreferredAlgorithms(Type As SSH.AlgorithmType, Preferred() As String)
 		  ' Prior to calling Session.Connect(), you may use this method to specify a list of
 		  ' acceptable algorithms for the specified AlgorithmType.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SetPreferredAlgorithms
 		  
 		  If IsConnected Then
 		    mLastError = ERR_TOO_LATE
@@ -747,12 +830,22 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets whether libssh2 calls are blocking.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Blocking
+			  
 			  If mSession = Nil Then Return False
 			  Return libssh2_session_get_blocking(mSession) = 1
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets whether libssh2 calls are blocking.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Blocking
+			  
 			  If mSession = Nil Then Return
 			  If value Then
 			    libssh2_session_set_blocking(mSession, 1)
@@ -767,6 +860,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the TCP socket handle for the session.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Descriptor
+			  
 			  If mSocket <> Nil Then Return mSocket.Handle
 			End Get
 		#tag EndGetter
@@ -776,6 +874,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Handle
+			  
 			  Return mSession
 			End Get
 		#tag EndGetter
@@ -785,6 +888,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the remote host's raw binary key.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.HostKey
+			  
 			  If mSession = Nil Then Return Nil
 			  Dim sz, typ As Integer
 			  Dim mb As MemoryBlock = libssh2_session_hostkey(mSession, sz, typ)
@@ -797,6 +905,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets a bitmask describing the type of the HostKey.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.HostKeyType
+			  
 			  If mSession = Nil Then Return 0
 			  Dim sz, typ As Integer
 			  Dim mb As MemoryBlock = libssh2_session_hostkey(mSession, sz, typ)
@@ -809,6 +922,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' This property is True if the session is currently connected and the user is authenticated.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.IsAuthenticated
+			  
 			  If mSession <> Nil Then Return libssh2_userauth_authenticated(mSession) = 1
 			End Get
 		#tag EndGetter
@@ -818,6 +936,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' This property is True if the session is currently connected.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.IsConnected
+			  
 			  Return mSocket <> Nil And mSocket.IsConnected
 			End Get
 		#tag EndGetter
@@ -827,11 +950,21 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets how often keepalive messages should be sent, in seconds.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.KeepAlivePeriod
+			  
 			  return mKeepAlivePeriod
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets how often keepalive messages should be sent, in seconds.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.KeepAlivePeriod
+			  
 			  If value > 0 Then
 			    libssh2_keepalive_config(mSession, 1, value)
 			  Else
@@ -848,6 +981,9 @@ Implements ChannelParent
 			Get
 			  ' Returns the most recent error code returned from a libssh2 function call. If the last
 			  ' recorded error is zero then calls GetLastError()
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.LastError
 			  
 			  If mLastError <> 0 Then Return mLastError Else Return GetLastError()
 			End Get
@@ -859,6 +995,9 @@ Implements ChannelParent
 		#tag Getter
 			Get
 			  ' Returns a human readable error message for the most recent error.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.LastErrorMsg
 			  
 			  If mSession = Nil Then Return ""
 			  Dim mb As New MemoryBlock(1024)
@@ -923,6 +1062,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the local NetworkInterface being used.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.NetworkInterface
+			  
 			  If mSocket <> Nil Then
 			    If mSocket.NetworkInterface <> Nil Then Return mSocket.NetworkInterface
 			    If IsConnected Then
@@ -940,6 +1084,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the hostname or IP address of the remote server.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.RemoteHost
+			  
 			  If IsConnected Then Return mSocket.RemoteAddress
 			  Return mOriginalRemoteHost
 			  
@@ -951,6 +1100,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the port of the remote server.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.RemotePort
+			  
 			  return mRemotePort
 			End Get
 		#tag EndGetter
@@ -964,12 +1118,24 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets how long (in milliseconds) a blocking function call may wait until it considers
+			  ' the situation an error.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.TimeOut
+			  
 			  If mSession = Nil Then Return 0
 			  Return libssh2_session_get_timeout(mSession)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets how long (in milliseconds) a blocking function call may wait until it considers
+			  ' the situation an error.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.TimeOut
+			  
 			  If mSession = Nil Then Return
 			  libssh2_session_set_timeout(mSession, value)
 			End Set
@@ -980,11 +1146,23 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets whether the session will request compression. Defaults to True if compression is available
+			  ' on the client side. Changing this property's value has no effect once the session is connected.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.UseCompression
+			  
 			  return mUseCompression
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets whether the session will request compression. Defaults to True if compression is available
+			  ' on the client side. Changing this property's value has no effect once the session is connected.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.UseCompression
+			  
 			  If value Then
 			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS , 1)
 			  Else
@@ -999,6 +1177,11 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the username that was used to authenticate to the server.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Username
+			  
 			  return mUsername
 			End Get
 		#tag EndGetter
@@ -1008,11 +1191,21 @@ Implements ChannelParent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets whether the session will emit debug messages.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Verbose
+			  
 			  return mVerbose
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets whether the session will emit debug messages.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Verbose
+			  
 			  If value Then
 			    Me.SetCallback(CB_Debug, AddressOf DebugHandler)
 			  Else

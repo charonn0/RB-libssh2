@@ -4,6 +4,9 @@ Protected Class Agent
 		Function Authenticate(Username As String, KeyIndex As Integer) As Boolean
 		  ' Authenticate the current Session with the specified Username
 		  ' using the key at KeyIndex in the Agent's list of keys.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Authenticate
 		  
 		  Dim identity As Ptr = GetIdentityPtr(KeyIndex)
 		  mLastError = libssh2_agent_userauth(mAgent, Username, identity)
@@ -24,6 +27,9 @@ Protected Class Agent
 	#tag Method, Flags = &h0
 		Function Connect() As Boolean
 		  ' Connect to the local key management service.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Connect
 		  
 		  Do
 		    mLastError = libssh2_agent_connect(mAgent)
@@ -38,6 +44,9 @@ Protected Class Agent
 		Sub Constructor(Session As SSH.Session)
 		  ' Creates a new instance of Agent which can be used for authenticating
 		  ' the specified Session.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Constructor
 		  
 		  mSession = Session
 		  mAgent = libssh2_agent_init(Session.Handle)
@@ -52,6 +61,9 @@ Protected Class Agent
 		Function Count() As Integer
 		  ' Returns the number of keys in the Agent's list. The index of the last key is Count-1.
 		  ' Be sure to call Connect() and then Refresh() before asking for the Count.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Count
 		  
 		  Dim c As Integer
 		  Dim prev As Ptr
@@ -79,6 +91,9 @@ Protected Class Agent
 		Sub Disconnect()
 		  ' Disconnect from the local key management service. Called automatically by
 		  ' the Destructor method.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Disconnect
 		  
 		  If mAgent = Nil Or Not mConnected Then Return
 		  Do
@@ -91,6 +106,11 @@ Protected Class Agent
 
 	#tag Method, Flags = &h0
 		Function GetIdentity(Index As Integer) As SSH.AgentKey
+		  ' Returns an instance of AgentKey representing the identity at Index in the agent's list.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.GetIdentity
+		  
 		  Dim struct As Ptr = GetIdentityPtr(Index)
 		  If struct <> Nil Then Return New AgentKeyPtr(Me, struct, Index)
 		End Function
@@ -128,6 +148,9 @@ Protected Class Agent
 	#tag Method, Flags = &h0
 		Function Refresh() As Boolean
 		  ' Requests the Agent's list of keys. Must be called after Connect().
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Refresh
 		  
 		  mLastError = libssh2_agent_list_identities(mAgent)
 		  Return mLastError = 0
@@ -138,6 +161,11 @@ Protected Class Agent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Handle
+			  
 			  Return mAgent
 			End Get
 		#tag EndGetter
@@ -148,6 +176,9 @@ Protected Class Agent
 		#tag Getter
 			Get
 			  ' Returns True if we're connected to the local Agent service.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.IsConnected
 			  
 			  return mConnected
 			End Get
@@ -159,6 +190,9 @@ Protected Class Agent
 		#tag Getter
 			Get
 			  ' Returns the most recent libssh2 error code for this instance
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.LastError
 			  
 			  Return mLastError
 			End Get
@@ -185,11 +219,19 @@ Protected Class Agent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the custom agent identity (IPC) socket path, if one is being used.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Path
 			  If mAgent <> Nil Then Return libssh2_agent_get_identity_path(mAgent)
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets the custom agent identity (IPC) socket path. By default the SSH_AUTH_SOCK env value is used.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Path
 			  If mAgent <> Nil And value <> "" Then libssh2_agent_set_identity_path(mAgent, value)
 			End Set
 		#tag EndSetter
@@ -199,6 +241,11 @@ Protected Class Agent
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' A reference to the Session instance that the Agent is working on behalf of.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent.Session
+			  
 			  return mSession
 			End Get
 		#tag EndGetter

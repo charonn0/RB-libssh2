@@ -23,6 +23,9 @@ Protected Module SSH
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host As String = d.Value("host")
@@ -42,6 +45,9 @@ Protected Module SSH
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect
 		  
 		  Dim session As New SSH.Session
 		  If Username = "" Then
@@ -80,6 +86,9 @@ Protected Module SSH
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect
 		  
 		  Dim session As New SSH.Session()
 		  If Username = "" Then
@@ -110,6 +119,9 @@ Protected Module SSH
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect
 		  
 		  Dim session As New SSH.Session()
 		  If Username = "" Then
@@ -140,6 +152,9 @@ Protected Module SSH
 		  ' be aborted; if AddHost is True then the fingerprint is added to KnownHostList.
 		  ' Returns an instance of SSH.Session even on error; check Session.IsAuthenticated to determine
 		  ' whether you're actually connected.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect
 		  
 		  Dim session As New SSH.Session()
 		  If Username = "" Then
@@ -171,6 +186,9 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function ErrorName(ErrorNumber As Integer) As String
 		  ' Returns the name for the code returned from libssh2
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.ErrorName
 		  
 		  Select Case ErrorNumber
 		  Case LIBSSH2_ERROR_NONE
@@ -327,6 +345,9 @@ Protected Module SSH
 		  ' Executes a shell command on the remote machine. Returns a SSHStream from which you
 		  ' Read() the standard output stream of the executing command.
 		  ' Raises an exception on error.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Execute
 		  
 		  If Session = Nil Then
 		    Dim d As Dictionary = ParseURL(Command)
@@ -355,6 +376,9 @@ Protected Module SSH
 		  ' Prepares a file download over SCP or SFTP. Returns a SSHStream that you
 		  ' Read() the download from.
 		  ' Raises an exception on error.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Get
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
@@ -388,6 +412,9 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function IsAvailable() As Boolean
 		  ' Returns True if libssh2 is available at runtime.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.IsAvailable
 		  
 		  Static avail As Boolean
 		  If Not avail Then avail = System.IsFunctionAvailable("libssh2_session_init_ex", libssh2)
@@ -848,6 +875,9 @@ Protected Module SSH
 		Protected Function ListDirectory(Optional Session As SSH.Session, URL As String) As SSH.SFTPDirectory
 		  ' SFTP only, prepares a directory listing. Returns a SFTPDirectory that you
 		  ' can use to iterate over the directory. Raises an exception on error.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.ListDirectory
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
@@ -881,6 +911,9 @@ Protected Module SSH
 		Protected Function OpenChannel(Session As SSH.Session, Type As String = "session", Message As String = "") As SSH.Channel
 		  ' Opens a new SSH.Channel over the specified SSH.Session.
 		  ' Returns Nil on error; check Session.LastError for details.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.OpenChannel
 		  
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Return Channel.Open(Session, Type, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, Message)
@@ -892,6 +925,9 @@ Protected Module SSH
 		  ' Opens a new SSH.Channel to the server specified by the URL parameter.
 		  ' e.g. "ssh://user:pass@ssh.example.com:2222/"
 		  ' Raises an exception on error.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.OpenChannel
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
@@ -1036,6 +1072,9 @@ Protected Module SSH
 		  ' Prepares a file upload over SFTP. Returns a SSHStream that you Write() the upload to.
 		  ' Raises an exception on error. For SCP uploads the length must be known ahead of time,
 		  ' so call Put(Session, URL, Length) instead of this method.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Put
 		  
 		  Return Put(Session, URL, 0, Overwrite)
 		End Function
@@ -1047,6 +1086,9 @@ Protected Module SSH
 		  ' Write() the upload to. The Length parameter is mandatory for SCP transfers,
 		  ' and ignored for SFTP transfers.
 		  ' Raises an exception on error.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Put
 		  
 		  Dim d As Dictionary = ParseURL(URL)
 		  Dim host, user, pass, scheme, path As String
@@ -1081,6 +1123,9 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function SFTPErrorName(SFTPStatusCode As Int32) As String
 		  ' Returns the name for the code returned from SFTPSession.LastStatusCode
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPErrorName
 		  
 		  Select Case SFTPStatusCode
 		  Case LIBSSH2_FX_BAD_MESSAGE
@@ -1169,6 +1214,9 @@ Protected Module SSH
 	#tag Method, Flags = &h1
 		Protected Function Version() As String
 		  ' Returns a string containing the version number, for example "1.9.0".
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Version
 		  
 		  If System.IsFunctionAvailable("libssh2_version", libssh2) Then Return libssh2_version(0)
 		End Function

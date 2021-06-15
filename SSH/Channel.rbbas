@@ -5,6 +5,9 @@ Implements SSHStream,ErrorSetter
 		Sub Close()
 		  // Part of the SSHStream interface.
 		  ' Sends the SSH2 channel close message to the server.
+		  ' 
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Close
 		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  
@@ -87,6 +90,9 @@ Implements SSHStream,ErrorSetter
 		Function EOF() As Boolean
 		  // Part of the Readable interface.
 		  ' Returns True if the server has indicated that no further data will be sent over the channel.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.EOF
 		  
 		  Do Until Not mOpen
 		    mLastError = libssh2_channel_eof(mChannel)
@@ -110,6 +116,9 @@ Implements SSHStream,ErrorSetter
 		Sub EOF(Assigns b As Boolean)
 		  ' Informs the server that no further data will be sent over the channel.
 		  ' You may only assign True; assigning False does nothing.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.EOF
 		  
 		  If Not b Then Return
 		  Do
@@ -122,6 +131,9 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function Execute(Command As String) As Boolean
 		  ' Execute a command on the server and attach its stdin, stdout, and stderr streams to this channel.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Execute
 		  
 		  Return ProcessStart("exec", Command)
 		End Function
@@ -138,6 +150,9 @@ Implements SSHStream,ErrorSetter
 		Sub Flush(StreamID As Integer)
 		  ' Flush pending output to the stream specified by StreamID.
 		  ' StreamID may be an actual stream ID number or the one of LIBSSH2_CHANNEL_FLUSH_* constants.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Flush
 		  
 		  Do
 		    mLastError = libssh2_channel_flush_ex(mChannel, StreamID)
@@ -183,6 +198,9 @@ Implements SSHStream,ErrorSetter
 		  ' before receiving an SSH_MSG_CHANNEL_WINDOW_ADJUST packet.
 		  ' PacketSize is the maximum number of bytes remote host is allowed to send in a single packet.
 		  ' Message contains additional data as required by the selected channel Type.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Open
 		  
 		  If Not Session.IsAuthenticated Then Raise New SSHException(ERR_NOT_AUTHENTICATED)
 		  Dim typ As MemoryBlock = Type + Chr(0)
@@ -218,6 +236,9 @@ Implements SSHStream,ErrorSetter
 		  ' When returning True, Channel.LastError will be a bitmask of LIBSSH2_POLLFD_* constants indicating which stream(s)
 		  ' are ready. When returning False, Channel.LastError will be a libssh2 error code: zero indicates that no errors or
 		  ' activity occured before the Timeout elapsed.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Poll
 		  
 		  If Not mOpen Then Return False
 		  If EventMask = -1 Then EventMask = LIBSSH2_POLLFD_POLLIN Or LIBSSH2_POLLFD_POLLEXT Or LIBSSH2_POLLFD_POLLOUT
@@ -241,6 +262,9 @@ Implements SSHStream,ErrorSetter
 		  ' Polls the Channel for readability. Returns True if you may Read() from the
 		  ' Channel without blocking. Check Channel.BytesReadable to learn how much
 		  ' may be read.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.PollReadable
 		  
 		  If Not mOpen Then Return False
 		  If Not PollStdErr Then
@@ -257,6 +281,9 @@ Implements SSHStream,ErrorSetter
 		  ' Polls the Channel for writeability. Returns True if you may Write() to the
 		  ' Channel without blocking. Check Channel.BytesWriteable to learn how much
 		  ' may be written.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.PollWriteable
 		  
 		  If Not mOpen Then Return False
 		  Return Poll(Timeout, LIBSSH2_POLLFD_POLLOUT)
@@ -270,7 +297,9 @@ Implements SSHStream,ErrorSetter
 		  ' request-specific data to pass to the process. Once the process is started you can read/write
 		  ' from its StdIn/Out/Err with the Read and Write methods.
 		  '
-		  ' See: https://tools.ietf.org/html/rfc4254#section-6.5
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.ProcessStart
+		  ' https://tools.ietf.org/html/rfc4254#section-6.5
 		  
 		  Dim req As MemoryBlock = Request
 		  Dim msg As MemoryBlock = Message
@@ -284,6 +313,9 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  ' Attempts to read up to the specified number of bytes from the specified StreamID.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Read
 		  
 		  Return DefineEncoding(ReadBuffer(Count, StreamID), encoding)
 		End Function
@@ -299,6 +331,9 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function ReadBuffer(Count As Integer, StreamID As Integer) As MemoryBlock
 		  ' This method is the same as Read() except it returns a MemoryBlock instead of a String.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.ReadBuffer
 		  
 		  If Count <= 0 Or (AutoPoll And Not Me.PollReadable(100)) Or BytesReadable = 0 Then
 		    Return New MemoryBlock(0)
@@ -317,6 +352,8 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function ReadError() As Boolean
 		  // Part of the Readable interface.
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.ReadError
 		  Return False
 		End Function
 	#tag EndMethod
@@ -324,6 +361,9 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Sub RequestShell()
 		  ' Requests that the user's default shell be started at the other end.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.RequestShell
 		  
 		  Call Me.ProcessStart("shell", "")
 		End Sub
@@ -333,6 +373,9 @@ Implements SSHStream,ErrorSetter
 		Sub RequestTerminal(Terminal As String, Width As Integer, Height As Integer, Modes As MemoryBlock, PixelDimensions As Boolean = False)
 		  ' Requests a pseudoterminal (PTY). Note that this does not make sense for all channel types
 		  ' and may be ignored by the server despite returning success.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.RequestTerminal
 		  
 		  Dim pw, ph, cw, ch As Integer
 		  If PixelDimensions Then
@@ -356,7 +399,10 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Sub SetEnvironmentVariable(Name As String, Value As String)
 		  ' Set an environment variable in the remote process space. Note that this does not make sense for all
-		  ' channel types and may be ignored by the server despite returning success. 
+		  ' channel types and may be ignored by the server despite returning success.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.SetEnvironmentVariable
 		  
 		  Do
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
@@ -368,7 +414,10 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Sub WaitClose()
 		  ' Enter a temporary blocking state until the remote host closes the channel.
-		  ' Typically sent after calling Close() in order to examine the exit status. 
+		  ' Typically sent after calling Close() in order to examine the exit status.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.WaitClose
 		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  Do
@@ -380,6 +429,9 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Sub WaitEOF()
 		  ' Wait for the server to indicate that no further data will be sent over the channel.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.WaitEOF
 		  
 		  If mChannel = Nil Or Not mOpen Then Return
 		  
@@ -402,6 +454,9 @@ Implements SSHStream,ErrorSetter
 		  // Part of the Writeable interface.
 		  ' This method writes the text to the specified StreamID. If not all the data
 		  ' could be written at once this method will wait until it is done.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Write
 		  
 		  Me.WriteBuffer(text, StreamID)
 		End Sub
@@ -411,6 +466,9 @@ Implements SSHStream,ErrorSetter
 		Sub WriteBuffer(Data As MemoryBlock, StreamID As Integer)
 		  ' This method is the same as Write() except it takes a MemoryBlock instead of a String.
 		  ' This allows us to point to the Data directly instead of copying it.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.WriteBuffer
 		  
 		  If Data = Nil Then Return
 		  Dim size As Integer = Data.Size
@@ -451,6 +509,9 @@ Implements SSHStream,ErrorSetter
 	#tag Method, Flags = &h0
 		Function WriteError() As Boolean
 		  // Part of the Writeable interface.
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.WriteError
+		  
 		  Return False
 		End Function
 	#tag EndMethod
@@ -495,6 +556,9 @@ Implements SSHStream,ErrorSetter
 		#tag Getter
 			Get
 			  ' Returns the number of bytes actually available to be read.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.BytesReadable
 			  
 			  Dim avail, initial As UInt32
 			  If mChannel <> Nil Then Call libssh2_channel_window_read_ex(mChannel, avail,  initial)
@@ -508,6 +572,9 @@ Implements SSHStream,ErrorSetter
 		#tag Getter
 			Get
 			  ' Returns the number of bytes which can be written to the channel without blocking.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.BytesWriteable
 			  
 			  Dim initial As UInt32
 			  If mChannel <> Nil Then Return libssh2_channel_window_write_ex(mChannel,  initial)
@@ -519,11 +586,21 @@ Implements SSHStream,ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets how data streams other than StreamID=0 should be handled. Default is ExtendedDataMode.Normal.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.DataMode
+			  
 			  Return mDataMode
 			End Get
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' Sets how data streams other than StreamID=0 should be handled. Default is ExtendedDataMode.Normal.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.DataMode
+			  
 			  If mChannel = Nil Then Return
 			  
 			  Do
@@ -544,6 +621,9 @@ Implements SSHStream,ErrorSetter
 			  ' not be available if the remote end has not yet set its status to closed. Call Close() to
 			  ' set the local status to closed, and then WaitClose() to wait for the server to change its
 			  ' status too.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.ExitStatus
 			  
 			  If mChannel <> Nil Then Return libssh2_channel_get_exit_status(mChannel)
 			End Get
@@ -554,6 +634,11 @@ Implements SSHStream,ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Handle
+			  
 			  Return mChannel
 			End Get
 		#tag EndGetter
@@ -563,6 +648,11 @@ Implements SSHStream,ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns True if the channel is actually open.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.IsOpen
+			  
 			  return mOpen
 			End Get
 		#tag EndGetter
@@ -573,6 +663,9 @@ Implements SSHStream,ErrorSetter
 		#tag Getter
 			Get
 			  ' Returns the most recent libssh2 error code for this instance of Channel
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.LastError
 			  
 			  Return mLastError
 			End Get
@@ -608,6 +701,9 @@ Implements SSHStream,ErrorSetter
 		#tag Getter
 			Get
 			  ' Returns the window size as defined when the channel was created.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.ReadWindow
 			  
 			  Dim avail, initial As UInt32
 			  If mChannel <> Nil Then Call libssh2_channel_window_read_ex(mChannel, avail,  initial)
@@ -621,6 +717,9 @@ Implements SSHStream,ErrorSetter
 		#tag Getter
 			Get
 			  ' Returns the number of bytes which the remote end may send without overflowing the window.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.RemoteBytesWriteable
 			  
 			  Dim avail, initial As UInt32
 			  If mChannel <> Nil Then Return libssh2_channel_window_read_ex(mChannel, avail,  initial)
@@ -632,6 +731,11 @@ Implements SSHStream,ErrorSetter
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the Session that owns the Channel.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Session
+			  
 			  return mSession
 			End Get
 		#tag EndGetter
@@ -642,6 +746,9 @@ Implements SSHStream,ErrorSetter
 		#tag Getter
 			Get
 			  ' Returns the window size as defined when the channel was created.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.WriteWindow
 			  
 			  Dim initial As UInt32
 			  If mChannel <> Nil Then Call libssh2_channel_window_write_ex(mChannel,  initial)

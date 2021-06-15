@@ -3,6 +3,9 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Sub AddHost(ActiveSession As SSH.Session, Comment As String = "")
 		  ' Add the ActiveSession's host+key to the list of known hosts.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.AddHost
 		  
 		  Dim fingerprint As MemoryBlock = ActiveSession.HostKey
 		  Dim type As Integer
@@ -19,6 +22,9 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Sub AddHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Comment As MemoryBlock, Type As Integer)
 		  ' Add the Host+Key to the list of known hosts.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.AddHost
 		  
 		  If Port > 0 And Port <> 22 Then Host = "[" + Host + "]:" + Str(Port, "####0")
 		  #If Target32Bit Then
@@ -37,6 +43,11 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session)
+		  ' Constructs a new instance of KnownHosts.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Constructor
+		  
 		  mSession = Session
 		  mKnownHosts = libssh2_knownhost_init(mSession.Handle)
 		  If mKnownHosts = Nil Then
@@ -48,6 +59,11 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub Constructor(Session As SSH.Session, KnownHostsFile As FolderItem)
+		  ' Constructs a new instance of KnownHosts, initially loading the specified known hosts file.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Constructor
+		  
 		  Me.Constructor(Session)
 		  Dim c As Integer = Me.Load(KnownHostsFile)
 		  If c < 0 Then
@@ -60,6 +76,9 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Function Count() As Integer
 		  ' Returns the number of hosts in the list.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Count
 		  
 		  Dim this, prev As Ptr
 		  Dim c As Integer
@@ -75,7 +94,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Index As Integer)
-		  ' Delete the host at Index from the list
+		  ' Delete the host at Index from the list.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.DeleteHost
 		  
 		  #If Target32Bit Then
 		    Dim this As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
@@ -107,6 +129,9 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Sub DeleteHost(ActiveSession As SSH.Session)
 		  ' Delete the ActiveSession's host+key from the list
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.DeleteHost
 		  
 		  Dim fingerprint As MemoryBlock = ActiveSession.HostKey
 		  Dim type As Integer
@@ -122,7 +147,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub DeleteHost(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer)
-		  ' Delete the Host+Key from the list
+		  ' Delete the Host+Key from the list.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.DeleteHost
 		  
 		  #If Target32Bit Then
 		    Dim this As libssh2_knownhost
@@ -162,7 +190,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Key(Index As Integer) As MemoryBlock
-		  ' Returns the key of the fingerprint at Index
+		  ' Returns the key of the fingerprint at Index.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Key
 		  
 		  #If Target32Bit Then
 		    Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
@@ -178,6 +209,9 @@ Protected Class KnownHosts
 	#tag Method, Flags = &h0
 		Function Load(KnownHostsFile As FolderItem) As Integer
 		  ' Load a list of known hosts from a file.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Load
 		  
 		  Return libssh2_knownhost_readfile(mKnownHosts, KnownHostsFile.AbsolutePath_, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		End Function
@@ -185,7 +219,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Load(KnownHostLine As String) As Boolean
-		  ' Load from a known host line
+		  ' Load from a known host line.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Load
 		  
 		  Dim mb As MemoryBlock = KnownHostLine
 		  mLastError = libssh2_knownhost_readline(mKnownHosts, mb, mb.Size, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
@@ -195,7 +232,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Lookup(Session As SSH.Session) As Boolean
-		  ' Returns True if the Session's host+key was found
+		  ' Returns True if the Session's host+key was found.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Lookup
 		  
 		  Dim host As String = Session.RemoteHost
 		  Dim port As Integer = Session.RemotePort
@@ -207,7 +247,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Lookup(Host As String, Port As Integer = 0, Key As MemoryBlock, Type As Integer) As Boolean
-		  ' Returns True if the host+key was found
+		  ' Returns True if the host+key was found.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Lookup
 		  
 		  #If Target32Bit Then
 		    Dim Store As libssh2_knownhost
@@ -270,7 +313,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function Name(Index As Integer) As String
-		  ' Returns the host name of the fingerprint at Index
+		  ' Returns the host name of the fingerprint at Index.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Name
 		  
 		  #If Target32Bit Then
 		    Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
@@ -285,7 +331,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Sub Save(KnownHostsFile As FolderItem)
-		  ' Save the list of known hosts to a file
+		  ' Save the list of known hosts to a file.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Save
 		  
 		  mLastError = libssh2_knownhost_writefile(mKnownHosts, KnownHostsFile.AbsolutePath_, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
 		  If mLastError <> 0 Then Raise New IOException
@@ -294,7 +343,10 @@ Protected Class KnownHosts
 
 	#tag Method, Flags = &h0
 		Function StringValue(Index As Integer) As String
-		  ' Export the Host+Key at Index as a known host line
+		  ' Export the Host+Key at Index as a known host line.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.StringValue
 		  
 		  Dim tmp As Ptr = Me.GetEntry(Index)
 		  Dim sz As Integer
@@ -312,6 +364,10 @@ Protected Class KnownHosts
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The internal handle reference of the object.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Handle
 			  Return mKnownHosts
 			End Get
 		#tag EndGetter
@@ -322,6 +378,9 @@ Protected Class KnownHosts
 		#tag Getter
 			Get
 			  ' Returns the most recent libssh2 error code for this instance of KnownHosts
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.LastError
 			  
 			  Return mLastError
 			End Get
@@ -344,6 +403,11 @@ Protected Class KnownHosts
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Returns a reference to the Session that owns this KnownHosts instance.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Session
+			  
 			  return mSession
 			End Get
 		#tag EndGetter

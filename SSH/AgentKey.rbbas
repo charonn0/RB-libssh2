@@ -16,7 +16,10 @@ Protected Class AgentKey
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns the comment (if any) for the key
+			  ' Returns the comment (if any) for the key.
+			  ' 
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.AgentKey.Comment
 			  
 			  Dim mb As MemoryBlock
 			  #If Target32Bit Then
@@ -34,6 +37,11 @@ Protected Class AgentKey
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' Gets the index of the key in the agent's list.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.AgentKey.Index
+			  
 			  return mIndex
 			End Get
 		#tag EndGetter
@@ -59,6 +67,11 @@ Protected Class AgentKey
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
+			  ' The SSH Agent instance that owns this AgentKey.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.AgentKey.Owner
+			  
 			  Return mAgent
 			End Get
 		#tag EndGetter
@@ -68,7 +81,10 @@ Protected Class AgentKey
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  ' Returns a copy of the PublicKey at Index in the Agent's list of keys.
+			  ' Returns the public key associated with this identity.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.AgentKey.PublicKey
 			  
 			  Dim mb As MemoryBlock
 			  Dim sz As UInt32
