@@ -90,13 +90,17 @@ libssh2 is not installed by default on most systems, and will need to be install
 RB-libssh2 will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
 
 ## [Examples](https://github.com/charonn0/RB-libssh2/wiki/Examples)
+* [SSH](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples)
+  * [Establishing a connection](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples#creating-a-session-and-establishing-a-connection)
+  * [Checking the server's fingerprint](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples#checking-the-servers-fingerprint)
+  * [Authenticating to the server](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples#authenticating-to-the-server)
+  * [Execute a command line](https://github.com/charonn0/RB-libssh2/wiki/Process-Start-Example)
 * [SFTP](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples)
   * [Download](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#download)
   * [Recursive download](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#recursive-download)
   * [Upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#upload)
   * [Recursive upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#recursive-upload)
   * [Directory listing](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#list-directory)
-* [Execute a command line](https://github.com/charonn0/RB-libssh2/wiki/Process-Start-Example)
 * [TCP tunneling](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunneling)
   * [Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#connect-example)
   * [Listen (single connection)](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#listen-example)
