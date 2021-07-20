@@ -28,7 +28,7 @@ Implements SSHStream
 		  ' and indicates what operations(s) are to be performed on the item. If the operation
 		  ' will create a remote file or directory then the Mode parameter indicates its initial
 		  ' permissions. This Constructor cannot be called from outside the SFTPStream class; 
-		  ' refer to the SFTSession.CreateStream method for equivalent functionality.
+		  ' refer to the SFTPSession.CreateStream method for equivalent functionality.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Constructor

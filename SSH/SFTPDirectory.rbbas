@@ -580,7 +580,7 @@ Protected Class SFTPDirectory
 		#tag EndNote
 		#tag Getter
 			Get
-			  ' Gets and sets the Unix-style permissions of this directory.
+			  ' Gets the Unix-style permissions of this directory.
 			  '
 			  ' See:
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Mode
@@ -591,7 +591,7 @@ Protected Class SFTPDirectory
 		#tag EndGetter
 		#tag Setter
 			Set
-			  ' Sets and sets the Unix-style permissions of this directory.
+			  ' Sets the Unix-style permissions of this directory.
 			  '
 			  ' See:
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Mode

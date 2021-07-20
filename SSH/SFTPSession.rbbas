@@ -80,8 +80,8 @@ Implements SFTPStreamParent
 		  ' version of the Get(), Put(), and ListDirectory() methods, allowing custom functionality.
 		  '
 		  ' See:
-		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.
-		  ' https://www.libssh2.org/libssh2_sftp_open_ex.html 
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.CreateStream
+		  ' https://www.libssh2.org/libssh2_sftp_open_ex.html
 		  
 		  Return New SFTPStreamPtr(Me, NormalizePath(FileName, Directory, Not Directory), Flags, Mode, Directory)
 		  
