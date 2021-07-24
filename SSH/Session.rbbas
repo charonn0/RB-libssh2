@@ -108,6 +108,7 @@ Implements ChannelParent
 		  Dim timestart As UInt32 = Microseconds / 1000
 		  
 		  If Not mSocket.IsConnected Then
+		    If mNetworkInterface <> Nil Then mSocket.NetworkInterface = mNetworkInterface
 		    mSocket.Connect()
 		    
 		    Do Until mSocket.LastErrorCode <> 0
@@ -1032,6 +1033,10 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
+		Private mNetworkInterface As NetworkInterface
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
 		Private mOriginalRemoteHost As String
 	#tag EndProperty
 
@@ -1067,17 +1072,36 @@ Implements ChannelParent
 			  ' See:
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.NetworkInterface
 			  
-			  If mSocket <> Nil Then
-			    If mSocket.NetworkInterface <> Nil Then Return mSocket.NetworkInterface
-			    If IsConnected Then
-			      For i As Integer = 0 To System.NetworkInterfaceCount - 1
-			        Dim net As NetworkInterface = System.GetNetworkInterface(i)
-			        If net.IPAddress = mSocket.LocalAddress Then Return net
-			      Next
-			    End If
+			  If mSocket = Nil Then
+			    If mNetworkInterface <> Nil Then Return mNetworkInterface
+			    Return Nil
 			  End If
+			  If mSocket.NetworkInterface <> Nil Then Return mSocket.NetworkInterface
+			  If IsConnected Then
+			    For i As Integer = 0 To System.NetworkInterfaceCount - 1
+			      Dim net As NetworkInterface = System.GetNetworkInterface(i)
+			      If net.IPAddress = mSocket.LocalAddress Then Return net
+			    Next
+			  End If
+			  
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  ' Sets the local NetworkInterface to be used; if left unspecified then the system will select one for
+			  ' you. Must be set before calling the Connect() method. If you pass a connected TCP socket to the
+			  ' Connect() method then this property is ignored.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.NetworkInterface
+			  
+			  If IsConnected Then
+			    mLastError = ERR_TOO_LATE
+			    Raise New SSHException(Me)
+			  End If
+			  mNetworkInterface = value
+			End Set
+		#tag EndSetter
 		NetworkInterface As NetworkInterface
 	#tag EndComputedProperty
 
