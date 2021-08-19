@@ -93,6 +93,7 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Function CreateSymbolicLink(Path As String, Link As String) As Boolean
+		  ' This method creates a new symlink on the server from the Link to the Path.
 		  ' If the Path is a directory then it must end with "/", however the Link must not.
 		  '
 		  ' See:
