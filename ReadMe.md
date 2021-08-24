@@ -1,4 +1,4 @@
-## Introduction
+# Introduction
 [libssh2](https://www.libssh2.org/) is a cross-platform library implementing the SSH2 protocol. **RB-libssh2** is a libssh2 [binding](http://en.wikipedia.org/wiki/Language_binding) for Realbasic and Xojo ("classic" framework) projects. 
 
 The minimum supported libssh2 version is 1.7.0. The minimum supported Xojo version is RS2010R4.
@@ -30,20 +30,21 @@ This example starts a command ("uptime") on the remote machine and reads from it
 
 <sup>1</sup> Not fully implemented or currently broken
 
-## Synopsis
+## Use of this project in GUI or Web applications
+The best way to use this project is in an independent worker app, such as a [Xojo Worker](http://docs.xojo.com/Worker), rather using it directly in your GUI or web app (See [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). If you do use this project in a GUI or web app then you will probably want to run SSH and SFTP operations on [Xojo Thread](http://docs.xojo.com/Thread), and it's safe to do so with one caveat:
 
-***
-It is strongly recommended that you familiarize yourself with [libssh2](https://www.libssh2.org/docs.html), as this project preserves the semantics of libssh2's API in an object-oriented, Xojo-flavored wrapper. 
+Each instance of `SSH.Session`, and all objects created with it (Channels, SFTP objects, etc.; collectively "the session"), are a *single* resource for threading purposes; they all use the single TCP connection owned by the `SSH.Session` instance, and _that_ is the resource that threads must contend for.
 
-For more thorough documentation of individual classes and methods refer to the [wiki](https://github.com/charonn0/RB-libssh2/wiki).
+If the session will be accessed from more than one thread then the *entire* session should be protected by a single synchronization object, such as a `Semaphore` or `CriticalSection`, so that only one thread can access the session at a time. "Access" is pretty much all-inclusive, since even reading the value of a property will in many cases send and receive data on the connection.
 
-***
-
+# Synopsis
 The SSH2 protocol permits an arbitrary number (up to 2<sup>32</sup>-1) of simultaneous [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)) binary data streams to be efficiently and securely [multiplexed](https://en.wikipedia.org/wiki/Multiplexing) over a single TCP connection. A data stream can be an upload or download using SFTP or SCP, the input/output of a program being executed on the server, a TCP connection to a third party forwarded through the SSH server, or your own custom protocol.
 
 For simple, one-off operations you can usually use the [Get](https://github.com/charonn0/RB-libssh2/wiki/SSH.Get), [Put](https://github.com/charonn0/RB-libssh2/wiki/SSH.Put), [Execute](https://github.com/charonn0/RB-libssh2/wiki/SSH.Execute), or [OpenChannel](https://github.com/charonn0/RB-libssh2/wiki/SSH.OpenChannel) convenience methods in the SSH module. See also the [Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.Connect) convenience method if you want to perform several such operations on the same connection.
 
 For more complex operations you will need to dig into the libssh2 API a bit more. libssh2 exposes its API through a number of different [handle](https://en.wikipedia.org/wiki/Handle_%28computing%29) types. Each libssh2 handle or handle equivalent corresponds to an object class implemented in the binding.
+
+For more thorough documentation of individual classes and methods refer to the [wiki](https://github.com/charonn0/RB-libssh2/wiki).
 
 |Object Class|Comment|
 |-----------|-------|
@@ -71,14 +72,9 @@ The general order of operations is something like this:
 1. When finished with a data stream call its [Close](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.Close) method.
 1. After all data streams are finished and closed, call [Session.Close](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Close) to end the connection.
 
-### A note on threading
-In many cases it will be advantageous to run SSH and SFTP operations on background thread, and it's safe to do so with one caveat.
+Refer to the [SSH Connection Example](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples#creating-a-session-and-establishing-a-connection) for further information.
 
-Each instance of `SSH.Session` and all subsequent objects created with it (Channels, SFTP objects, etc.; collectively "the session") are a single resource for threading purposes; they all use the single TCP connection owned by the `SSH.Session` instance, and _that_ is the resource that threads must contend for.
-
-If the session will be accessed from more than one thread then the entire session should be protected by a single synchronization object, such as a `Semaphore` or `CriticalSection`, so that only one thread can access the session at a time. "Access" is pretty much all-inclusive, since even reading the value of a property will in many cases send and receive data on the connection.
-
-## How to incorporate libssh2 into your Realbasic/Xojo project
+# How to incorporate libssh2 into your Realbasic/Xojo project
 ### Import the SSH module
 1. Download the RB-libssh2 project either in [ZIP archive format](https://github.com/charonn0/RB-libssh2/archive/master.zip) or by cloning the repository with your Git client.
 2. Open the RB-libssh2 project in REALstudio or Xojo. Open your project in a separate window.
@@ -89,7 +85,7 @@ libssh2 is not installed by default on most systems, and will need to be install
 
 RB-libssh2 will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
 
-## [Examples](https://github.com/charonn0/RB-libssh2/wiki/Examples)
+# [Examples](https://github.com/charonn0/RB-libssh2/wiki/Examples)
 * [SSH](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples)
   * [Establishing a connection](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples#creating-a-session-and-establishing-a-connection)
   * [Checking the server's fingerprint](https://github.com/charonn0/RB-libssh2/wiki/SSH-Examples#checking-the-servers-fingerprint)
