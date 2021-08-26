@@ -46,8 +46,10 @@ Protected Class SFTPDirectory
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Count
 		  
 		  Dim thisdir As New SFTPDirectory(Session, FullPath)
+		  thisdir.SuppressVirtualEntries = Me.SuppressVirtualEntries
 		  Dim c As Integer
 		  Do
+		    If thisdir.CurrentName = "" Then Exit Do
 		    c = c + 1
 		  Loop Until Not thisdir.ReadNextEntry()
 		  Return c
