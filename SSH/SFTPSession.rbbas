@@ -69,7 +69,8 @@ Implements SFTPStreamParent
 		    mSFTP = libssh2_sftp_init(mSession.Handle)
 		  Loop Until mSession.LastError <> LIBSSH2_ERROR_EAGAIN
 		  If mSFTP = Nil Then Raise New SSHException(mSession)
-		  WorkingDirectory = "/home/" + mSession.Username + "/"
+		  Dim home As String = "/home/" + mSession.Username + "/"
+		  If IsDirectory(home) Then WorkingDirectory = home
 		  
 		End Sub
 	#tag EndMethod
