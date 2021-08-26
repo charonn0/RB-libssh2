@@ -227,7 +227,6 @@ Implements SFTPStreamParent
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.PathExists
 		  
-		  If Not mSession.IsAuthenticated Then Return False
 		  Dim fn As MemoryBlock = NormalizePath(Path, False, False)
 		  Dim p As Ptr
 		  Dim flag As Integer
