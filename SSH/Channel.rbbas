@@ -392,7 +392,6 @@ Implements SSHStream,ErrorSetter
 
 	#tag Method, Flags = &h0
 		Sub Write(text As String, StreamID As Integer)
-		  // Part of the Writeable interface.
 		  ' This method writes the text to the specified StreamID. If not all the data
 		  ' could be written at once this method will wait until it is done.
 		  '
