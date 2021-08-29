@@ -134,19 +134,7 @@ Implements SSHStream
 		    Return ReadDirectoryEntry(attribs, longentry, encoding)
 		  End If
 		  
-		  Dim buffer As New MemoryBlock(Count)
-		  Do
-		    mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  
-		  If mLastError > 0 Then ' error is the size
-		    buffer.Size = mLastError
-		    Return DefineEncoding(buffer, encoding)
-		  ElseIf mLastError = 0 Then
-		    mEOF = True
-		  Else
-		    Raise New SSHException(Me)
-		  End If
+		  Return DefineEncoding(ReadBuffer(Count), encoding)
 		End Function
 	#tag EndMethod
 
@@ -175,6 +163,7 @@ Implements SSHStream
 		  
 		  If mLastError > 0 Then ' error is the size
 		    buffer.Size = mLastError
+		    mEOF = (Position >= Length)
 		    Return buffer
 		  ElseIf mLastError = 0 Then
 		    mEOF = True
