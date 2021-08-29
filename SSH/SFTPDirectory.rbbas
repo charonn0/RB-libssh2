@@ -490,7 +490,7 @@ Protected Class SFTPDirectory
 			    Case LIBSSH2_SFTP_S_IFSOCK
 			      Return SFTPEntryType.Socket
 			    Else
-			      If Right(FullPath, 1) = "/" Then ' probably a directory
+			      If Right(CurrentName, 1) = "/" Then ' probably a directory
 			        Return SFTPEntryType.Directory
 			      Else
 			        Return SFTPEntryType.File ' some kind of filesystem object
