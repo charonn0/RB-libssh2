@@ -134,7 +134,8 @@ Implements SSHStream
 		    Return ReadDirectoryEntry(attribs, longentry, encoding)
 		  End If
 		  
-		  Return DefineEncoding(ReadBuffer(Count), encoding)
+		  Dim buffer As MemoryBlock = ReadBuffer(Count)
+		  If buffer <> Nil Then Return DefineEncoding(buffer, encoding)
 		End Function
 	#tag EndMethod
 
