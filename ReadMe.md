@@ -81,7 +81,7 @@ Refer to the [SSH Connection Example](https://github.com/charonn0/RB-libssh2/wik
 3. Copy the `SSH` module into your project and save.
 
 ### Ensure the libssh2 shared library is installed
-libssh2 is not installed by default on most systems, and will need to be installed separately (or shipped with your app). Pre-built binaries for Windows can be [downloaded from the libcurl project](https://curl.haxx.se/windows/dl-7.72.0_5/libssh2-1.9.0_5-win32-mingw.zip). You will also need `libcrypto-1_1.dll` from the OpenSSL project, also [available from libcurl](https://curl.haxx.se/windows/dl-7.72.0_5/openssl-1.1.1h_5-win32-mingw.zip).
+libssh2 is not installed by default on most systems, and will need to be installed separately (or shipped with your app). Pre-built binaries for Windows can be [downloaded from the libcurl project](https://curl.se/windows/). You will also need `libcrypto-1_1.dll` (libssh2 <= 1.9.0) or `libcrypto-3.dll` (libssh2 >= 1.10.0) from the OpenSSL project, also available from libcurl.
 
 RB-libssh2 will raise a PlatformNotSupportedException when used if all required DLLs/SOs/DyLibs are not available at runtime. 
 
