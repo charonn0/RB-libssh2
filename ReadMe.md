@@ -31,7 +31,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
 <sup>1</sup> Not fully implemented or currently broken
 
 ## Use of this project in GUI or Web applications
-The best way to use this project is in an independent worker app, such as a [Xojo Worker](http://docs.xojo.com/Worker), rather using it directly in your GUI or web app (See [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). If you do use this project in a GUI or web app then you will probably want to run SSH and SFTP operations on [Xojo Thread](http://docs.xojo.com/Thread), and it's safe to do so with one caveat:
+The best way to use this project is in an independent worker app, such as a [Xojo Worker](http://docs.xojo.com/Worker), rather than using it directly in your GUI or web app (See [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). If you do use this project in a GUI or web app then you will probably want to run SSH and SFTP operations on [Xojo Thread](http://docs.xojo.com/Thread), and it's safe to do so with one caveat:
 
 Each instance of `SSH.Session`, and all objects created with it (Channels, SFTP objects, etc.; collectively "the session"), are a *single* resource for threading purposes; they all use the single TCP connection owned by the `SSH.Session` instance, and _that_ is the resource that threads must contend for.
 
