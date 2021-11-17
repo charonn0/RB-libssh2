@@ -586,9 +586,10 @@ Implements SFTPStreamParent
 			  
 			  If value.Trim = "." Or value = mWorkingDirectory Then Return
 			  If Left(value, 1) = "~" Then value = "/home/" + Session.Username + Right(value, value.Len - 1)
-			  Dim p() AS String = Split(mWorkingDirectory, "/")
+			  
 			  If value.Trim = ".." Then
 			    If mWorkingDirectory = "/" Then Return ' meh
+			    Dim p() AS String = Split(mWorkingDirectory, "/")
 			    If p(UBound(p)) = "" Then Call p.Pop()
 			    Call p.Pop()
 			    value = NormalizePath(Join(p, "/"), True, False)
