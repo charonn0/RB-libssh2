@@ -385,7 +385,7 @@ Protected Class SFTPDirectory
 			  
 			  If mStream = Nil Then Return
 			  If mIndex = -1 And Not ReadNextEntry() Then Return
-			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + CurrentName, 0, 0, False)
+			  Dim metadata As SFTPStream = mSession.CreateStream(Me.FullPath + Me.CurrentName, 0, 0, False)
 			  If metadata <> Nil Then
 			    metadata.Mode = value
 			    metadata.Close()
