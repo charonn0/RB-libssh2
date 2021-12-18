@@ -83,7 +83,10 @@ Protected Class SFTPDirectory
 		      Return Nil
 		    End If
 		  Loop
-		  Return thisdir.OpenFile("")
+		  
+		  Dim thatfile As SFTPStream = thisdir.OpenFile("")
+		  If thatfile <> Nil Then Return thatfile
+		  mLastError = thisdir.LastError
 		End Function
 	#tag EndMethod
 
@@ -117,7 +120,10 @@ Protected Class SFTPDirectory
 		    FileName = mSession.ReadSymbolicLink(FileName, True)
 		  End If
 		  
-		  Return mSession.Get(FileName)
+		  Dim file As SFTPStream = mSession.Get(FileName)
+		  If file <> Nil Then Return file
+		  mLastError = mSession.LastError
+		  
 		End Function
 	#tag EndMethod
 
@@ -135,7 +141,10 @@ Protected Class SFTPDirectory
 		      Return Nil
 		    End If
 		  Loop
-		  Return thisdir.OpenSubdirectory("")
+		  
+		  Dim thatdir As SFTPDirectory = thisdir.OpenSubdirectory("")
+		  If thatdir <> Nil Then Return thatdir
+		  mLastError = thisdir.LastError
 		End Function
 	#tag EndMethod
 
@@ -170,12 +179,15 @@ Protected Class SFTPDirectory
 		  End If
 		  
 		  Dim subdir As SFTPDirectory = mSession.ListDirectory(DirectoryName)
-		  subdir.SuppressVirtualEntries = SuppressVirtualEntries
-		  Return subdir
+		  If subdir <> Nil Then
+		    subdir.SuppressVirtualEntries = SuppressVirtualEntries
+		    Return subdir
+		  End If
+		  mLastError = mSession.LastError
 		  
 		Exception err As SSHException
 		  mLastError = err.ErrorNumber
-		  If mLastError = 0 Then mLastError = mSession.LastStatusCode()
+		  If mLastError = 0 Then mLastError = mSession.LastStatusCode
 		End Function
 	#tag EndMethod
 
