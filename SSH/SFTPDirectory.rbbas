@@ -680,7 +680,7 @@ Protected Class SFTPDirectory
 			  ' See:
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.Name
 			  
-			  Dim p As SFTPDirectory = Me.Parent()
+			  Dim p As SFTPDirectory = Me.Parent
 			  value = mSession.Rename(Me.FullPath, p.FullPath + value)
 			  If mSession.LastStatusCode = 0 Then
 			    mName = value
