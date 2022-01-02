@@ -360,6 +360,23 @@ Protected Class KnownHosts
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function Type(Index As Integer) As Integer
+		  ' Returns the type mask of the fingerprint at Index.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Type
+		  
+		  #If Target32Bit Then
+		    Dim struct As libssh2_knownhost = Me.GetEntry(Index).libssh2_knownhost
+		  #Else
+		    Dim struct As libssh2_knownhost_64 = Me.GetEntry(Index).libssh2_knownhost_64
+		  #EndIf
+		  Return struct.TypeMask
+		  
+		End Function
+	#tag EndMethod
+
 
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
