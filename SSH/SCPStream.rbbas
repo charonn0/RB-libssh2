@@ -78,6 +78,24 @@ Inherits SSH.Channel
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function GetLength() As UInt64
+		  // Part of the SSHStream interface.
+		  // Implements SSHStream.Length() As UInt64
+		  // Overrides Channel.GetLength() As UInt64
+		  Return Me.Length
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetPosition() As UInt64
+		  // Part of the SSHStream interface.
+		  // Implements SSHStream.Position() As UInt64
+		  // Overrides Channel.GetPosition() As UInt64
+		  Return Me.Position
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h0
 		Function Read(Count As Integer, StreamID As Integer, encoding As TextEncoding = Nil) As String
 		  ' Returns a String containing the data that was read. If the number of bytes read exceeds the

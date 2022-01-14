@@ -333,6 +333,8 @@ Protected Module SSH
 		    Return "ERR_SIZE_REQUIRED"
 		  Case ERR_TOO_EARLY
 		    Return "ERR_TOO_EARLY"
+		  Case ERR_INFINITE_STREAM
+		    Return "ERR_INFINITE_STREAM"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1236,6 +1238,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_ILLEGAL_OPERATION, Type = Double, Dynamic = False, Default = \"-106", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_INFINITE_STREAM, Type = Double, Dynamic = False, Default = \"-517", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_INIT_FAILED, Type = Double, Dynamic = False, Default = \"-500", Scope = Protected

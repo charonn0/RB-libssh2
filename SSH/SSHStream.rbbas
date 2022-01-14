@@ -7,6 +7,30 @@ Implements Readable,Writeable
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Function Length() As UInt64
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Length(Assigns NewLength As UInt64)
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Position() As UInt64
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub Position(Assigns NewPosition As UInt64)
+		  
+		End Sub
+	#tag EndMethod
+
 
 	#tag ViewBehavior
 		#tag ViewProperty

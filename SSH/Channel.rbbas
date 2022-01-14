@@ -129,6 +129,22 @@ Implements SSHStream,ErrorSetter
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function GetLength() As UInt64 Implements SSH.SSHStream.Length
+		  // Part of the SSHStream interface.
+		  // Implements SSHStream.Length() As UInt64
+		  Return 0
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Function GetPosition() As UInt64 Implements SSH.SSHStream.Position
+		  // Part of the SSHStream interface.
+		  // Implements SSHStream.Position() As UInt64
+		  Return 0
+		End Function
+	#tag EndMethod
+
 	#tag Method, Flags = &h21
 		Private Sub LastError(Assigns err As Int32)
 		  // Part of the ErrorSetter interface.
@@ -349,6 +365,24 @@ Implements SSHStream,ErrorSetter
 		    mLastError = libssh2_channel_setenv_ex(mChannel, Name, Name.Len, Value, Value.Len)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  If mLastError <> 0 Then Raise New SSHException(Me)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Sub SetLength(Assigns NewLength As UInt64) Implements SSH.SSHStream.Length
+		  // Part of the SSHStream interface.
+		  // Implements SSHStream.Length(Assigns UInt64)
+		  #pragma Unused NewLength
+		  Raise New SSHException(ERR_INFINITE_STREAM)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Sub SetPosition(Assigns NewPosition As UInt64) Implements SSH.SSHStream.Position
+		  // Part of the SSHStream interface.
+		  // Implements SSHStream.Position(Assigns UInt64)
+		  #pragma Unused NewPosition
+		  Raise New SSHException(ERR_INFINITE_STREAM)
 		End Sub
 	#tag EndMethod
 
