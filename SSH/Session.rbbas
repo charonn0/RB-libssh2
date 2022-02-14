@@ -1,6 +1,5 @@
 #tag Class
 Protected Class Session
-Implements ChannelParent
 	#tag Method, Flags = &h0
 		Function BlockInbound() As Boolean
 		  ' Returns True if reading from the the session (via Channel, SFTPStream, etc.) would block
@@ -63,7 +62,6 @@ Implements ChannelParent
 		    Do
 		      mLastError = libssh2_session_disconnect_ex(mSession, Reason, Description, Language)
 		    Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		    RaiseEvent Disconnected(Reason, Description, Language)
 		  End If
 		  If mSocket <> Nil Then mSocket.Close()
 		End Sub
@@ -144,33 +142,11 @@ Implements ChannelParent
 		  
 		  mInit = SSHInit.GetInstance()
 		  Static abstract As Integer
-		  If Sessions = Nil Then Sessions = New Dictionary
-		  Do
-		    abstract = abstract + 1
-		  Loop Until Not Sessions.HasKey(abstract)
+		  abstract = abstract + 1
 		  mSession = libssh2_session_init_ex(Nil, Nil, Nil, abstract)
 		  If mSession = Nil Then Raise New RuntimeException
 		  mAbstract = abstract
-		  Sessions.Value(abstract) = New WeakRef(Me)
-		  Me.SetCallback(CB_Disconnect, AddressOf DisconnectHandler)
-		  Me.SetCallback(CB_Ignore, AddressOf IgnoreHandler)
-		  Me.SetCallback(CB_MACError, AddressOf MACErrorHandler)
-		  Me.SetCallback(CB_X11Open, AddressOf X11OpenHandler)
 		  If IsCompressionAvailable Then Me.UseCompression = True
-		End Sub
-	#tag EndMethod
-
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub DebugCallback(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, ByRef Abstract As Integer)
-	#tag EndDelegateDeclaration
-
-	#tag Method, Flags = &h21
-		Private Shared Sub DebugHandler(Session As Ptr, AlwaysDisplay As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, ByRef Abstract As Integer)
-		  #pragma Unused Session
-		  If Sessions = Nil Then Return
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return
-		  SSH.Session(w.Value).Sess_Debug(AlwaysDisplay, Message, MessageLength, Language)
 		End Sub
 	#tag EndMethod
 
@@ -182,26 +158,7 @@ Implements ChannelParent
 		    mSession = Nil
 		    If mLastError <> 0 Then Raise New SSHException(Me)
 		  End If
-		  mChannels = Nil
 		  mSocket = Nil
-		  If Sessions <> Nil And Sessions.HasKey(mAbstract) Then
-		    Sessions.Remove(mAbstract)
-		    If Sessions.Count = 0 Then Sessions = Nil
-		  End If
-		End Sub
-	#tag EndMethod
-
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub DisconnectCallback(Session As Ptr, Reason As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, LanguageLength As Integer, ByRef Abstract As Integer)
-	#tag EndDelegateDeclaration
-
-	#tag Method, Flags = &h21
-		Private Shared Sub DisconnectHandler(Session As Ptr, Reason As Integer, Message As Ptr, MessageLength As Integer, Language As Ptr, LanguageLength As Integer, ByRef Abstract As Integer)
-		  #pragma Unused Session
-		  If Sessions = Nil Then Return
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return
-		  SSH.Session(w.Value).Sess_Disconnect(Reason, Message, MessageLength, Language, LanguageLength)
 		End Sub
 	#tag EndMethod
 
@@ -351,20 +308,6 @@ Implements ChannelParent
 		End Function
 	#tag EndMethod
 
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub IgnoreCallback(Session As Ptr, Message As Ptr, MessageLength As Integer, ByRef Abstract As Integer)
-	#tag EndDelegateDeclaration
-
-	#tag Method, Flags = &h21
-		Private Shared Sub IgnoreHandler(Session As Ptr, Message As Ptr, MessageLength As Integer, ByRef Abstract As Integer)
-		  #pragma Unused Session
-		  If Sessions = Nil Then Return
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return
-		  SSH.Session(w.Value).Sess_Ignore(Message, MessageLength)
-		End Sub
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
 		Function KeepAlive() As Integer
 		  ' Send a keepalive message if needed. The return value indicates how many
@@ -383,60 +326,12 @@ Implements ChannelParent
 		End Function
 	#tag EndMethod
 
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub KeyboardAuthCallback(Name As Ptr, NameLength As Integer, Instruction As Ptr, InstructionLength As Integer, PromptCount As Integer, Prompts As Ptr, Responses As Ptr, ByRef Abstract As Integer)
-	#tag EndDelegateDeclaration
-
-	#tag Method, Flags = &h21
-		Private Shared Sub KeyboardAuthHandler(Name As Ptr, NameLength As Integer, Instruction As Ptr, InstructionLength As Integer, PromptCount As Integer, Prompts As Ptr, Responses As Ptr, ByRef Abstract As Integer)
-		  If Sessions = Nil Then Return
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return
-		  SSH.Session(w.Value).Sess_KeyboardAuth(Name, NameLength, Instruction, InstructionLength, PromptCount, Prompts, Responses)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Function LookupChannel(Ref As Ptr) As Channel
-		  Dim w As WeakRef = mChannels.Lookup(Ref, Nil)
-		  If w <> Nil And w.Value <> Nil And w.Value IsA Channel Then Return Channel(w.Value)
-		End Function
-	#tag EndMethod
-
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Function MACErrorCallback(Session As Ptr, Packet As Ptr, PacketLength As Integer, ByRef Abstract As Integer) As Integer
-	#tag EndDelegateDeclaration
-
-	#tag Method, Flags = &h21
-		Private Shared Function MACErrorHandler(Session As Ptr, Packet As Ptr, PacketLength As Integer, ByRef Abstract As Integer) As Integer
-		  #pragma Unused Session
-		  If Sessions = Nil Then Return 1
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return 1
-		  Return SSH.Session(w.Value).Sess_MACError(Packet, PacketLength)
-		End Function
-	#tag EndMethod
-
 	#tag Method, Flags = &h0
 		Function Operator_Compare(OtherSession As SSH.Session) As Integer
 		  If OtherSession Is Nil Then Return 1
 		  Return Sign(Integer(Me.Handle) - Integer(OtherSession.Handle))
 		End Function
 	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Shared Sub PasswordChangeReqCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, ByRef Abstract As Integer)
-		  #pragma Unused Session
-		  If Sessions = Nil Then Return
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return
-		  SSH.Session(w.Value).Sess_PasswordChange(PasswdBuffer, PasswdBufferLength)
-		End Sub
-	#tag EndMethod
-
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub PasswordChangeRequestCallback(Session As Ptr, PasswdBuffer As Ptr, ByRef PasswdBufferLength As Integer, ByRef Abstract As Integer)
-	#tag EndDelegateDeclaration
 
 	#tag Method, Flags = &h0
 		Function Poll(Timeout As Integer = 1000, EventMask As Integer = 0) As Boolean
@@ -469,29 +364,6 @@ Implements ChannelParent
 		    Mask(mLastError, LIBSSH2_POLLFD_POLLEXT)
 		    Return True
 		  End Select
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub RegisterChannel(Chan As Channel)
-		  mChannels = New Dictionary
-		  If Chan.Session <> Me Then Raise New RuntimeException
-		  mChannels.Value(Chan.Handle) = New WeakRef(Chan)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h0
-		Function SendCredentials(Username As String) As Boolean
-		  ' EXPERIMENTAL. Authenticate as the specified user through the Authenticate() event.
-		  '
-		  ' See:
-		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials
-		  
-		  Do
-		    mLastError = libssh2_userauth_keyboard_interactive_ex(mSession, Username, Username.Len, AddressOf KeyboardAuthHandler)
-		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
-		  mUsername = Username
-		  Return mLastError = 0
 		End Function
 	#tag EndMethod
 
@@ -619,114 +491,11 @@ Implements ChannelParent
 		  End If
 		  
 		  Do
-		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, AddressOf PasswordChangeReqCallback)
+		    mLastError = libssh2_userauth_password_ex(mSession, Username, Username.Len, Password, Password.Len, Nil)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
 		  mUsername = Username
 		  Return mLastError = 0
 		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub Sess_Debug(AlwaysDisplay As Integer, Message As MemoryBlock, MessageLength As Integer, Language As MemoryBlock)
-		  Dim m As String = Message.StringValue(0, MessageLength)
-		  Dim l As String = Language.CString(0)
-		  RaiseEvent DebugMessage(AlwaysDisplay = 1, m, l)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub Sess_Disconnect(Reason As Integer, Message As MemoryBlock, MessageLength As Integer, Language As MemoryBlock, LanguageLength As Integer)
-		  If MessageLength = 0 Then Return
-		  Dim m As String = Message.StringValue(0, MessageLength)
-		  Dim l As String = Language.StringValue(0, LanguageLength)
-		  RaiseEvent Disconnected(DisconnectReason(Reason), m, l)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub Sess_Ignore(Message As MemoryBlock, MessageLength As Integer)
-		  Dim m As String = Message.StringValue(0, MessageLength)
-		  RaiseEvent IgnoreMessage(m)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub Sess_KeyboardAuth(Name As MemoryBlock, NameLength As Integer, Instruction As MemoryBlock, InstructionLength As Integer, PromptCount As Integer, Prompts As Ptr, Responses As Ptr)
-		  Dim nm, ins As String
-		  If NameLength > 0 Then nm = Name.StringValue(0, NameLength)
-		  If InstructionLength > 0 Then ins = Instruction.StringValue(0, InstructionLength)
-		  
-		  For i As Integer = 0 To PromptCount - 1
-		    Dim p As Ptr = Prompts.Ptr(i * 4)
-		    Dim r As Ptr = Responses.Ptr(i * 4)
-		    Dim prmt As LIBSSH2_USERAUTH_KBDINT_PROMPT = p.LIBSSH2_USERAUTH_KBDINT_PROMPT
-		    Dim mb As MemoryBlock = prmt.Text
-		    mb = mb.StringValue(0, prmt.Length)
-		    Dim response As String
-		    If Not RaiseEvent Authenticate(nm, ins, mb, response) Then Return
-		    Dim rsp As LIBSSH2_USERAUTH_KBDINT_RESPONSE = r.LIBSSH2_USERAUTH_KBDINT_RESPONSE
-		    mb = response
-		    Dim txt As MemoryBlock = rsp.Text
-		    txt.StringValue(0, mb.Size) = mb
-		    rsp.Length = mb.Size
-		  Next
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Function Sess_MACError(Packet As MemoryBlock, PacketLength As Integer) As Integer
-		  If RaiseEvent MACError(Packet, PacketLength) Then Return 0 ' ignore!
-		  Return 1
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub Sess_PasswordChange(NewPW As MemoryBlock, ByRef NewPWLength As Integer)
-		  Dim pw As String
-		  If RaiseEvent PasswordChangeRequest(pw) Then
-		    NewPW.StringValue(0, pw.LenB) = pw
-		    NewPWLength = pw.LenB
-		  End If
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub Sess_X11Open(Channel As Ptr, Host As MemoryBlock, Port As Integer)
-		  Dim ch As Channel = Me.LookupChannel(Channel)
-		  If ch <> Nil Then RaiseEvent X11Open(ch, Host.CString(0), Port)
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub SetCallback(Type As Integer, Handler As Variant)
-		  Select Case True
-		  Case Type = CB_Ignore And Handler IsA IgnoreCallback
-		    Dim d As IgnoreCallback = Handler
-		    Call libssh2_session_callback_set(mSession, Type, d)
-		    
-		  Case Type = CB_Debug And Handler IsA DebugCallback
-		    Dim d As DebugCallback = Handler
-		    Call libssh2_session_callback_set(mSession, Type, d)
-		    
-		  Case Type = CB_Disconnect And Handler IsA DisconnectCallback
-		    Dim d As DisconnectCallback = Handler
-		    Call libssh2_session_callback_set(mSession, Type, d)
-		    
-		  Case Type = CB_MACError And Handler IsA MACErrorCallback
-		    Dim d As MACErrorCallback = Handler
-		    Call libssh2_session_callback_set(mSession, Type, d)
-		    
-		  Case Type = CB_X11Open And Handler IsA X11OpenCallback
-		    Dim d As X11OpenCallback = Handler
-		    Call libssh2_session_callback_set(mSession, Type, d)
-		    
-		  Case Handler Is Nil
-		    Call libssh2_session_callback_set(mSession, Type, Nil)
-		    
-		  Else
-		    Raise New RuntimeException
-		  End Select
-		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
@@ -775,57 +544,6 @@ Implements ChannelParent
 		  mLastError = libssh2_session_method_pref(mSession, Type, lst)
 		End Sub
 	#tag EndMethod
-
-	#tag Method, Flags = &h21
-		Private Sub UnregisterChannel(Chan As Channel)
-		  If mChannels = Nil Then Return
-		  If mChannels.HasKey(Chan.Handle) Then mChannels.Remove(Chan.Handle)
-		  If mChannels.Count = 0 Then mChannels = Nil
-		End Sub
-	#tag EndMethod
-
-	#tag DelegateDeclaration, Flags = &h21
-		Private Delegate Sub X11OpenCallback(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, ByRef Abstract As Integer)
-	#tag EndDelegateDeclaration
-
-	#tag Method, Flags = &h21
-		Private Shared Sub X11OpenHandler(Session As Ptr, Channel As Ptr, Host As Ptr, Port As Integer, ByRef Abstract As Integer)
-		  #pragma Unused Session
-		  If Sessions = Nil Then Return
-		  Dim w As WeakRef = Sessions.Lookup(Abstract, Nil)
-		  If w = Nil Or w.Value = Nil Then Return
-		  SSH.Session(w.Value).Sess_X11Open(Channel, Host, Port)
-		End Sub
-	#tag EndMethod
-
-
-	#tag Hook, Flags = &h0
-		Event Authenticate(Name As String, Instruction As String, Prompt As String, ByRef Response As String) As Boolean
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event DebugMessage(AlwaysDisplay As Boolean, Message As String, Language As String)
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event Disconnected(Reason As SSH.DisconnectReason, Message As String, Language As String)
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event IgnoreMessage(Message As String)
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event MACError(Packet As MemoryBlock, PacketLength As Integer) As Boolean
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event PasswordChangeRequest(ByRef NewPassword As String) As Boolean
-	#tag EndHook
-
-	#tag Hook, Flags = &h0
-		Event X11Open(Channel As Channel, Host As String, Port As Integer)
-	#tag EndHook
 
 
 	#tag ComputedProperty, Flags = &h0
@@ -1017,10 +735,6 @@ Implements ChannelParent
 	#tag EndProperty
 
 	#tag Property, Flags = &h21
-		Private mChannels As Dictionary
-	#tag EndProperty
-
-	#tag Property, Flags = &h21
 		Private mInit As SSHInit
 	#tag EndProperty
 
@@ -1135,10 +849,6 @@ Implements ChannelParent
 		RemotePort As Integer
 	#tag EndComputedProperty
 
-	#tag Property, Flags = &h21
-		Private Shared Sessions As Dictionary
-	#tag EndProperty
-
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
@@ -1210,35 +920,6 @@ Implements ChannelParent
 			End Get
 		#tag EndGetter
 		Username As String
-	#tag EndComputedProperty
-
-	#tag ComputedProperty, Flags = &h0
-		#tag Getter
-			Get
-			  ' Gets whether the session will emit debug messages.
-			  '
-			  ' See:
-			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Verbose
-			  
-			  return mVerbose
-			End Get
-		#tag EndGetter
-		#tag Setter
-			Set
-			  ' Sets whether the session will emit debug messages.
-			  '
-			  ' See:
-			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Verbose
-			  
-			  If value Then
-			    Me.SetCallback(CB_Debug, AddressOf DebugHandler)
-			  Else
-			    Me.SetCallback(CB_Debug, Nil)
-			  End If
-			  mVerbose = value
-			End Set
-		#tag EndSetter
-		Verbose As Boolean
 	#tag EndComputedProperty
 
 

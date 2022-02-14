@@ -28,7 +28,6 @@ Implements SSHStream,ErrorSetter
 		  mSession = Session
 		  mChannel = ChannelPtr
 		  mOpen = (ChannelPtr <> Nil)
-		  ChannelParent(Session).RegisterChannel(Me)
 		End Sub
 	#tag EndMethod
 
@@ -41,7 +40,6 @@ Implements SSHStream,ErrorSetter
 		      If mLastError <> 0 Then Raise New SSHException(Me)
 		    End If
 		  End If
-		  If mSession <> Nil Then ChannelParent(Me.Session).UnregisterChannel(Me)
 		  mChannel = Nil
 		End Sub
 	#tag EndMethod
