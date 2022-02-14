@@ -335,6 +335,8 @@ Protected Module SSH
 		    Return "ERR_TOO_EARLY"
 		  Case ERR_INFINITE_STREAM
 		    Return "ERR_INFINITE_STREAM"
+		  Case ERR_INIT_FAILED
+		    Return "ERR_INIT_FAILED"
 		  Else
 		    Return "Unknown error number."
 		    
