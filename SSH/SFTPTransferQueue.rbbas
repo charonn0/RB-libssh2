@@ -9,7 +9,15 @@ Protected Class SFTPTransferQueue
 		  
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
-		  mStreams.Value(Source) = DIRECTION_DOWN:Destination
+		  Do Until mLock.TrySignal()
+		    App.YieldToNextThread
+		  Loop
+		  Try
+		    mStreams.Value(Source) = DIRECTION_DOWN:Destination
+		  Finally
+		    mLock.Release()
+		  End Try
+		  
 		End Sub
 	#tag EndMethod
 
@@ -21,6 +29,7 @@ Protected Class SFTPTransferQueue
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.AddDownload
 		  
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
+		  If mStreams.HasKey(Destination) Then Raise New RuntimeException
 		  Do Until mLock.TrySignal()
 		    App.YieldToNextThread
 		  Loop
