@@ -26,6 +26,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
 * [TCP forwarding and tunneling](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunneling)
 * [Stream-oriented](https://github.com/charonn0/RB-libssh2/wiki/SSH.SSHStream), using Xojo's built-in [Readable](http://docs.xojo.com/index.php/Readable) and [Writeable](http://docs.xojo.com/index.php/Writeable) interfaces. 
 * A consistent, high-level API over the full range of libssh2's features.
+* 64-bit ready
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
 
 <sup>1</sup> Not fully implemented or currently broken
