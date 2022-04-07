@@ -144,7 +144,7 @@ Protected Class Session
 		  Static abstract As Integer
 		  abstract = abstract + 1
 		  mSession = libssh2_session_init_ex(Nil, Nil, Nil, abstract)
-		  If mSession = Nil Then Raise New RuntimeException
+		  If mSession = Nil Then Raise New SSHException(ERR_INIT_FAILED)
 		  mAbstract = abstract
 		  If IsCompressionAvailable Then Me.UseCompression = True
 		End Sub
