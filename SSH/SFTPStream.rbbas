@@ -262,7 +262,7 @@ Implements SSHStream
 		Private Sub WriteAttributes()
 		  ' If the stream is writeable then this method updates its attributes with the
 		  ' values stored in the mAttribs property. If the stream is not writeable then
-		  ' this method resets the mAttribs property and sets mLastError to LIBSSH2_FX_PERMISSION_DENIED
+		  ' this method resets the mAttribs property and sets SFTPStream.LastError to LIBSSH2_FX_PERMISSION_DENIED
 		  
 		  If mStream = Nil Then Return
 		  If Not IsWriteable Then
