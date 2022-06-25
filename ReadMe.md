@@ -18,7 +18,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
   sh.Close
 ```
 ## Hilights
-* Password, public-key, agent, and interactive<sup>1</sup> [authentication](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials).
+* Password, public-key, and agent-mediated [authentication](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials).
 * [Known host](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts) key verification
 * Download and upload using [SFTP](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples) or [SCP](https://github.com/charonn0/RB-libssh2/wiki/SCP-Examples).
 * Manage files and directories over SFTP.
@@ -28,8 +28,6 @@ This example starts a command ("uptime") on the remote machine and reads from it
 * A consistent, high-level API over the full range of libssh2's features.
 * 64-bit ready
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
-
-<sup>1</sup> Not fully implemented or currently broken
 
 ## Use of this project in GUI or Web applications
 The best way to use this project is in an independent worker app, such as a [Xojo Worker](http://docs.xojo.com/Worker), rather than using it directly in your GUI or web app (See [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). If you do use this project in a GUI or web app then you will probably want to run SSH and SFTP operations on [Xojo Thread](http://docs.xojo.com/Thread), and it's safe to do so with one caveat:
