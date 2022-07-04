@@ -247,8 +247,8 @@ Implements SSHStream,ErrorSetter
 
 	#tag Method, Flags = &h0
 		Function ProcessStart(Request As String, Message As String) As Boolean
-		  ' Runs the requested command, executable, or subsystem indicated by the Request parameter.
-		  ' Defined requests are "exec", "shell", or "subsystem". The Message parameter contains 
+		  ' Runs the command, executable, or subsystem indicated by the Request parameter.
+		  ' Defined requests are "exec", "shell", or "subsystem". The Message parameter contains
 		  ' request-specific data to pass to the process. Once the process is started you can read/write
 		  ' from its StdIn/Out/Err with the Read and Write methods.
 		  '
@@ -705,7 +705,7 @@ Implements SSHStream,ErrorSetter
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.WriteWindow
 			  
 			  Dim initial As UInt32
-			  If mChannel <> Nil Then Call libssh2_channel_window_write_ex(mChannel,  initial)
+			  If mChannel <> Nil Then Call libssh2_channel_window_write_ex(mChannel, initial)
 			  Return initial
 			End Get
 		#tag EndGetter
