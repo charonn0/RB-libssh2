@@ -10,7 +10,11 @@ Protected Class SFTPTransferQueue
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  If mStreams.HasKey(Source) Then Raise New RuntimeException
 		  Do Until mLock.TrySignal()
-		    App.YieldToNextThread
+		    #If RBVersion > 2020 Then
+		      Thread.YieldToNext()
+		    #Else
+		      App.YieldToNextThread()
+		    #EndIf
 		  Loop
 		  Try
 		    mStreams.Value(Source) = DIRECTION_DOWN:Destination
@@ -31,7 +35,11 @@ Protected Class SFTPTransferQueue
 		  If Count >= MaxCount Then Raise New SSHException(ERR_TOO_MANY_TRANSFERS)
 		  If mStreams.HasKey(Destination) Then Raise New RuntimeException
 		  Do Until mLock.TrySignal()
-		    App.YieldToNextThread
+		    #If RBVersion > 2020 Then
+		      Thread.YieldToNext()
+		    #Else
+		      App.YieldToNextThread()
+		    #EndIf
 		  Loop
 		  Try
 		    mStreams.Value(Destination) = DIRECTION_UP:Source
@@ -206,7 +214,11 @@ Protected Class SFTPTransferQueue
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.PerformOnce
 		  
 		  Do Until mLock.TrySignal()
-		    App.YieldToNextThread
+		    #If RBVersion > 2020 Then
+		      Thread.YieldToNext()
+		    #Else
+		      App.YieldToNextThread()
+		    #EndIf
 		  Loop
 		  
 		  Dim done() As SFTPStream
@@ -272,7 +284,11 @@ Protected Class SFTPTransferQueue
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPTransferQueue.RemoveTransfer
 		  
 		  Do Until mLock.TrySignal()
-		    App.YieldToNextThread
+		    #If RBVersion > 2020 Then
+		      Thread.YieldToNext()
+		    #Else
+		      App.YieldToNextThread()
+		    #EndIf
 		  Loop
 		  Try
 		    If mStreams.HasKey(Stream) Then mStreams.Remove(Stream)
