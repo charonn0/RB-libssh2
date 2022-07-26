@@ -390,7 +390,7 @@ Implements SFTPStreamParent
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Rename
 		  
 		  Dim name As String
-		  name = Rename(SourceName, DestinationName, Overwrite)
+		  name = Rename(SourceName, DestinationName, Overwrite, False, False)
 		End Sub
 	#tag EndMethod
 
@@ -404,10 +404,29 @@ Implements SFTPStreamParent
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Rename
 		  
+		  Return Rename(SourceName, DestinationName, Overwrite, False, False)
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Function Rename(SourceName As String, DestinationName As String, Overwrite As Boolean, Atomic As Boolean, SysCalls As Boolean) As String
+		  ' Renames the SourceName file. If DestinationName already exists and Overwrite=False then
+		  ' the operation will fail. On success returns the normalized DestinationName. On failure
+		  ' returns the normalized SourceName. Check SFTPSession.LastError to determine whether the
+		  ' operation succeeded.
+		  '
+		  ' If Atomic=True then the server is requested to perform an atomic rename operation.
+		  ' If SysCalls=True then the server is requested to perform the rename using native system calls.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Rename
+		  
 		  Dim sn As MemoryBlock = NormalizePath(SourceName, False, False)
 		  Dim dn As MemoryBlock = NormalizePath(DestinationName, False, False)
 		  Dim flag As Integer
-		  If Overwrite Then flag = LIBSSH2_SFTP_RENAME_OVERWRITE
+		  If Overwrite Then flag = flag Or LIBSSH2_SFTP_RENAME_OVERWRITE
+		  If Atomic Then flag = flag Or LIBSSH2_SFTP_RENAME_ATOMIC
+		  If SysCalls Then flag = flag Or LIBSSH2_SFTP_RENAME_NATIVE
 		  Do
 		    mLastError = libssh2_sftp_rename_ex(mSFTP, sn, sn.Size, dn, dn.Size, flag)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -614,13 +633,13 @@ Implements SFTPStreamParent
 	#tag Constant, Name = LIBSSH2_SFTP_REALPATH, Type = Double, Dynamic = False, Default = \"2", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_SFTP_RENAME_ATOMIC, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Public
+	#tag Constant, Name = LIBSSH2_SFTP_RENAME_ATOMIC, Type = Double, Dynamic = False, Default = \"&h00000002", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_SFTP_RENAME_NATIVE, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Public
+	#tag Constant, Name = LIBSSH2_SFTP_RENAME_NATIVE, Type = Double, Dynamic = False, Default = \"&h00000004", Scope = Protected
 	#tag EndConstant
 
-	#tag Constant, Name = LIBSSH2_SFTP_RENAME_OVERWRITE, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Public
+	#tag Constant, Name = LIBSSH2_SFTP_RENAME_OVERWRITE, Type = Double, Dynamic = False, Default = \"&h00000001", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_SFTP_SYMLINK, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
