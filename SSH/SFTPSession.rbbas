@@ -9,8 +9,7 @@ Implements SFTPStreamParent
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Append
 		  
 		  If Mode = 0 Then
-		    Dim meta As SFTPStream
-		    If PathExists(FileName) Then meta = CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
+		    Dim meta As SFTPStream = CreateStream(FileName, LIBSSH2_FXF_READ, 0, False)
 		    If meta <> Nil Then
 		      Mode = PermissionsToMode(meta.Mode)
 		      meta.Close
@@ -88,7 +87,7 @@ Implements SFTPStreamParent
 		  
 		Exception err As SSHException
 		  mLastError = err.ErrorNumber
-		  If mLastError = 0 Then mLastError = LastStatusCode()
+		  If mLastError = 0 Then mLastError = LastStatusCode
 		End Function
 	#tag EndMethod
 
