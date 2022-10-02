@@ -151,7 +151,8 @@ Protected Class SFTPDirectory
 	#tag Method, Flags = &h0
 		Function OpenSubdirectory(Optional DirectoryName As String, TruePath As Boolean = False) As SSH.SFTPDirectory
 		  ' Open a subdirectory in the directory by its name. If the name is not specified then the
-		  ' CurrentName property is used.
+		  ' CurrentName property is used. If TruePath is true and the DirectoryName refers to a symlink,
+		  ' then target directory is opened directly using its true path rather than the link's path
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory.OpenSubdirectory
