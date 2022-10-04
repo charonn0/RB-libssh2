@@ -76,8 +76,8 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Function CreateStream(FileName As String, Flags As Integer, Mode As Integer, Directory As Boolean) As SSH.SFTPStream
-		  ' This method opens a SFTPStream according to the parameters. It is a more generic
-		  ' version of the Get(), Put(), and ListDirectory() methods, allowing custom functionality.
+		  ' This method opens a SFTPStream according to the parameters. It is a more generic version
+		  ' of the Get(), Put(), Append(), and ListDirectory() methods, allowing custom functionality.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.CreateStream
