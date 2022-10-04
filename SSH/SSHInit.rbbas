@@ -1,7 +1,7 @@
 #tag Class
 Private Class SSHInit
 	#tag Method, Flags = &h1
-		Protected Sub Constructor(NoCrypto As Boolean = False)
+		Protected Sub Constructor(NoCrypto As Boolean = LIBSSH2_INIT_NO_CRYPTO_DEFAULT)
 		  If Not SSH.IsAvailable Then Raise New PlatformNotSupportedException
 		  Const LIBSSH2_INIT_NO_CRYPTO = &h0001
 		  ' Do not initialize the crypto library (ie. OPENSSL_add_cipher_algoritms() for OpenSSL)
@@ -43,6 +43,9 @@ Private Class SSHInit
 		Private mInit As Boolean
 	#tag EndProperty
 
+
+	#tag Constant, Name = LIBSSH2_INIT_NO_CRYPTO_DEFAULT, Type = Boolean, Dynamic = False, Default = \"False", Scope = Protected
+	#tag EndConstant
 
 End Class
 #tag EndClass
