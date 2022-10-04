@@ -97,6 +97,7 @@ Implements SSHStream
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.Flush
 		  
 		  If mDirectory Then Raise New IOException
+		  If mStream = Nil Then Raise New SSHException(ERR_TOO_LATE)
 		  Do
 		    mLastError = libssh2_sftp_fsync(mStream)
 		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
@@ -173,6 +174,7 @@ Implements SSHStream
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.ReadBuffer
 		  
+		  If mStream = Nil Then Raise New SSHException(ERR_TOO_LATE)
 		  Dim buffer As New MemoryBlock(Count)
 		  Do
 		    mLastError = libssh2_sftp_read(mStream, buffer, buffer.Size)
@@ -196,6 +198,7 @@ Implements SSHStream
 		  ' next filename in the listing. Called by Read() if appropriate.
 		  
 		  If Not mDirectory Then Return ""
+		  If mStream = Nil Then Raise New SSHException(ERR_TOO_LATE)
 		  Dim buffer As New MemoryBlock(1024 * 16)
 		  LongEntry = New MemoryBlock(512)
 		  
@@ -286,6 +289,7 @@ Implements SSHStream
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream.WriteBuffer
 		  
+		  If mStream = Nil Then Raise New SSHException(ERR_TOO_LATE)
 		  If mDirectory Then Raise New IOException
 		  If Data = Nil Then Return
 		  Dim size As Integer = Data.Size
