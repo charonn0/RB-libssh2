@@ -898,9 +898,9 @@ Protected Class Session
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.UseCompression
 			  
 			  If value Then
-			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS , 1)
+			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS, 1)
 			  Else
-			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS , 0)
+			    Me.SetFlag(LIBSSH2_FLAG_COMPRESS, 0)
 			  End If
 			  mUseCompression = value
 			End Set
