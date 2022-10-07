@@ -231,7 +231,7 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Lookup(Session As SSH.Session) As Boolean
+		Attributes( deprecated = "SSH.Session.CheckHost" )  Function Lookup(Session As SSH.Session) As Boolean
 		  ' Returns True if the Session's host+key was found.
 		  '
 		  ' See:

@@ -32,9 +32,16 @@ Protected Class Session
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.CheckHost
 		  
-		  If Hosts.Lookup(Me) Then Return True ' the server is known and its fingerprint is valid
-		  mLastError = Hosts.LastError
+		  Dim host As String = Me.RemoteHost
+		  Dim port As Integer = Me.RemotePort
+		  Dim key As MemoryBlock = Me.HostKey
+		  Dim type As Integer = Hosts.LIBSSH2_KNOWNHOST_TYPE_PLAIN Or Hosts.LIBSSH2_KNOWNHOST_KEYENC_RAW
 		  
+		  If Hosts.Lookup(host, port, key, type) Then
+		    Return True ' the server is known and its fingerprint is valid
+		  End If
+		  
+		  mLastError = Hosts.LastError
 		  If mLastError = ERR_HOSTKEY_MISMATCH Then
 		    ' the server is known but its fingerprint has changed!
 		    ' If, and *only* if, this change was expected then remove the old fingerprint and try again.
