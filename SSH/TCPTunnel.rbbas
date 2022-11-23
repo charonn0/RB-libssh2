@@ -392,8 +392,8 @@ Inherits SSH.Channel
 		#tag Getter
 			Get
 			  ' The hostname or IP address of the third-party server we want the SSH server to open a
-			  ' connection to. If a hostname is provided the SSH server will resolve it to an IP according
-			  ' to its own DNS configuration.
+			  ' connection to. If a hostname is provided then the SSH server will resolve it to an IP
+			  ' according to its own DNS configuration.
 			  '
 			  ' See:
 			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.RemoteAddress
@@ -403,6 +403,13 @@ Inherits SSH.Channel
 		#tag EndGetter
 		#tag Setter
 			Set
+			  ' The hostname or IP address of the third-party server we want the SSH server to open a
+			  ' connection to. If a hostname is provided then the SSH server will resolve it to an IP
+			  ' according to its own DNS configuration.
+			  '
+			  ' See:
+			  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel.RemoteAddress
+			  
 			  If IsOpen Then
 			    mLastError = ERR_TOO_LATE
 			    Return
