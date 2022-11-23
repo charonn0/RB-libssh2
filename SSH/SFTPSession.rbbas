@@ -3,7 +3,9 @@ Protected Class SFTPSession
 Implements SFTPStreamParent
 	#tag Method, Flags = &h0
 		Function Append(FileName As String, CreateIfMissing As Boolean = False, Mode As Integer = 0) As SSH.SFTPStream
-		  ' Returns an SFTPStream to which the file data can be appended.
+		  ' Opens the named file on the server and returns an SFTPStream to which the file data can be appended.
+		  ' If the file does not already exist on the server and CreateIfMissing=False then the operation will fail.
+		  ' Mode indicates the initial permissions for the new file.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Append
@@ -248,7 +250,9 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Overwrite As Boolean = False, Mode As Integer = &o744) As SSH.SFTPStream
-		  ' Returns an SFTPStream to which the file data can be written.
+		  ' Creates the named file on the server and returns an SFTPStream to which the file data can be written.
+		  ' If the file already exists on the server and Overwrite=False then the operation will fail and LastStatusCode
+		  ' will be LIBSSH2_FX_FILE_ALREADY_EXISTS(11). Mode indicates the initial permissions for the new file.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Put
@@ -261,7 +265,9 @@ Implements SFTPStreamParent
 
 	#tag Method, Flags = &h0
 		Function Put(FileName As String, Upload As Readable, Overwrite As Boolean = False, Mode As Integer = &o744) As Boolean
-		  ' Writes the Upload stream to FileName.
+		  ' Creates the named file on the server and writes the Upload stream to it. If the file already exists
+		  ' on the server and Overwrite=False then the operation will fail and LastStatusCode will be
+		  ' LIBSSH2_FX_FILE_ALREADY_EXISTS(11). Mode indicates the initial permissions for the new file.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession.Put
