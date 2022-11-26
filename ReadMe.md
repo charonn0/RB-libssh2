@@ -6,7 +6,7 @@ The minimum supported libssh2 version is 1.7.0. The minimum supported Xojo versi
 ## Example
 This example starts a command ("uptime") on the remote machine and reads from its StdOut stream ([**More examples**](https://github.com/charonn0/RB-libssh2/wiki#examples)): 
 
-```xojo
+```realbasic
   Dim sh As SSH.Channel = SSH.OpenChannel("ssh://user:password@public.example.com/")
   Call sh.Execute("uptime")
   Dim result As String
