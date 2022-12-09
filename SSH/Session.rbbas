@@ -1,5 +1,6 @@
 #tag Class
 Protected Class Session
+Implements ErrorSetter
 	#tag Method, Flags = &h0
 		Function BlockInbound() As Boolean
 		  ' Returns True if reading from the the session (via Channel, SFTPStream, etc.) would block
@@ -331,6 +332,14 @@ Protected Class Session
 		  End If
 		  If mLastError = 0 Then Return nxt
 		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Sub LastError(Assigns err As Int32)
+		  // Part of the ErrorSetter interface.
+		  
+		  mLastError = err
+		End Sub
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
