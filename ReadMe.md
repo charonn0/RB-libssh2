@@ -30,11 +30,7 @@ This example starts a command ("uptime") on the remote machine and reads from it
 * Interact directly with libssh2 using idiomatic RB/Xojo objects, methods, and events; no shell or plugins required.
 
 ## Use of this project in GUI or Web applications
-The best way to use this project is in an independent worker app, such as a [Xojo Worker](http://docs.xojo.com/Worker), rather than using it directly in your GUI or web app (See [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). If you do use this project in a GUI or web app then you will probably want to run SSH and SFTP operations on [Xojo Thread](http://docs.xojo.com/Thread), and it's safe to do so with one caveat:
-
-Each instance of `SSH.Session`, and all objects created with it (Channels, SFTP objects, etc.; collectively "the session"), are a *single* resource for threading purposes; they all use the single TCP connection owned by the `SSH.Session` instance, and _that_ is the resource that threads must contend for.
-
-If the session will be accessed from more than one thread then the *entire* session should be protected by a single synchronization object, such as a `Semaphore` or `CriticalSection`, so that only one thread can access the session at a time. "Access" is pretty much all-inclusive, since even reading the value of a property will in many cases send and receive data on the connection.
+This project does not yet support being used directly in Xojo desktop or web applications (see [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). Instead, you should use this project in a console application, such as a [Xojo Worker](http://docs.xojo.com/Worker), that is invoked from your desktop or web application. 
 
 # Synopsis
 The SSH2 protocol permits an arbitrary number (up to 2<sup>32</sup>) of simultaneous [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)) binary data streams to be efficiently and securely [multiplexed](https://en.wikipedia.org/wiki/Multiplexing) over a single TCP connection. A data stream can be an upload or download using SFTP or SCP, the input/output of a program being executed on the server, a TCP connection to a third party forwarded through the SSH server, or your own custom protocol.
@@ -96,6 +92,8 @@ RB-libssh2 will raise a PlatformNotSupportedException when used if all required 
   * [Upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#upload)
   * [Recursive upload](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#recursive-upload)
   * [Directory listing](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#list-directory)
+  * [Get file permissions](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#read-file-permissions)
+  * [Set file permissions](https://github.com/charonn0/RB-libssh2/wiki/SFTP-Examples#write-file-permissions)
 * [TCP tunneling](https://github.com/charonn0/RB-libssh2/wiki/TCP-Tunneling)
   * [Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#connect-example)
   * [Listen (single connection)](https://github.com/charonn0/RB-libssh2/wiki/SSH.TCPTunnel#listen-example)
