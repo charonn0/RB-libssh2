@@ -116,7 +116,7 @@ Protected Class SFTPDirectory
 		    FileName = ReplaceAll(FileName, "//", "/")
 		  Loop
 		  
-		  If TruePath And CurrentType = SFTPEntryType.Symlink Then
+		  If TruePath And mSession.IsSymbolicLink(FileName) Then
 		    FileName = mSession.ReadSymbolicLink(FileName, True)
 		  End If
 		  
@@ -175,7 +175,7 @@ Protected Class SFTPDirectory
 		    DirectoryName = ReplaceAll(DirectoryName, "//", "/")
 		  Loop
 		  
-		  If TruePath And CurrentType = SFTPEntryType.Symlink Then
+		  If TruePath And mSession.IsSymbolicLink(DirectoryName) Then
 		    DirectoryName = mSession.ReadSymbolicLink(DirectoryName, True)
 		  End If
 		  
