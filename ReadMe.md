@@ -46,7 +46,7 @@ For more thorough documentation of individual classes and methods refer to the [
 |[`Session`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session)|A secure connection to the server over which one or more data streams can be multiplexed.| 
 |[`Channel`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel)|A data stream that is multiplexed over a Session.|
 |[`KnownHosts`](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts)|A list of known hosts and their associated key fingerprints.|
-|[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A local key management agent.|
+|[`Agent`](https://github.com/charonn0/RB-libssh2/wiki/SSH.Agent)|A key management service running on the user's system.|
 |[`SFTPSession`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPSession)|A SFTP session that is multiplexed over a Session.|
 |[`SFTPStream`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPStream)|A SFTP upload, download, or other operation that is performed over a SFTPSession.|
 |[`SFTPDirectory`](https://github.com/charonn0/RB-libssh2/wiki/SSH.SFTPDirectory)|A SFTP directory listing that is performed over a SFTPSession.|
