@@ -218,15 +218,21 @@ Protected Class KnownHosts
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function Load(KnownHostLine As String) As Boolean
-		  ' Load from a known host line.
+		Function Load(KnownHostLines As String) As Integer
+		  ' Load a list of known hosts from memory.
 		  '
 		  ' See:
 		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Load
 		  
-		  Dim mb As MemoryBlock = KnownHostLine
-		  mLastError = libssh2_knownhost_readline(mKnownHosts, mb, mb.Size, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
-		  Return mLastError = 0
+		  KnownHostLines = ReplaceLineEndings(KnownHostLines, EndOfLine.Windows).Trim
+		  Dim lines() As String = SplitB(KnownHostLines, EndOfLine.Windows)
+		  For i As Integer = 0 To UBound(lines)
+		    Dim mb As MemoryBlock = lines(i)
+		    If mb.Size = 0 Then Break
+		    mLastError = libssh2_knownhost_readline(mKnownHosts, mb, mb.Size, LIBSSH2_KNOWNHOST_FILE_OPENSSH)
+		    If mLastError <> 0 Then Return i
+		  Next
+		  Return UBound(lines) + 1
 		End Function
 	#tag EndMethod
 
