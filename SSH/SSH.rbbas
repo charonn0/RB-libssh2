@@ -337,6 +337,8 @@ Protected Module SSH
 		    Return "ERR_INFINITE_STREAM"
 		  Case ERR_INIT_FAILED
 		    Return "ERR_INIT_FAILED"
+		  Case ERR_NO_AGENT
+		    Return "ERR_NO_AGENT"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1283,6 +1285,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_NOT_AUTHENTICATED, Type = Double, Dynamic = False, Default = \"-510", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = ERR_NO_AGENT, Type = Double, Dynamic = False, Default = \"-518", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = ERR_PORT_IN_USE, Type = Double, Dynamic = False, Default = \"-105", Scope = Protected

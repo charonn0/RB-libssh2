@@ -314,6 +314,24 @@ Implements SSHStream,ErrorSetter
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
+		Sub RequestAgentForwarding(ActiveAgent As SSH.Agent)
+		  ' Requests that the local Agent be forward over SSH for use by the server. Note that this does not make
+		  ' sense for all channel types and may be ignored by the server despite returning success.
+		  '
+		  ' See:
+		  ' https://github.com/charonn0/RB-libssh2/wiki/SSH.Channel.RequestAgentForwarding
+		  
+		  If Not ActiveAgent.IsConnected And Not ActiveAgent.Connect() Then Raise New SSHException(ERR_NO_AGENT)
+		  Call ActiveAgent.Refresh()
+		  
+		  Do
+		    mLastError = libssh2_channel_request_auth_agent(mChannel)
+		  Loop Until mLastError <> LIBSSH2_ERROR_EAGAIN
+		  If mLastError <> 0 Then Raise New SSHException(Me)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub RequestShell()
 		  ' Requests that the user's default shell be started at the other end.
 		  '
