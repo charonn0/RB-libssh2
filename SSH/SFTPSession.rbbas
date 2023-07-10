@@ -22,9 +22,7 @@ Implements SFTPStreamParent
 		  
 		  Dim flags As Integer = LIBSSH2_FXF_WRITE Or LIBSSH2_FXF_APPEND
 		  If CreateIfMissing Then flags = flags Or LIBSSH2_FXF_CREAT
-		  Dim stream As SFTPStream = CreateStream(FileName, flags, Mode, False)
-		  If stream <> Nil Then stream.Position = stream.Length
-		  Return stream
+		  Return CreateStream(FileName, flags, Mode, False)
 		End Function
 	#tag EndMethod
 
