@@ -1178,6 +1178,8 @@ Protected Module SSH
 		    Return "LIBSSH2_FX_UNKNOWN_PRINCIPAL"
 		  Case LIBSSH2_FX_WRITE_PROTECT
 		    Return "LIBSSH2_FX_WRITE_PROTECT"
+		  Case -599 To -500 ' error codes used by the wrapper
+		    Return ErrorName(SFTPStatusCode)
 		  Else
 		    Return "Unknown SFTP error code: " + Str(SFTPStatusCode)
 		  End Select
