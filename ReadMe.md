@@ -59,7 +59,7 @@ The general order of operations is something like this:
 
 1. Create a new instance of the `Session` class.
 1. Call [Session.Connect](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.Connect) with the address and port of the server, or a Xojo `TCPSocket` which is already connected to the server.
-1. Optionally use the `KnownHosts` class to [load a list of acceptable server fingerprints](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Load), and then [compare the newly connected session's fingerprint to that list](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Lookup).
+1. Optionally use the `KnownHosts` class to [load a list of acceptable server fingerprints](https://github.com/charonn0/RB-libssh2/wiki/SSH.KnownHosts.Load), and then [compare the newly connected session's fingerprint to that list](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.CheckHost).
 1. Call [Session.SendCredentials](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.SendCredentials) to send the user's credentials to the server.
 1. Check the [Session.IsAuthenticated](https://github.com/charonn0/RB-libssh2/wiki/SSH.Session.IsAuthenticated) property to see if the credentials were accepted.
 1. Create data streams over the session, for example the `Channel` or `SFTPSession` classes.
