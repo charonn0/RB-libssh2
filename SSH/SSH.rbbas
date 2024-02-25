@@ -586,6 +586,10 @@ Protected Module SSH
 	#tag EndExternalMethod
 
 	#tag ExternalMethod, Flags = &h21
+		Private Soft Declare Function libssh2_crypto_engine Lib libssh2 () As Int32
+	#tag EndExternalMethod
+
+	#tag ExternalMethod, Flags = &h21
 		Private Soft Declare Sub libssh2_exit Lib libssh2 ()
 	#tag EndExternalMethod
 
@@ -1259,6 +1263,21 @@ Protected Module SSH
 		 be used in advertising or otherwise to promote the sale, use or other dealings
 		 in this Software without prior written authorization of the copyright holder.
 	#tag EndNote
+
+
+	#tag ComputedProperty, Flags = &h1
+		#tag Getter
+			Get
+			  If System.IsFunctionAvailable("libssh2_crypto_engine", libssh2) Then
+			    Dim engine As Integer = libssh2_crypto_engine()
+			    Return CType(engine, CryptoEngines)
+			  Else
+			    Return CryptoEngines.Unknown
+			  End If
+			End Get
+		#tag EndGetter
+		Protected CryptoEngine As SSH.CryptoEngines
+	#tag EndComputedProperty
 
 
 	#tag Constant, Name = ERR_APPEND_ONLY, Type = Double, Dynamic = False, Default = \"-513", Scope = Protected
