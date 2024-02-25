@@ -24,8 +24,8 @@ Implements SSHStream
 		Protected Sub Constructor(Session As SSH.SFTPSession, RemoteName As String, Flags As Integer, Mode As Integer, Directory As Boolean = False)
 		  ' Constructs a new instance of SFTPStream for the file or directory indicated
 		  ' by the parameters. The RemoteName is the full remote path of the item. The
-		  ' Flags parameter is any reasonable combination of the LIBSSH2_FXF_* constants, 
-		  ' and indicates what operations(s) are to be performed on the item. If the operation
+		  ' Flags parameter is any reasonable combination of the LIBSSH2_FXF_* constants,
+		  ' and indicates what operation(s) are to be performed on the item. If the operation
 		  ' will create a remote file or directory then the Mode parameter indicates its initial
 		  ' permissions. This Constructor cannot be called from outside the SFTPStream class; 
 		  ' refer to the SFTPSession.CreateStream method for equivalent functionality.
@@ -63,7 +63,7 @@ Implements SSHStream
 
 	#tag Method, Flags = &h21
 		Private Sub Destructor()
-		  If mStream <> Nil Then Me.Close()
+		  Me.Close()
 		End Sub
 	#tag EndMethod
 
