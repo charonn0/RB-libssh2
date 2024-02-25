@@ -339,6 +339,14 @@ Protected Module SSH
 		    Return "ERR_INIT_FAILED"
 		  Case ERR_NO_AGENT
 		    Return "ERR_NO_AGENT"
+		  Case LIBSSH2_ERROR_KEYFILE_AUTH_FAILED
+		    Return "LIBSSH2_ERROR_KEYFILE_AUTH_FAILED"
+		  Case LIBSSH2_ERROR_RANDGEN
+		    Return "LIBSSH2_ERROR_RANDGEN"
+		  Case LIBSSH2_ERROR_MISSING_USERAUTH_BANNER
+		    Return "LIBSSH2_ERROR_MISSING_USERAUTH_BANNER"
+		  Case LIBSSH2_ERROR_ALGO_UNSUPPORTED
+		    Return "LIBSSH2_ERROR_ALGO_UNSUPPORTED"
 		  Else
 		    Return "Unknown error number."
 		    
@@ -1349,6 +1357,9 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_AGENT_PROTOCOL, Type = Double, Dynamic = False, Default = \" -42", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_ERROR_ALGO_UNSUPPORTED, Type = Double, Dynamic = False, Default = \"-51", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_ERROR_ALLOC, Type = Double, Dynamic = False, Default = \"-6", Scope = Protected
 	#tag EndConstant
 
@@ -1427,6 +1438,9 @@ Protected Module SSH
 	#tag Constant, Name = LIBSSH2_ERROR_KEX_FAILURE, Type = Double, Dynamic = False, Default = \"-5", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED, Type = Double, Dynamic = False, Default = \"-48", Scope = Protected
+	#tag EndConstant
+
 	#tag Constant, Name = LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE, Type = Double, Dynamic = False, Default = \"-8", Scope = Protected
 	#tag EndConstant
 
@@ -1437,6 +1451,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, Type = Double, Dynamic = False, Default = \"-33", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_MISSING_USERAUTH_BANNER, Type = Double, Dynamic = False, Default = \"-50", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_NONE, Type = Double, Dynamic = False, Default = \"0", Scope = Protected
@@ -1458,6 +1475,9 @@ Protected Module SSH
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, Type = Double, Dynamic = False, Default = \"-19", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = LIBSSH2_ERROR_RANDGEN, Type = Double, Dynamic = False, Default = \"-49", Scope = Protected
 	#tag EndConstant
 
 	#tag Constant, Name = LIBSSH2_ERROR_REQUEST_DENIED, Type = Double, Dynamic = False, Default = \"-32", Scope = Protected
@@ -1729,7 +1749,20 @@ Protected Module SSH
 		  ClientSideMAC=4
 		  ServerSideMAC=5
 		  ClientSideCompression=6
-		ServerSideCompression=7
+		  ServerSideCompression=7
+		  ClientSideLanguage=8
+		  ServerSideLanguage=9
+		ServerSideSignature=10
+	#tag EndEnum
+
+	#tag Enum, Name = CryptoEngines, Type = Integer, Flags = &h1
+		None=0
+		  OpenSSL=1
+		  gcrypt=2
+		  MbedTLS=3
+		  WinCNG=4
+		  OS400QC3=5
+		Unknown=-1
 	#tag EndEnum
 
 	#tag Enum, Name = DisconnectReason, Type = Integer, Flags = &h1
@@ -1767,7 +1800,8 @@ Protected Module SSH
 		  DSS=2
 		  ECDSA_256=3
 		  ECDSA_384=4
-		ECDSA_521=5
+		  ECDSA_521=5
+		ED25519=6
 	#tag EndEnum
 
 	#tag Enum, Name = SFTPEntryType, Type = Integer, Flags = &h1
