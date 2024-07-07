@@ -32,6 +32,9 @@ This example starts a command ("uptime") on the remote machine and reads from it
 ## Use of this project in GUI or Web applications
 This project does not yet support being used directly in Xojo desktop or web applications (see [Issue #1](https://github.com/charonn0/RB-libssh2/issues/1)). Instead, you should use this project in a console application, such as a [Xojo Worker](http://docs.xojo.com/Worker), that is invoked from your desktop or web application. 
 
+## Become a sponsor
+If you use this code in a commercial project, or just want to show your appreciation, please consider sponsoring me through GitHub. https://github.com/sponsors/charonn0
+
 # Synopsis
 The SSH2 protocol permits an arbitrary number (up to 2<sup>32</sup>) of simultaneous [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)) binary data streams to be efficiently and securely [multiplexed](https://en.wikipedia.org/wiki/Multiplexing) over a single TCP connection. A data stream can be an upload or download using SFTP or SCP, the input/output of a program being executed on the server, a TCP connection to a third party forwarded through the SSH server, or your own custom protocol.
 
