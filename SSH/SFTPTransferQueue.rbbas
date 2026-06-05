@@ -149,7 +149,7 @@ Protected Class SFTPTransferQueue
 		  
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
-		    Return GetDownStream(netstream) Is Stream
+		    If GetDownStream(netstream) Is Stream Then Return True
 		  Next
 		End Function
 	#tag EndMethod
@@ -174,7 +174,7 @@ Protected Class SFTPTransferQueue
 		  
 		  If mStreams = Nil Then Return False
 		  For Each netstream As SFTPStream In mStreams.Keys
-		    Return GetUpStream(netstream) Is Stream
+		    If GetUpStream(netstream) Is Stream Then Return True
 		  Next
 		End Function
 	#tag EndMethod
